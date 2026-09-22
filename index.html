@@ -302,7 +302,13 @@
   <section class="card no-print" aria-labelledby="sources-title">
     <h2 id="sources-title">Sources et limites</h2>
     <p>Ces contenus pédagogiques sont généraux et ne remplacent pas un avis médical personnalisé, ni un apprentissage accompagné d’une méthode symptothermique. Les observations et repères affichés par l’application doivent être compris dans leur contexte.</p>
-    <p><strong>Références externes :</strong> emplacements à compléter et vérifier avant toute publication ; aucune référence scientifique n’est inventée ici.</p>
+    <p><strong>Références de base :</strong></p>
+    <ul>
+      <li><a href="https://www.acog.org/womens-health/faqs/fertility-awareness-based-methods-of-family-planning" target="_blank" rel="noopener noreferrer">ACOG — Fertility Awareness-Based Methods of Family Planning</a></li>
+      <li><a href="https://www.cdc.gov/contraception/hcp/usmec/fertility-awareness-based-methods.html" target="_blank" rel="noopener noreferrer">CDC — Fertility Awareness-Based Methods</a></li>
+      <li><a href="https://www.who.int/publications/m/item/family-planning--a-global-handbook-for-providers--4th-ed" target="_blank" rel="noopener noreferrer">OMS — Family Planning: A Global Handbook for Providers, 4e édition</a></li>
+    </ul>
+    <p class="learn-meta">Ces références servent à situer les notions générales de cycle, d’observation de la température et des sécrétions cervicales, ainsi que les limites des méthodes basées sur la connaissance de la fertilité. L’application ne transforme pas ces informations en recommandation contraceptive automatisée.</p>
   </section>
 
   <div id="print-summary"></div>
@@ -850,12 +856,12 @@ function exportPDF() {
   const shift = withTemp.length >= 9 ? detectThermalReference(entries) : null;
   const today = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 
-  let summary = `<strong>Retrouver l'harmonie hormonale — Suivi de cycle</strong><br>
+  let summary = `<strong>Suivi Symptothermie — observations du cycle</strong><br>
     Période : ${formatDate(entries[0].date)} au ${formatDate(entries[entries.length-1].date)}<br>
     Jours notés : ${entries.length} · Généré le ${today}<br>`;
   summary += shift
-    ? `Hausse durable affichée autour du <strong>${formatDate(shift.date)}</strong> (repère descriptif, non diagnostique).`
-    : `Pas encore assez de données pour afficher un repère de hausse durable.`;
+    ? `Repère thermique descriptif affiché autour du <strong>${formatDate(shift.date)}</strong>. Ce repère ne constitue pas un diagnostic ni une confirmation automatique d'ovulation.`
+    : `Pas encore de repère thermique descriptif affiché avec les données de ce cycle.`;
 
   document.getElementById('print-summary').innerHTML = summary;
   window.print();
