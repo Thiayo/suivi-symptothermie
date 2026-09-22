@@ -825,7 +825,7 @@ function clearAllData() {
   location.reload();
 }
 
-function exportData(){const payload={version:APP_DATA_VERSION,exportedAt:new Date().toISOString(),current:loadCurrent(),history:loadHistory(),learning:loadLearning(),profile:loadProfile()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='suivi-symptothermie-sauvegarde.json';a.click();URL.revokeObjectURL(url);}
+function exportData(){const exportedAt=new Date().toISOString();const payload={version:APP_DATA_VERSION,exportedAt,current:loadCurrent(),history:loadHistory(),learning:loadLearning(),profile:loadProfile()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='suivi-symptothermie-sauvegarde.json';a.click();URL.revokeObjectURL(url);}
 function validBackup(value) {
   if (!value || typeof value !== 'object' || value.version !== APP_DATA_VERSION) return false;
   if (!Array.isArray(value.current) || !Array.isArray(value.history)) return false;
