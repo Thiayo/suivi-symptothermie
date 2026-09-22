@@ -803,7 +803,7 @@ function showCalendarDetail(date) {
   if (!detail || !entry) return;
   const temp = entry.temp !== null ? Number(entry.temp).toFixed(2) + ' °C' : 'Non renseignée';
   detail.style.display = 'block';
-  detail.innerHTML = '<strong>' + formatDate(date) + '</strong> — Température : ' + temp + ' — Observation : ' + (MUCUS_LABELS[entry.mucus] || 'non renseignée') + (entry.notes ? '<br>Notes : ' + entry.notes.replace(/</g,'&lt;') : '');
+  const factorLabels = {maladie:'maladie/fièvre', sommeil:'sommeil perturbé', horaire:'horaire inhabituel', voyage:'voyage/déplacement', alcool:'alcool', medicament:'médicament'};\n  const factors = Array.isArray(entry.factors) && entry.factors.length ? '<br>Contexte : ' + entry.factors.map(f => factorLabels[f] || f).join(', ') : '';\n  const notes = entry.notes ? '<br>Notes : ' + entry.notes.replace(/</g,'&lt;') : '';\n  detail.innerHTML = '<strong>' + formatDate(date) + '</strong> — Température : ' + temp + ' — Observation : ' + (MUCUS_LABELS[entry.mucus] || 'non renseignée') + factors + notes;
 }
 
 function changeCalendarMonth(delta){calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()+delta,1);renderCalendar();}
