@@ -290,10 +290,7 @@
   </section>
 
   <div id="print-summary"></div>
-  <div id="storage-warning" class="no-print" style="display:none; background:var(--pink-light); color:var(--pink); border-radius:12px; padding:12px 16px; margin-bottom:18px; font-size:0.85rem;"></div>
-  <div id="late-period-banner" class="no-print" style="display:none; background:var(--blue-light); color:var(--blue); border-radius:12px; padding:12px 16px; margin-bottom:18px; font-size:0.85rem;"></div>
-
-  <div class="card no-print">
+  <div id="storage-warning" class="no-print" style="display:none; background:var(--pink-light); color:var(--pink); border-radius:12px; padding:12px 16px; margin-bottom:18px; font-size:0.85rem;"></div><div class="card no-print">
     <h2>➕ Ajouter une entrée</h2>
     <div class="form-grid">
       <div>
@@ -497,8 +494,7 @@ function addEntry() {
   }
 
   let entries = loadCurrent();
-  entries = entries.filter(e => e.date !== date);
-  entries.push({ date, temp: isNaN(temp) ? null : temp, mucus, notes });
+  entries = entries.filter(e => e.date !== date);  entries.push({ date, temp: isNaN(temp) ? null : temp, mucus, notes });
   entries.sort((a,b) => a.date.localeCompare(b.date));
   saveCurrent(entries);
 
@@ -656,48 +652,6 @@ function renderHistory() {
       <button class="btn btn-danger" onclick="deleteHistoryCycle(${i})">Supprimer</button>
     </div>
   `).join('');
-}
-
-// Detect a late period compared to the user's usual cycle length, based on
-// the most recently archived cycle. Returns { lateDays, expectedDate } or
-// null if there isn't enough history, or if a period has already started.
-function detectLatePeriod(entries, history) {
-  if (entries.length === 0 || history.length === 0) return null;
-
-  const cycleStart = new Date(entries[0].date + 'T00:00:00');
-  const prevCycleStart = new Date(history[0].start + 'T00:00:00');
-  const cycleLengthDays = Math.round((cycleStart - prevCycleStart) / 86400000);
-  if (!(cycleLengthDays > 0 && cycleLengthDays < 90)) return null; // sanity check
-
-  const expected = new Date(cycleStart);
-  expected.setDate(expected.getDate() + cycleLengthDays);
-
-  // If a period has already been logged on or after the expected date,
-  // it's not "late" anymore.
-  const periodAlreadyLogged = entries.some(e => {
-    if (e.mucus !== 'regles') return false;
-    return new Date(e.date + 'T00:00:00') >= expected;
-  });
-  if (periodAlreadyLogged) return null;
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const lateDays = Math.round((today - expected) / 86400000);
-  if (lateDays < 3) return null;
-
-  return { lateDays, expectedDate: expected.toISOString().slice(0, 10), cycleLengthDays };
-}
-
-function renderLatePeriodBanner(entries) {
-  const banner = document.getElementById('late-period-banner');
-  const history = loadHistory();
-  const late = detectLatePeriod(entries, history);
-  if (!late) {
-    banner.style.display = 'none';
-    return;
-  }
-  banner.style.display = 'block';
-  banner.innerHTML = `⏳ Tes règles ont <strong>${late.lateDays} jour${late.lateDays > 1 ? 's' : ''} de retard</strong> par rapport à ton cycle habituel (~${late.cycleLengthDays} jours). Une grossesse est possible — envisage un test si le retard se confirme.`;
 }
 
 function render() {
