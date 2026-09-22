@@ -131,3 +131,12 @@ test('la validation des sauvegardes contrôle les valeurs des observations', () 
   assert.match(page, /validBleeding\.includes\(e\.bleeding\)/);
   assert.match(page, /validTime\(e\.time\)/);
 });
+
+
+test('le graphique utilise la bonne ligne de référence et un résumé textuel', () => {
+  assert.match(page, /yFor\(shift\.referenceLine\)/);
+  assert.doesNotMatch(page, /yFor\(shift\.coverline\)/);
+  assert.match(page, /id="chart-text-summary"/);
+  assert.match(page, /aria-hidden="true"/);
+  assert.match(page, /Résumé textuel/);
+});
