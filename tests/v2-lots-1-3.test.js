@@ -160,3 +160,11 @@ test('les suppressions demandent une confirmation et restent accessibles', () =>
 test('les heures de mesure sauvegardées utilisent un format horaire valide', () => {
   assert.match(page, /\(\?:\[01\]\\\\d\|2\[0-3\]\):\[0-5\]\\\\d/);
 });
+
+
+test('les champs heure et glaire disposent d’une aide accessible', () => {
+  assert.match(page, /id="f-time"[^>]*aria-describedby="time-help"/);
+  assert.match(page, /id="time-help"/);
+  assert.match(page, /id="f-mucus"[^>]*aria-describedby="mucus-help"/);
+  assert.match(page, /id="mucus-help"/);
+});
