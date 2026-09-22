@@ -321,7 +321,8 @@
       </div>
       <div>
         <label for="f-temp">Température (°C) <a href="#apprendre" onclick="openLesson('m4')">Conseils de mesure</a></label>
-        <input type="number" id="f-temp" step="0.01" min="34" max="40" placeholder="36.50" aria-describedby="temp-help">\n        <div id="temp-help" class="learn-meta">Valeur observée au moment de la mesure. Laisse vide si aucune mesure n’a été prise.</div>\n      </div>\n      <div>\n        <label for="f-time">Heure de mesure (optionnel)</label>\n        <input type="time" id="f-time">
+        <input type="number" id="f-temp" step="0.01" min="34" max="40" placeholder="36.50" aria-describedby="temp-help">\n        <div id="temp-help" class="learn-meta">Valeur observée au moment de la mesure. Laisse vide si aucune mesure n’a été prise.</div>\n      </div>\n      <div>\n        <label for="f-time">Heure de mesure (optionnel)</label>\n        <input type="time" id="f-time" aria-describedby="time-help">
+<div id="time-help" class="learn-meta">Heure à laquelle la température a été mesurée, si tu souhaites la conserver.</div>
       </div>
       <div>
         <label for="f-bleeding">Saignement</label>
@@ -333,7 +334,7 @@
       </div>
       <div>
         <label for="f-mucus">Glaire cervicale <a href="#apprendre" onclick="openLesson('m3')">Apprendre à observer</a></label>
-        <select id="f-mucus">
+        <select id="f-mucus" aria-describedby="mucus-help">
           <option value="sec">Sec / absent</option>
           <option value="collante">Collante</option>
           <option value="cremeuse">Crémeuse</option>
