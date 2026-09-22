@@ -206,7 +206,7 @@ test('les facteurs de contexte des sauvegardes utilisent les valeurs prévues', 
 
 test('le profil des sauvegardes utilise des valeurs cohérentes', () => {
   assert.match(page, /const validProfile =/);
-  assert.match(page, /\['observer','apprendre','professionnel'\]\.includes\(value\.profile\.goal\)/);
+  assert.match(page, /\['observer','apprendre','suivi'\]\.includes\(value\.profile\.goal\)/);
 });
 
 
@@ -226,4 +226,12 @@ test('les opérations de sauvegarde disposent d’un statut accessible', () => {
   assert.match(page, /id="backup-status"[^>]*role="status"[^>]*aria-live="polite"/);
   assert.match(page, /Sauvegarde exportée/);
   assert.match(page, /Sauvegarde importée avec succès/);
+});
+
+
+test('l’enregistrement du profil dispose d’un statut accessible', () => {
+  assert.match(page, /id="profile-status"[^>]*role="status"[^>]*aria-live="polite"/);
+  assert.match(page, /function setProfileStatus\(message\)/);
+  assert.match(page, /Profil enregistré/);
+  assert.match(page, /Le profil n’a pas pu être enregistré/);
 });
