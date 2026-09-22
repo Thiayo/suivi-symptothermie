@@ -61,6 +61,14 @@ test('observation context factors are stored and restored', () => {
 });
 
 
+test('les données affichées dans le contexte utilisateur sont échappées', () => {
+  assert.match(page, /escapeHtml\(value\)/);
+  assert.match(page, /factorLabels\[f\] \|\| f\)\.join/);
+  assert.match(page, /escapeHtml\(e\.notes\)/);
+  assert.match(page, /escapeHtml\(e\.time\)/);
+  assert.match(page, /aria-live="polite"/);
+});
+
 test('journal displays recorded observation context', () => {
   assert.match(page, /factorLabels =/);
   assert.match(page, /Contexte :/);
