@@ -321,7 +321,12 @@
       </div>
       <div>
         <label for="f-temp">Température (°C) <a href="#apprendre" onclick="openLesson('m4')">Conseils de mesure</a></label>
-        <input type="number" id="f-temp" step="0.01" min="34" max="42" placeholder="36.50" inputmode="decimal" aria-describedby="temp-help">\n        <div id="temp-help" class="learn-meta">Valeur observée au moment de la mesure. Laisse vide si aucune mesure n’a été prise.</div>\n      </div>\n      <div>\n        <label for="f-time">Heure de mesure (optionnel)</label>\n        <input type="time" id="f-time" aria-describedby="time-help">
+        <input type="number" id="f-temp" step="0.01" min="34" max="42" placeholder="36.50" inputmode="decimal" aria-describedby="temp-help">
+        <div id="temp-help" class="learn-meta">Valeur observée au moment de la mesure. Laisse vide si aucune mesure n’a été prise.</div>
+      </div>
+      <div>
+        <label for="f-time">Heure de mesure (optionnel)</label>
+        <input type="time" id="f-time" aria-describedby="time-help">
 <div id="time-help" class="learn-meta">Heure à laquelle la température a été mesurée, si tu souhaites la conserver.</div>
       </div>
       <div>
@@ -367,7 +372,8 @@
     </fieldset>
     <div style="margin-bottom:14px;">
       <label for="f-notes">Notes (optionnel)</label>
-      <textarea id="f-notes" placeholder="Ressenti, douleurs, humeur..." aria-describedby="notes-help"></textarea>\n      <div id="notes-help" class="learn-meta">Décris ce que tu observes ou le contexte de la mesure, sans chercher à en tirer automatiquement une conclusion.</div>
+      <textarea id="f-notes" placeholder="Ressenti, douleurs, humeur..." aria-describedby="notes-help"></textarea>
+      <div id="notes-help" class="learn-meta">Décris ce que tu observes ou le contexte de la mesure, sans chercher à en tirer automatiquement une conclusion.</div>
     </div>
     <div id="edit-status" class="notice" style="display:none;margin-bottom:12px;" aria-live="polite"></div>
     <div class="row-actions">
@@ -543,7 +549,8 @@ document.getElementById('today-date').textContent =
 function addEntry() {
   const date = document.getElementById('f-date').value;
   const temp = parseFloat(document.getElementById('f-temp').value);
-  const bleeding = document.getElementById('f-bleeding').value;\n  const mucus = document.getElementById('f-mucus').value;
+  const bleeding = document.getElementById('f-bleeding').value;
+  const mucus = document.getElementById('f-mucus').value;
   const notes = document.getElementById('f-notes').value.trim();
   const factors = [...document.querySelectorAll('.factor:checked')].map(el => el.value);
 
@@ -559,7 +566,8 @@ function addEntry() {
 
   let entries = loadCurrent();
   entries = entries.filter(e => e.date !== date);
-  const time = document.getElementById("f-time").value;\n  const candidate = { date, temp: isNaN(temp) ? null : temp, mucus, bleeding, notes, factors, time: time || null };
+  const time = document.getElementById("f-time").value;
+  const candidate = { date, temp: isNaN(temp) ? null : temp, mucus, bleeding, notes, factors, time: time || null };
   if (!validStoredEntry(candidate)) { setActionStatus('Les données saisies ne sont pas valides. Vérifie les champs avant d’enregistrer.'); document.getElementById('action-status')?.focus(); return; }
   entries.push(candidate);
   entries.sort((a,b) => a.date.localeCompare(b.date));
@@ -577,7 +585,8 @@ function editEntry(date) {
   document.getElementById('f-date').value = entry.date;
   document.getElementById('f-temp').value = entry.temp === null ? '' : entry.temp;
   document.getElementById('f-time').value = entry.time || '';
-  document.getElementById('f-mucus').value = entry.mucus || 'sec';\n  document.getElementById('f-bleeding').value = entry.bleeding || (entry.mucus === 'regles' ? 'regles' : entry.mucus === 'spotting' ? 'spotting' : 'aucun');
+  document.getElementById('f-mucus').value = entry.mucus || 'sec';
+  document.getElementById('f-bleeding').value = entry.bleeding || (entry.mucus === 'regles' ? 'regles' : entry.mucus === 'spotting' ? 'spotting' : 'aucun');
   document.getElementById('f-notes').value = entry.notes || '';
   document.querySelectorAll('.factor').forEach(el => { el.checked = Array.isArray(entry.factors) && entry.factors.includes(el.value); });
   document.getElementById('save-entry-btn').textContent = 'Enregistrer la modification';
@@ -751,12 +760,15 @@ function renderTable(entries) {
   const factorLabels = {maladie:'maladie/fièvre', sommeil:'sommeil perturbé', horaire:'horaire inhabituel', voyage:'voyage/déplacement', alcool:'alcool', medicament:'médicament'};
   let rows = entries.slice().reverse().map(e => {
     const factors = Array.isArray(e.factors) && e.factors.length ? ' · Contexte : ' + e.factors.map(f => escapeHtml(factorLabels[f] || f)).join(', ') : '';
-    const safeNotes = e.notes ? escapeHtml(e.notes) : '';\n    const timeLabel = e.time ? ' · Heure : ' + escapeHtml(e.time) : '';\n    const bleedingLabel = e.bleeding && e.bleeding !== 'aucun' ? ' · Saignement : ' + (e.bleeding === 'regles' ? 'règles' : 'spotting') : '';
+    const safeNotes = e.notes ? escapeHtml(e.notes) : '';
+    const timeLabel = e.time ? ' · Heure : ' + escapeHtml(e.time) : '';
+    const bleedingLabel = e.bleeding && e.bleeding !== 'aucun' ? ' · Saignement : ' + (e.bleeding === 'regles' ? 'règles' : 'spotting') : '';
     return `
     <tr>
       <td>${formatDate(e.date)}</td>
       <td>${e.temp !== null ? e.temp.toFixed(2) + '°C' : '—'}</td>
-      <td>${e.bleeding && e.bleeding !== 'aucun' ? (e.bleeding === 'regles' ? 'Règles' : 'Spotting') : '—'}</td>\n      <td>${MUCUS_LABELS[e.mucus] || e.mucus}</td>
+      <td>${e.bleeding && e.bleeding !== 'aucun' ? (e.bleeding === 'regles' ? 'Règles' : 'Spotting') : '—'}</td>
+      <td>${MUCUS_LABELS[e.mucus] || e.mucus}</td>
       <td>${safeNotes}${bleedingLabel}${timeLabel}${factors ? '<div class="learn-meta">' + factors + '</div>' : ''}</td>
       <td class="no-print"><button class="btn edit-btn" onclick="editEntry('${e.date}')">Modifier</button><button class="btn btn-danger" onclick="deleteEntry('${e.date}')" aria-label="Supprimer l’observation du ${formatDate(e.date)}">✕</button></td>
     </tr>`;
@@ -796,7 +808,24 @@ function renderHistory() {
   }).join('');
 }
 
-function localDateKey(date = new Date()) {\n  return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');\n}\n\nfunction renderTodaySummary(entries) {\n  const box = document.getElementById('today-summary');\n  if (!box) return;\n  const today = localDateKey();\n  const todayEntry = entries.find(e => e.date === today);\n  const sorted = [...entries].sort((a,b) => a.date.localeCompare(b.date));\n  const first = sorted[0];\n  const cycleDay = first ? Math.max(1, Math.floor((new Date(today+'T00:00:00') - new Date(first.date+'T00:00:00')) / 86400000) + 1) : null;\n  const temp = todayEntry && Number.isFinite(Number(todayEntry.temp)) ? Number(todayEntry.temp).toFixed(2) + ' °C' : 'Non renseignée';\n  const mucus = todayEntry ? (MUCUS_LABELS[todayEntry.mucus] || 'Observation enregistrée') : 'Aucune observation';\n  box.innerHTML = '<div class=\"today-stat\"><strong>' + (todayEntry ? '✓ Enregistrée' : 'À renseigner') + '</strong><span>Observation du jour</span></div>' + '<div class=\"today-stat\"><strong>' + temp + '</strong><span>Température</span></div>' + '<div class=\"today-stat\"><strong>' + mucus + '</strong><span>Glaire / observation</span></div>' + '<div class=\"today-stat\"><strong>' + (cycleDay ? 'Jour ' + cycleDay : '—') + '</strong><span>Repère dans le cycle</span></div>';\n}\n\nfunction render() {
+function localDateKey(date = new Date()) {
+  return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+}
+
+function renderTodaySummary(entries) {
+  const box = document.getElementById('today-summary');
+  if (!box) return;
+  const today = localDateKey();
+  const todayEntry = entries.find(e => e.date === today);
+  const sorted = [...entries].sort((a,b) => a.date.localeCompare(b.date));
+  const first = sorted[0];
+  const cycleDay = first ? Math.max(1, Math.floor((new Date(today+'T00:00:00') - new Date(first.date+'T00:00:00')) / 86400000) + 1) : null;
+  const temp = todayEntry && Number.isFinite(Number(todayEntry.temp)) ? Number(todayEntry.temp).toFixed(2) + ' °C' : 'Non renseignée';
+  const mucus = todayEntry ? (MUCUS_LABELS[todayEntry.mucus] || 'Observation enregistrée') : 'Aucune observation';
+  box.innerHTML = '<div class=\"today-stat\"><strong>' + (todayEntry ? '✓ Enregistrée' : 'À renseigner') + '</strong><span>Observation du jour</span></div>' + '<div class=\"today-stat\"><strong>' + temp + '</strong><span>Température</span></div>' + '<div class=\"today-stat\"><strong>' + mucus + '</strong><span>Glaire / observation</span></div>' + '<div class=\"today-stat\"><strong>' + (cycleDay ? 'Jour ' + cycleDay : '—') + '</strong><span>Repère dans le cycle</span></div>';
+}
+
+function render() {
   const entries = loadCurrent();
   renderTodaySummary(entries);
   renderChart(entries);
@@ -841,13 +870,21 @@ function setProfileStatus(message){const status=document.getElementById('profile
 function saveProfile(){const name=(document.getElementById('profile-name').value||'').trim(),goal=document.getElementById('profile-goal').value;if(name.length>80){setProfileStatus('Le nom d’affichage ne peut pas dépasser 80 caractères.');document.getElementById('profile-status')?.focus();return;}if(!['observer','apprendre','suivi'].includes(goal)){setProfileStatus('Objectif de profil invalide.');document.getElementById('profile-status')?.focus();return;}const p={version:APP_DATA_VERSION,name,goal};memProfile=p;try{localStorage.setItem(PROFILE_KEY,JSON.stringify(p));setProfileStatus('Profil enregistré.');}catch(e){storageAvailable=false;setProfileStatus('Le profil n’a pas pu être enregistré durablement. Il reste disponible pendant cette session.');setStorageStatus('Le profil n’a pas pu être enregistré durablement dans ce navigateur.');}document.getElementById('profile-status')?.focus();}
 function allEntriesForCalendar(){const map={};[...loadHistory().flatMap(c=>c.entries||[]),...loadCurrent()].forEach(e=>{map[e.date]=e;});return map;}
 function renderCalendar(){const grid=document.getElementById('calendar-grid'),title=document.getElementById('calendar-title');if(!grid||!title)return;const y=calendarDate.getFullYear(),m=calendarDate.getMonth();title.textContent=new Date(y,m,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});const first=new Date(y,m,1),days=new Date(y,m+1,0).getDate(),offset=(first.getDay()+6)%7,map=allEntriesForCalendar();let html=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map(d=>'<div class="calendar-head">'+d+'</div>').join('');for(let i=0;i<offset;i++)html+='<div class="calendar-day empty" aria-hidden="true"></div>';for(let d=1;d<=days;d++){const key=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),e=map[key],cls='calendar-day'+(e?' has-entry':'')+(e&&e.bleeding==='regles'?' is-period':'');html+='<div class="'+cls+'"'+(e?' role="button" tabindex="0" aria-label="Voir les observations du '+formatDate(key)+'" data-calendar-date="'+key+'" onclick="showCalendarDetail(\''+key+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();showCalendarDetail(\''+key+'\')}\'"':'')+'><span class="day-num">'+d+'</span>'+(e?'<span class="day-meta">'+(e.temp!==null?e.temp.toFixed(1)+'°C':'Observation')+'</span>':'')+'</div>';}grid.innerHTML=html;}
-function escapeHtml(value) {\n  return String(value).replace(/[&<>\"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[char]));\n}\nfunction showCalendarDetail(date) {
+function escapeHtml(value) {
+  return String(value).replace(/[&<>\"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[char]));
+}
+function showCalendarDetail(date) {
   const detail = document.getElementById('calendar-detail');
   const entry = allEntriesForCalendar()[date];
   if (!detail || !entry) return;
   const temp = entry.temp !== null ? Number(entry.temp).toFixed(2) + ' °C' : 'Non renseignée';
   detail.style.display = 'block';
-  const factorLabels = {maladie:'maladie/fièvre', sommeil:'sommeil perturbé', horaire:'horaire inhabituel', voyage:'voyage/déplacement', alcool:'alcool', medicament:'médicament'};\n  const factors = Array.isArray(entry.factors) && entry.factors.length ? '<br>Contexte : ' + entry.factors.map(f => escapeHtml(factorLabels[f] || f)).join(', ') : '';\n  const notes = entry.notes ? '<br>Notes : ' + escapeHtml(entry.notes) : '';\n  const time = entry.time ? '<br>Heure de mesure : ' + escapeHtml(entry.time) : '';\n  const bleeding = entry.bleeding && entry.bleeding !== 'aucun' ? '<br>Saignement : ' + (entry.bleeding === 'regles' ? 'règles' : 'spotting') : '';\n  detail.innerHTML = '<strong>' + formatDate(date) + '</strong> — Température : ' + temp + ' — Observation : ' + (MUCUS_LABELS[entry.mucus] || 'non renseignée') + bleeding + time + factors + notes;
+  const factorLabels = {maladie:'maladie/fièvre', sommeil:'sommeil perturbé', horaire:'horaire inhabituel', voyage:'voyage/déplacement', alcool:'alcool', medicament:'médicament'};
+  const factors = Array.isArray(entry.factors) && entry.factors.length ? '<br>Contexte : ' + entry.factors.map(f => escapeHtml(factorLabels[f] || f)).join(', ') : '';
+  const notes = entry.notes ? '<br>Notes : ' + escapeHtml(entry.notes) : '';
+  const time = entry.time ? '<br>Heure de mesure : ' + escapeHtml(entry.time) : '';
+  const bleeding = entry.bleeding && entry.bleeding !== 'aucun' ? '<br>Saignement : ' + (entry.bleeding === 'regles' ? 'règles' : 'spotting') : '';
+  detail.innerHTML = '<strong>' + formatDate(date) + '</strong> — Température : ' + temp + ' — Observation : ' + (MUCUS_LABELS[entry.mucus] || 'non renseignée') + bleeding + time + factors + notes;
   detail.focus();
 }
 
