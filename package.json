@@ -1,0 +1,13 @@
+{
+  "name": "suivi-symptothermie",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Application de suivi symptothermique et d'observation du cycle",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "check": "node scripts/check-html-js.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
