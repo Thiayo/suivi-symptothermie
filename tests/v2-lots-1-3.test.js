@@ -378,3 +378,19 @@ test('la page possède une description adaptée au référencement et à la conf
   assert.match(page, /<meta name="description" content="Application locale de suivi des observations du cycle/);
   assert.match(page, /Les données restent dans le navigateur/);
 });
+
+
+test('le formulaire aligne la limite de température sur le validateur', () => {
+  assert.match(page, /id="f-temp"[^>]*min="34"[^>]*max="42"/);
+  assert.match(page, /temp < 34 \|\| temp > 42/);
+});
+
+test('une observation future est refusée', () => {
+  assert.match(page, /if \(date > localDateKey\(\)\)/);
+  assert.match(page, /Une observation future ne peut pas être enregistrée/);
+});
+
+test('les observations saisies passent par le validateur avant enregistrement', () => {
+  assert.match(page, /const candidate = \{ date, temp: isNaN\(temp\) \? null : temp, mucus, bleeding, notes, factors, time: time \|\| null \}/);
+  assert.match(page, /if \(!validStoredEntry\(candidate\)\)/);
+});
