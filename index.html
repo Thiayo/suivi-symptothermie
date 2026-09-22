@@ -242,6 +242,19 @@
 
   :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
   .learn-nav { display:flex; justify-content:center; margin:0 0 18px; }
+  .app-nav{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 18px;position:sticky;top:8px;z-index:10}
+  .app-nav a{text-align:center;text-decoration:none;padding:9px 7px;border:1px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--text);font-weight:600;font-size:.86rem}
+  .app-nav a:hover,.app-nav a:focus-visible{color:var(--blue);border-color:var(--blue)}
+  .app-section{scroll-margin-top:72px}
+  .calendar-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+  .calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .calendar-head,.calendar-day{min-height:42px;padding:5px;border:1px solid var(--border);border-radius:8px;font-size:.75rem}
+  .calendar-head{min-height:auto;text-align:center;color:var(--text-muted);font-weight:700;border:none}
+  .calendar-day{background:var(--bg);position:relative}.calendar-day.empty{background:transparent;border-color:transparent}
+  .calendar-day.has-entry{border-color:var(--blue)}.calendar-day.is-period{background:var(--pink-light)}
+  .calendar-day .day-num{font-weight:700}.calendar-day .day-meta{display:block;margin-top:4px;color:var(--text-muted);font-size:.68rem}
+  .profile-grid{display:grid;gap:12px}.privacy-box{background:var(--blue-light);padding:12px;border-radius:10px;font-size:.9rem;line-height:1.5}
+  @media (min-width:620px){.app-nav{grid-template-columns:repeat(6,1fr)}.profile-grid{grid-template-columns:1fr 1fr}}
   .learn-progress { height: 12px; background: var(--blue-light); border-radius: 999px; overflow:hidden; margin:10px 0 6px; }
   .learn-progress > span { display:block; height:100%; width:0; background:linear-gradient(90deg,var(--blue),var(--pink)); transition:width .2s; }
   .learn-meta { color:var(--text-muted); font-size:.88rem; margin:0; }
@@ -272,7 +285,7 @@
     <p id="today-date" style="font-size:1rem; color:var(--text-muted); margin-top:4px; font-weight:600;"></p>
   </header>
 
-  <nav class="learn-nav no-print" aria-label="Navigation principale"><a class="btn btn-secondary" href="#apprendre">📚 Aller à Apprendre</a></nav>
+  <nav class="app-nav no-print" aria-label="Navigation principale"><a href="#accueil">Accueil</a><a href="#graphique">Graphique</a><a href="#calendrier">Calendrier</a><a href="#historique">Historique</a><a href="#apprendre">Apprendre</a><a href="#profil">Profil</a></nav>
 
   <section id="apprendre" class="card no-print" aria-labelledby="learn-title">
     <h2 id="learn-title">📚 Apprendre la symptothermie</h2>
@@ -290,7 +303,8 @@
   </section>
 
   <div id="print-summary"></div>
-  <div id="storage-warning" class="no-print" style="display:none; background:var(--pink-light); color:var(--pink); border-radius:12px; padding:12px 16px; margin-bottom:18px; font-size:0.85rem;"></div><div class="card no-print">
+  <div id="storage-warning" class="no-print" style="display:none; background:var(--pink-light); color:var(--pink); border-radius:12px; padding:12px 16px; margin-bottom:18px; font-size:0.85rem;"></div><section id="accueil" class="app-section">
+  <div class="card no-print">
     <h2>➕ Ajouter une entrée</h2>
     <div class="form-grid">
       <div>
@@ -334,6 +348,9 @@
     </div>
   </div>
 
+  </div>
+</section>
+<section id="graphique" class="app-section">
   <div class="card">
     <h2>📈 Courbe du cycle en cours <span id="ovu-badge"></span></h2><p class="learn-meta">Le graphique est descriptif, pas diagnostique. <a href="#apprendre" onclick="openLesson('m5')">Apprendre à le lire</a> · <a href="#apprendre" onclick="openLesson('m6')">Comprendre le décalage thermique</a></p>
     <div class="chart-wrap" id="chart-container"></div>
@@ -360,6 +377,17 @@
     </div>
   </div>
 
+  </div>
+</section>
+<section id="calendrier" class="app-section">
+  <div class="card">
+    <h2>🗓️ Calendrier du suivi</h2>
+    <div class="calendar-toolbar"><button class="btn btn-secondary" type="button" onclick="changeCalendarMonth(-1)">‹ Mois précédent</button><strong id="calendar-title"></strong><button class="btn btn-secondary" type="button" onclick="changeCalendarMonth(1)">Mois suivant ›</button></div>
+    <div id="calendar-grid" class="calendar-grid" aria-live="polite"></div>
+    <p class="learn-meta" style="margin-top:10px;">Le calendrier affiche uniquement les observations enregistrées. Il ne fournit pas de prédiction ni de conclusion sur la fertilité.</p>
+  </div>
+</section>
+<section id="historique" class="app-section">
   <div class="card">
     <h2>📋 Journal du cycle en cours</h2>
     <div id="table-container"></div>
@@ -369,6 +397,16 @@
     <h2>🗂️ Cycles précédents</h2>
     <div id="history-container"></div>
   </div>
+</section>
+<section id="profil" class="app-section">
+  <div class="card no-print">
+    <h2>👤 Profil et confidentialité</h2>
+    <div class="profile-grid"><div><label for="profile-name">Prénom ou nom d’affichage (facultatif)</label><input id="profile-name" type="text" maxlength="80" placeholder="Mon profil"></div><div><label for="profile-goal">Objectif d’observation</label><select id="profile-goal"><option value="observer">Observer mon cycle</option><option value="apprendre">Apprendre la symptothermie</option><option value="suivi">Préparer un suivi avec une professionnelle ou un professionnel</option></select></div></div>
+    <div class="row-actions" style="margin-top:12px;"><button class="btn" type="button" onclick="saveProfile()">Enregistrer le profil</button></div>
+    <div class="privacy-box" style="margin-top:14px;"><strong>Confidentialité :</strong> les données de suivi sont conservées localement dans ce navigateur. Cette page ne les envoie pas à un serveur applicatif.</div>
+    <div class="row-actions" style="margin-top:12px;"><button class="btn btn-secondary" type="button" onclick="exportData()">Exporter mes données</button><button class="btn btn-secondary" type="button" onclick="document.getElementById('import-data').click()">Importer une sauvegarde</button><input id="import-data" type="file" accept="application/json" style="display:none" onchange="importData(event)"></div>
+  </div>
+</section>
 </div>
 
 <script>
@@ -690,9 +728,22 @@ function exportPDF() {
   window.print();
 }
 
+const APP_DATA_VERSION = 2;
+const PROFILE_KEY = 'symptothermie_profile';
+let calendarDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+function loadProfile(){try{const v=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null');return v&&typeof v==='object'?v:{version:APP_DATA_VERSION,name:'',goal:'observer'};}catch(e){return {version:APP_DATA_VERSION,name:'',goal:'observer'};}}
+function renderProfile(){const p=loadProfile();const n=document.getElementById('profile-name'),g=document.getElementById('profile-goal');if(n)n.value=p.name||'';if(g)g.value=p.goal||'observer';}
+function saveProfile(){const p={version:APP_DATA_VERSION,name:(document.getElementById('profile-name').value||'').trim(),goal:document.getElementById('profile-goal').value};try{localStorage.setItem(PROFILE_KEY,JSON.stringify(p));}catch(e){storageAvailable=false;}}
+function allEntriesForCalendar(){const map={};[...loadHistory().flatMap(c=>c.entries||[]),...loadCurrent()].forEach(e=>{map[e.date]=e;});return map;}
+function renderCalendar(){const grid=document.getElementById('calendar-grid'),title=document.getElementById('calendar-title');if(!grid||!title)return;const y=calendarDate.getFullYear(),m=calendarDate.getMonth();title.textContent=new Date(y,m,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});const first=new Date(y,m,1),days=new Date(y,m+1,0).getDate(),offset=(first.getDay()+6)%7,map=allEntriesForCalendar();let html=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map(d=>'<div class="calendar-head">'+d+'</div>').join('');for(let i=0;i<offset;i++)html+='<div class="calendar-day empty" aria-hidden="true"></div>';for(let d=1;d<=days;d++){const key=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),e=map[key],cls='calendar-day'+(e?' has-entry':'')+(e&&e.mucus==='regles'?' is-period':'');html+='<div class="'+cls+'"><span class="day-num">'+d+'</span>'+(e?'<span class="day-meta">'+(e.temp!==null?e.temp.toFixed(1)+'°C':'Observation')+'</span>':'')+'</div>';}grid.innerHTML=html;}
+function changeCalendarMonth(delta){calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()+delta,1);renderCalendar();}
+function exportData(){const payload={version:APP_DATA_VERSION,exportedAt:new Date().toISOString(),current:loadCurrent(),history:loadHistory(),learning:loadLearning(),profile:loadProfile()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='suivi-symptothermie-sauvegarde.json';a.click();URL.revokeObjectURL(url);}
+function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const p=JSON.parse(reader.result);if(!p||!Array.isArray(p.current)||!Array.isArray(p.history))throw new Error('format');if(!confirm('Remplacer les données locales actuelles par cette sauvegarde ?'))return;saveCurrent(p.current);saveHistory(p.history);if(p.learning&&validLearning(p.learning))saveLearning(p.learning);if(p.profile&&typeof p.profile==='object')localStorage.setItem(PROFILE_KEY,JSON.stringify(p.profile));renderProfile();renderCalendar();render();}catch(e){alert('Sauvegarde invalide ou illisible.');}finally{event.target.value='';}};reader.readAsText(file);}
 document.getElementById('resume-learning').addEventListener('click', () => openLesson(loadLearning().lastModule || MODULES[0].id));
 document.getElementById('reset-learning').addEventListener('click', resetLearning);
 renderLearning();
+renderProfile();
+renderCalendar();
 render();
 </script>
 </body>
