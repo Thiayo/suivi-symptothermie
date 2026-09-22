@@ -297,3 +297,26 @@ test('le chargement du stockage local vérifie les structures de base', () => {
   assert.match(page, /Une nouvelle saisie peut être enregistrée dans cette session/);
   assert.match(page, /utilise-la pour récupérer tes données/);
 });
+
+
+test('le graphique trace la ligne de référence sur la valeur calculée', () => {
+  assert.match(page, /yFor\(shift\.referenceLine\).*yFor\(shift\.referenceLine\)/s);
+  assert.doesNotMatch(page, /shift\.coverline/);
+});
+
+test('la date d’export utilise le format ISO UTC produit par toISOString', () => {
+  assert.match(page, /exportedAt=new Date\(\)\.toISOString\(\)/);
+  assert.match(page, /\\d\{4\}-\\d\{2\}-\\d\{2\}T/);
+  assert.match(page, /\\.\\d\{3\}Z/);
+});
+
+test('le profil local invalide est détecté au chargement', () => {
+  assert.match(page, /v\.version!==undefined&&v\.version!==APP_DATA_VERSION/);
+  assert.match(page, /'goal' in v&&!\['observer','apprendre','suivi'\]\.includes\(v\.goal\)/);
+  assert.match(page, /Le profil local est illisible/);
+});
+
+test('les statuts d’action et de profil peuvent recevoir le focus après une action', () => {
+  assert.match(page, /setActionStatus\('Toutes les données locales ont été effacées\.'\);\s*const status=document\.getElementById\('action-status'\);if\(status\)status\.focus\(\)/);
+  assert.match(page, /setProfileStatus\('Profil enregistré\.'\);const status=document\.getElementById\('profile-status'\);if\(status\)status\.focus\(\)/);
+});
