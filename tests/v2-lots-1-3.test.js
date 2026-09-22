@@ -197,3 +197,8 @@ test('les températures des sauvegardes restent dans une plage corporelle cohér
   assert.match(page, /value >= 34 && value <= 42/);
   assert.match(page, /validTemp\(e\.temp\)/);
 });
+
+
+test('les facteurs de contexte des sauvegardes utilisent les valeurs prévues', () => {
+  assert.match(page, /\['maladie','sommeil','horaire','voyage','alcool','medicament'\]\.includes\(f\)/);
+});
