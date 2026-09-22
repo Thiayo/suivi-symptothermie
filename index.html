@@ -862,7 +862,7 @@ function setActionStatus(message) {
   if (status) status.textContent = message;
 }
 
-function exportData(){const exportedAt=new Date().toISOString();const payload={version:APP_DATA_VERSION,exportedAt,current:loadCurrent(),history:loadHistory(),learning:loadLearning(),profile:loadProfile()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='suivi-symptothermie-sauvegarde.json';a.click();URL.revokeObjectURL(url);setBackupStatus('Sauvegarde exportée.');}
+function exportData(){const current=loadCurrent();if(!current.length){setBackupStatus("Ajoute au moins une entrée avant d'exporter.");return;}const exportedAt=new Date().toISOString();const payload={version:APP_DATA_VERSION,exportedAt,current,history:loadHistory(),learning:loadLearning(),profile:loadProfile()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='suivi-symptothermie-sauvegarde.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);setBackupStatus('Sauvegarde exportée.');}
 function isValidDateKey(value) {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const d = new Date(value + 'T00:00:00');
