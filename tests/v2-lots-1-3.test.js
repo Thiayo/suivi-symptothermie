@@ -140,3 +140,11 @@ test('le graphique utilise la bonne ligne de référence et un résumé textuel'
   assert.match(page, /aria-hidden="true"/);
   assert.match(page, /Résumé textuel/);
 });
+
+
+test('les champs du formulaire disposent d’une aide accessible', () => {
+  assert.match(page, /id="f-temp"[^>]*aria-describedby="temp-help"/);
+  assert.match(page, /id="temp-help"/);
+  assert.match(page, /id="f-notes"[^>]*aria-describedby="notes-help"/);
+  assert.match(page, /id="notes-help"/);
+});
