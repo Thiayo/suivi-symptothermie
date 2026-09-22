@@ -86,9 +86,9 @@ test('history provides descriptive cycle summaries', () => {
 
 
 test('backup import is versioned and validates entry structure', () => {
-  assert.match(page, /function validBackup\\(value\\)/);
+  assert.match(page, /function validBackup\(value\)/);
   assert.match(page, /value\\.version !== APP_DATA_VERSION/);
-  assert.match(page, /validEntry = e =>/);
+  assert.match(page, /validStoredEntry\(e\)/);
   assert.match(page, /Sauvegarde importée avec succès/);
 });
 
@@ -124,12 +124,12 @@ test('les zones principales du suivi sont accessibles', () => {
 
 
 test('la validation des sauvegardes contrôle les valeurs des observations', () => {
-  assert.match(page, /const validMucus = \['sec','collante','cremeuse','blanc-oeuf'\]/);
-  assert.match(page, /const validBleeding = \['aucun','regles','spotting'\]/);
-  assert.match(page, /validTime = value => value === null/);
-  assert.match(page, /validMucus\.includes\(e\.mucus\)/);
-  assert.match(page, /validBleeding\.includes\(e\.bleeding\)/);
-  assert.match(page, /validTime\(e\.time\)/);
+  assert.match(page, /const VALID_MUCUS = \['sec','collante','cremeuse','blanc-oeuf'\]/);
+  assert.match(page, /const VALID_BLEEDING = \['aucun','regles','spotting'\]/);
+  assert.match(page, /function validStoredTime\(value\)/);
+  assert.match(page, /VALID_MUCUS\.includes\(e\.mucus\)/);
+  assert.match(page, /VALID_BLEEDING\.includes\(e\.bleeding\)/);
+  assert.match(page, /validStoredTime\(e\.time\)/);
 });
 
 
@@ -193,9 +193,9 @@ test('les dates des sauvegardes sont validées comme de vraies dates', () => {
 
 
 test('les températures des sauvegardes restent dans une plage corporelle cohérente', () => {
-  assert.match(page, /const validTemp = value =>/);
+  assert.match(page, /function validStoredTemperature\(value\)/);
   assert.match(page, /value >= 34 && value <= 42/);
-  assert.match(page, /validTemp\(e\.temp\)/);
+  assert.match(page, /validStoredTemperature\(e\.temp\)/);
 });
 
 
@@ -205,8 +205,8 @@ test('les facteurs de contexte des sauvegardes utilisent les valeurs prévues', 
 
 
 test('le profil des sauvegardes utilise des valeurs cohérentes', () => {
-  assert.match(page, /const validProfile =/);
-  assert.match(page, /\['observer','apprendre','suivi'\]\.includes\(value\.profile\.goal\)/);
+  assert.match(page, /function loadProfile\(\)/);
+  assert.match(page, /\['observer','apprendre','suivi'\]\.includes\(p\.goal\)/);
 });
 
 
@@ -217,7 +217,7 @@ test('les sauvegardes vérifient la date d’export', () => {
 
 
 test('la validation du profil correspond aux objectifs réellement proposés', () => {
-  assert.match(page, /\['observer','apprendre','suivi'\]\.includes\(value\.profile\.goal\)/);
+  assert.match(page, /\['observer','apprendre','suivi'\]\.includes\(p\.goal\)/);
   assert.match(page, /value="suivi">Préparer un suivi/);
 });
 
@@ -238,7 +238,7 @@ test('l’enregistrement du profil dispose d’un statut accessible', () => {
 
 
 test('la validation du profil limite le nom importé à 80 caractères', () => {
-  assert.match(page, /value\.profile\.name\.length <= 80/);
+  assert.match(page, /v\.name\.length>80/);
 });
 
 
@@ -250,7 +250,7 @@ test('le statut de sauvegarde est focalisable après un import', () => {
 
 
 test('la version du profil importé reste cohérente avec la version de l’application', () => {
-  assert.match(page, /value\.profile\.version === undefined \|\| value\.profile\.version === APP_DATA_VERSION/);
+  assert.match(page, /v\.version!==undefined&&v\.version!==APP_DATA_VERSION/);
 });
 
 
