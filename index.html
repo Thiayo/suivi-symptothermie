@@ -592,9 +592,16 @@ function cancelEdit() {
   const form = document.getElementById('f-date');
   if (form) form.valueAsDate = new Date();
   const temp = document.getElementById('f-temp');
+  const time = document.getElementById('f-time');
+  const bleeding = document.getElementById('f-bleeding');
+  const mucus = document.getElementById('f-mucus');
   const notes = document.getElementById('f-notes');
   if (temp) temp.value = '';
+  if (time) time.value = '';
+  if (bleeding) bleeding.value = 'aucun';
+  if (mucus) mucus.value = 'sec';
   if (notes) notes.value = '';
+  document.querySelectorAll('.factor').forEach(el => { el.checked = false; });
 }
 
 function deleteEntry(date) {
@@ -621,7 +628,7 @@ function deleteHistoryCycle(idx) {
   render();
 }
 
-// Detect ovulation shift using simplified 3-over-6 rule
+// Detect a descriptive thermal reference using a simplified 3-over-6 rule
 function detectThermalReference(entries) {
   const withTemp = entries.filter(e => e.temp !== null);
   for (let i = 6; i < withTemp.length; i++) {
