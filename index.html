@@ -185,6 +185,7 @@
     overflow-x: auto;
   }
   svg { display: block; }
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   table {
     width: 100%;
     border-collapse: collapse;
@@ -728,10 +729,10 @@ function renderTable(entries) {
       <td class="no-print"><button class="btn edit-btn" onclick="editEntry('${e.date}')">Modifier</button><button class="btn btn-danger" onclick="deleteEntry('${e.date}')">✕</button></td>
     </tr>`;
   }).join('');
-  container.innerHTML = `<table>
+  container.innerHTML = `<div class="table-scroll"><table>
     <thead><tr><th>Date</th><th>Temp.</th><th>Saignement</th><th>Glaire</th><th>Notes / contexte</th><th class="no-print">Actions</th></tr></thead>
     <tbody>${rows}</tbody>
-  </table>`;
+  </table></div>`;
 }
 
 function renderHistory() {
