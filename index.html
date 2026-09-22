@@ -181,6 +181,7 @@
     margin-right: 5px;
     vertical-align: middle;
   }
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
   .chart-wrap {
     overflow-x: auto;
   }
@@ -689,7 +690,7 @@ function renderChart(entries) {
 
   let coverlineSvg = '';
   if (shift) {
-    coverlineSvg = `<line x1="${padL}" y1="${yFor(shift.coverline)}" x2="${w-padR}" y2="${yFor(shift.coverline)}" stroke="var(--pink)" stroke-width="1.5" stroke-dasharray="5,4"/>`;
+    coverlineSvg = `<line x1="${padL}" y1="${yFor(shift.referenceLine)}" x2="${w-padR}" y2="${yFor(shift.coverline)}" stroke="var(--pink)" stroke-width="1.5" stroke-dasharray="5,4"/>`;
   }
 
   let dotsAndLabels = '';
@@ -705,7 +706,10 @@ function renderChart(entries) {
     dotsAndLabels += `<text x="${x}" y="${h-10}" font-size="9" fill="var(--text-muted)" text-anchor="middle">${d.getDate()}/${d.getMonth()+1}</text>`;
   });
 
-  container.innerHTML = `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">
+  const summary = withTemp.length
+    ? 'Résumé textuel : ' + withTemp.map(e => formatDate(e.date) + ' — ' + Number(e.temp).toFixed(2) + ' °C').join(' ; ')
+    : 'Résumé textuel : aucune température enregistrée.';
+  container.innerHTML = `<p class="sr-only" id="chart-text-summary">${escapeHtml(summary)}</p><svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true">
     ${gridLines}
     ${coverlineSvg}
     ${polyline}
