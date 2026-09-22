@@ -559,34 +559,77 @@ document.getElementById('today-date').textContent =
   'Aujourd\'hui : ' + new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
 function addEntry() {
-  const date = document.getElementById('f-date').value;
-  const temp = parseFloat(document.getElementById('f-temp').value);
-  const bleeding = document.getElementById('f-bleeding').value;
-  const mucus = document.getElementById('f-mucus').value;
-  const notes = document.getElementById('f-notes').value.trim();
-  const factors = [...document.querySelectorAll('.factor:checked')].map(el => el.value);
+  const button = document.getElementById('save-entry-btn');
+  try {
+    const date = document.getElementById('f-date').value;
+    const temp = parseFloat(document.getElementById('f-temp').value);
+    const bleeding = document.getElementById('f-bleeding').value;
+    const mucus = document.getElementById('f-mucus').value;
+    const notes = document.getElementById('f-notes').value.trim();
+    const factors = [...document.querySelectorAll('.factor:checked')].map(el => el.value);
+    const time = document.getElementById('f-time').value;
 
-  if (!date) { setActionStatus('Merci de choisir une date.'); return; }
-  if (!isValidDateKey(date)) { setActionStatus('La date saisie est invalide.'); document.getElementById('action-status')?.focus(); return; }
-  if (date > localDateKey()) { setActionStatus('Une observation future ne peut pas être enregistrée.'); document.getElementById('action-status')?.focus(); return; }
-  if (isNaN(temp) && bleeding !== 'regles') {
-    if (!confirm("Aucune température saisie, continuer quand même ?")) return;
-  }
-  if (!isNaN(temp) && (temp < 34 || temp > 42)) {
-    if (!confirm(`${temp}°C semble inhabituel pour une température corporelle (attendu entre 34 et 42°C). Enregistrer quand même ?`)) return;
-  }
+    if (!date) { setActionStatus('Merci de choisir une date.'); return; }
+    if (!isValidDateKey(date)) { setActionStatus('La date saisie est invalide.'); return; }
+    if (date > localDateKey()) { setActionStatus('Une observation future ne peut pas être enregistrée.'); return; }
 
-  let entries = loadCurrent();
-  entries = entries.filter(e => e.date !== date);
-  const time = document.getElementById("f-time").value;
-  const candidate = { date, temp: isNaN(temp) ? null : temp, mucus, bleeding, notes, factors, time: time || null };
-  if (!validStoredEntry(candidate)) { setActionStatus('Les données saisies ne sont pas valides. Vérifie les champs avant d’enregistrer.'); document.getElementById('action-status')?.focus(); return; }
-  entries.push(candidate);
-  entries.sort((a,b) => a.date.localeCompare(b.date));
-  saveCurrent(entries);
-  cancelEdit();
-  document.getElementById('f-date').value = localDateKey();
-  render();
+    if (isNaN(temp) && bleeding !== 'regles') {
+      if (!confirm("Aucune température saisie, continuer quand même ?")) return;
+    }
+    if (!isNaN(temp) && (temp < 34 || temp > 42)) {
+      if (!confirm(`${temp}°C semble inhabituel pour une température corporelle (attendu entre 34 et 42°C). Enregistrer quand même ?`)) return;
+    }
+
+    if (button) button.disabled = true;
+
+    let entries = loadCurrent();
+    entries = entries.filter(e => e.date !== date);
+
+    const candidate = {
+      date,
+      temp: isNaN(temp) ? null : temp,
+      mucus,
+      bleeding,
+      notes,
+      factors,
+      time: time || null
+    };
+
+    if (!validStoredEntry(candidate)) {
+      setActionStatus('Les données saisies ne sont pas valides. Vérifie les champs avant d’enregistrer.');
+      return;
+    }
+
+    entries.push(candidate);
+    entries.sort((a, b) => a.date.localeCompare(b.date));
+    saveCurrent(entries);
+
+    // Le stockage est effectué avant le rafraîchissement de l'interface.
+    // Ainsi, même si un élément visuel rencontre une erreur, l'observation reste sauvegardée.
+    render();
+
+    setActionStatus('✓ Observation enregistrée dans le journal du cycle en cours.');
+
+    // Réinitialiser uniquement les champs de saisie.
+    document.getElementById('f-date').value = localDateKey();
+    document.getElementById('f-temp').value = '';
+    document.getElementById('f-time').value = '';
+    document.getElementById('f-bleeding').value = 'aucun';
+    document.getElementById('f-mucus').value = 'sec';
+    document.getElementById('f-notes').value = '';
+    document.querySelectorAll('.factor').forEach(el => { el.checked = false; });
+
+    const editStatus = document.getElementById('edit-status');
+    if (editStatus) editStatus.style.display = 'none';
+    const cancelBtn = document.getElementById('cancel-edit-btn');
+    if (cancelBtn) cancelBtn.style.display = 'none';
+    if (button) button.textContent = "Enregistrer l'entrée";
+  } catch (error) {
+    console.error('Erreur lors de l’enregistrement de l’observation :', error);
+    setActionStatus('Impossible d’enregistrer cette observation. Vérifie les champs et réessaie.');
+  } finally {
+    if (button) button.disabled = false;
+  }
 }
 
 function editEntry(date) {
