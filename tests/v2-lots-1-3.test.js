@@ -59,3 +59,10 @@ test('observation context factors are stored and restored', () => {
   assert.match(page, /const factors = \[\.\.\.document\.querySelectorAll\('\.factor:checked'\)\]/);
   assert.match(page, /factors\);/);
 });
+
+
+test('journal displays recorded observation context', () => {
+  assert.match(page, /factorLabels =/);
+  assert.match(page, /Contexte :/);
+  assert.match(page, /Notes \/ contexte/);
+});
