@@ -99,6 +99,13 @@ test('les libellés du suivi restent descriptifs', () => {
   assert.doesNotMatch(page, /flux menstruel normal/);
 });
 
+test('le repère thermique reste présenté comme un repère visuel', () => {
+  assert.match(page, /referenceLine/);
+  assert.match(page, /Repère visuel des températures/);
+  assert.match(page, /pas un détecteur d'ovulation/);
+  assert.doesNotMatch(page, /coverline/);
+});
+
 test('thermal chart wording stays descriptive', () => {
   assert.match(page, /function detectThermalReference\(entries\)/);
   assert.match(page, /id="thermal-badge"/);
