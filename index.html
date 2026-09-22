@@ -777,9 +777,9 @@ function renderHistory() {
     const last = c.entries.slice().sort((a,b) => a.date.localeCompare(b.date)).slice(-1)[0];
     const span = first && last ? Math.floor((new Date(last.date+'T00:00:00') - new Date(first.date+'T00:00:00')) / 86400000) + 1 : c.entries.length;
     return `
-    <article class="history-item">
+    <article class="history-item" aria-labelledby="history-cycle-${i}">
       <div>
-        <strong>Cycle du ${formatDate(c.start)} au ${formatDate(c.end)}</strong>
+        <h3 id="history-cycle-${i}">Cycle du ${formatDate(c.start)} au ${formatDate(c.end)}</h3>
         <div class="learn-meta">${c.entries.length} observation(s) enregistrée(s) · ${temps} température(s) · période couverte : ${span} jour(s)</div>
         <div class="learn-meta">${mucusCount} observation(s) de glaire renseignée(s) · ${bleedingCount} observation(s) avec saignement · ${completeness}% des champs température/glaire renseignés</div>
         ${contexts ? '<div class="learn-meta">Contexte renseigné sur ' + contexts + ' observation(s)</div>' : ''}
