@@ -235,3 +235,8 @@ test('l’enregistrement du profil dispose d’un statut accessible', () => {
   assert.match(page, /Profil enregistré/);
   assert.match(page, /Le profil n’a pas pu être enregistré/);
 });
+
+
+test('la validation du profil limite le nom importé à 80 caractères', () => {
+  assert.match(page, /value\.profile\.name\.length <= 80/);
+});
