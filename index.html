@@ -321,7 +321,7 @@
       </div>
       <div>
         <label for="f-temp">Température (°C) <a href="#apprendre" onclick="openLesson('m4')">Conseils de mesure</a></label>
-        <input type="number" id="f-temp" step="0.01" min="34" max="40" placeholder="36.50">\n      </div>\n      <div>\n        <label for="f-time">Heure de mesure (optionnel)</label>\n        <input type="time" id="f-time">
+        <input type="number" id="f-temp" step="0.01" min="34" max="40" placeholder="36.50" aria-describedby="temp-help">\n        <div id="temp-help" class="learn-meta">Valeur observée au moment de la mesure. Laisse vide si aucune mesure n’a été prise.</div>\n      </div>\n      <div>\n        <label for="f-time">Heure de mesure (optionnel)</label>\n        <input type="time" id="f-time">
       </div>
       <div>
         <label for="f-bleeding">Saignement</label>
@@ -366,7 +366,7 @@
     </fieldset>
     <div style="margin-bottom:14px;">
       <label for="f-notes">Notes (optionnel)</label>
-      <textarea id="f-notes" placeholder="Ressenti, douleurs, humeur..."></textarea>
+      <textarea id="f-notes" placeholder="Ressenti, douleurs, humeur..." aria-describedby="notes-help"></textarea>\n      <div id="notes-help" class="learn-meta">Décris ce que tu observes ou le contexte de la mesure, sans chercher à en tirer automatiquement une conclusion.</div>
     </div>
     <div id="edit-status" class="notice" style="display:none;margin-bottom:12px;" aria-live="polite"></div>
     <div class="row-actions">
