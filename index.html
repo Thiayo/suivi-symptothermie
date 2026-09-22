@@ -570,6 +570,7 @@ function editEntry(date) {
   if (!entry) return;
   document.getElementById('f-date').value = entry.date;
   document.getElementById('f-temp').value = entry.temp === null ? '' : entry.temp;
+  document.getElementById('f-time').value = entry.time || '';
   document.getElementById('f-mucus').value = entry.mucus || 'sec';\n  document.getElementById('f-bleeding').value = entry.bleeding || (entry.mucus === 'regles' ? 'regles' : entry.mucus === 'spotting' ? 'spotting' : 'aucun');
   document.getElementById('f-notes').value = entry.notes || '';
   document.querySelectorAll('.factor').forEach(el => { el.checked = Array.isArray(entry.factors) && entry.factors.includes(el.value); });
