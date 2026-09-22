@@ -46,3 +46,16 @@ test('non-diagnostic protections from the learning lots remain present', () => {
   assert.doesNotMatch(page, /detectLatePeriod/);
   assert.doesNotMatch(page, /renderLatePeriodBanner/);
 });
+
+
+test('observation context factors are stored and restored', () => {
+  assert.match(page, /class="factor"/);
+  assert.match(page, /value="maladie"/);
+  assert.match(page, /value="sommeil"/);
+  assert.match(page, /value="horaire"/);
+  assert.match(page, /value="voyage"/);
+  assert.match(page, /value="alcool"/);
+  assert.match(page, /value="medicament"/);
+  assert.match(page, /const factors = \[\.\.\.document\.querySelectorAll\('\.factor:checked'\)\]/);
+  assert.match(page, /factors\);/);
+});
