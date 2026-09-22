@@ -93,6 +93,12 @@ test('backup import is versioned and validates entry structure', () => {
 });
 
 
+test('les libellés du suivi restent descriptifs', () => {
+  assert.match(page, /saignement menstruel observé/);
+  assert.match(page, /plusieurs jours d’observations sont consignés/);
+  assert.doesNotMatch(page, /flux menstruel normal/);
+});
+
 test('thermal chart wording stays descriptive', () => {
   assert.match(page, /function detectThermalReference\(entries\)/);
   assert.match(page, /id="thermal-badge"/);
