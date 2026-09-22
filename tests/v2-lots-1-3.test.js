@@ -190,3 +190,10 @@ test('les dates des sauvegardes sont validées comme de vraies dates', () => {
   assert.match(page, /localDateKey\(d\) === value/);
   assert.match(page, /isValidDateKey\(e\.date\)/);
 });
+
+
+test('les températures des sauvegardes restent dans une plage corporelle cohérente', () => {
+  assert.match(page, /const validTemp = value =>/);
+  assert.match(page, /value >= 34 && value <= 42/);
+  assert.match(page, /validTemp\(e\.temp\)/);
+});
