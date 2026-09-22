@@ -298,7 +298,7 @@
     <div class="row-actions" style="margin:14px 0"><button class="btn" id="resume-learning" type="button">Reprendre mon apprentissage</button><button class="btn btn-secondary" id="reset-learning" type="button">Réinitialiser la progression</button></div>
     <div id="module-list" class="module-list" aria-label="Modules pédagogiques"></div>
   </section>
-  <section id="lesson-view" class="card lesson-panel no-print" hidden aria-live="polite"></section>
+  <section id="lesson-view" class="card lesson-panel no-print" hidden aria-live="polite" aria-label="Leçon en cours"></section>
   <section class="card no-print" aria-labelledby="sources-title">
     <h2 id="sources-title">Sources et limites</h2>
     <p>Ces contenus pédagogiques sont généraux et ne remplacent pas un avis médical personnalisé, ni un apprentissage accompagné d’une méthode symptothermique. Les observations et repères affichés par l’application doivent être compris dans leur contexte.</p>
@@ -470,13 +470,14 @@ const MODULES = [
 let memLearning = null;
 function validLearning(value) {
   if (!value || typeof value !== 'object') return false;
-  if (value.version !== LEARNING_VERSION || typeof value.completed !== 'object') return false;
+  if (value.version !== LEARNING_VERSION || !value.completed || typeof value.completed !== 'object' || Array.isArray(value.completed)) return false;
+  if (value.lastModule !== null && value.lastModule !== undefined && !MODULES.some(module => module.id === value.lastModule)) return false;
   return Object.keys(value.completed).every(id => MODULES.some(module => module.id === id) && value.completed[id] === true);
 }
 function loadLearning() {
   if (memLearning) return memLearning;
   try { const value = JSON.parse(localStorage.getItem(LEARNING_KEY) || 'null'); memLearning = validLearning(value) ? value : {version:LEARNING_VERSION, completed:{}, lastModule:null}; }
-  catch (e) { storageAvailable = false; memLearning = {version:LEARNING_VERSION, completed:{}, lastModule:null}; }
+  catch (e) { storageAvailable = false; memLearning = {version:LEARNING_VERSION, completed:{}, lastModule:null}; setStorageStatus('La progression pédagogique locale est illisible. Elle a été réinitialisée pour cette session.'); }
   return memLearning;
 }
 function saveLearning(value) { memLearning = value; try { localStorage.setItem(LEARNING_KEY, JSON.stringify(value)); } catch (e) { storageAvailable = false; setStorageStatus('La progression reste disponible pendant cette session, mais n’a pas pu être enregistrée durablement dans ce navigateur.'); } }
@@ -627,6 +628,8 @@ function deleteEntry(date) {
   if (!confirm('Supprimer l’observation du ' + formatDate(date) + ' ?')) return;
   let entries = loadCurrent().filter(e => e.date !== date);
   saveCurrent(entries);
+  setActionStatus('Observation supprimée.');
+  const status=document.getElementById('action-status');if(status)status.focus();
   render();
 }
 
@@ -638,6 +641,8 @@ function startNewCycle() {
   hist.unshift({ start: entries[0].date, end: entries[entries.length-1].date, entries });
   saveHistory(hist);
   saveCurrent([]);
+  setActionStatus('Cycle archivé et nouveau cycle démarré.');
+  const status=document.getElementById('action-status');if(status)status.focus();
   render();
 }
 
@@ -648,6 +653,8 @@ function deleteHistoryCycle(idx) {
   if (!confirm('Supprimer définitivement le cycle du ' + formatDate(cycle.start) + ' au ' + formatDate(cycle.end) + ' ?')) return;
   hist.splice(idx, 1);
   saveHistory(hist);
+  setActionStatus('Cycle archivé supprimé.');
+  const status=document.getElementById('action-status');if(status)status.focus();
   render();
 }
 
@@ -807,7 +814,7 @@ function localDateKey(date = new Date()) {\n  return date.getFullYear() + '-' + 
   const warning = document.getElementById('storage-warning');
   if (!storageAvailable) {
     warning.style.display = 'block';
-    warning.textContent = "⚠️ Ton navigateur bloque la sauvegarde locale pour ce fichier : tes entrées restent visibles pendant cette session, mais seront perdues si tu fermes ou recharges la page. Essaie d'ouvrir ce fichier avec un autre navigateur (Chrome ou Firefox) pour une sauvegarde permanente.";
+    warning.textContent = "⚠️ La sauvegarde locale est indisponible dans ce navigateur : tes entrées restent visibles pendant cette session, mais peuvent être perdues si tu fermes ou recharges la page. Vérifie les réglages de confidentialité ou de stockage du navigateur.";
   } else {
     warning.style.display = 'none';
   }
@@ -886,14 +893,14 @@ function validBackup(value) {
   const validBleeding = ['aucun','regles','spotting'];
   const validTime = value => value === null || (typeof value === 'string' && /^(?:[01]\\d|2[0-3]):[0-5]\\d$/.test(value));
   const validEntry = e => e && typeof e === 'object' && isValidDateKey(e.date) && validTemp(e.temp) && typeof e.mucus === 'string' && validMucus.includes(e.mucus) && typeof e.notes === 'string' && (!('factors' in e) || (Array.isArray(e.factors) && e.factors.every(f => ['maladie','sommeil','horaire','voyage','alcool','medicament'].includes(f)))) && (!('bleeding' in e) || (typeof e.bleeding === 'string' && validBleeding.includes(e.bleeding))) && (!('time' in e) || validTime(e.time));
-  const validProfile = !('profile' in value) || (value.profile === null || (typeof value.profile === 'object' && (value.profile.version === undefined || value.profile.version === APP_DATA_VERSION) && (value.profile.name === undefined || (typeof value.profile.name === 'string' && value.profile.name.length <= 80)) && (value.profile.goal === undefined || ['observer','apprendre','suivi'].includes(value.profile.goal))));
+  const validProfile = !('profile' in value) || (value.profile === null || (typeof value.profile === 'object' && !Array.isArray(value.profile) && (value.profile.version === undefined || value.profile.version === APP_DATA_VERSION) && (value.profile.name === undefined || (typeof value.profile.name === 'string' && value.profile.name.length <= 80)) && (value.profile.goal === undefined || ['observer','apprendre','suivi'].includes(value.profile.goal))));
   if (!validProfile) return false;
   if (typeof value.exportedAt !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value.exportedAt) || Number.isNaN(Date.parse(value.exportedAt))) return false;
   if (!value.current.every(validEntry)) return false;
-  if (!value.history.every(c => c && typeof c === 'object' && Array.isArray(c.entries) && c.entries.every(validEntry))) return false;
+  if (!value.history.every(c => c && typeof c === 'object' && !Array.isArray(c) && isValidDateKey(c.start) && isValidDateKey(c.end) && c.start <= c.end && Array.isArray(c.entries) && c.entries.length > 0 && c.entries.every(validEntry))) return false;
   return true;
 }
-function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const p=JSON.parse(reader.result);if(!validBackup(p))throw new Error('format');if(!confirm('Remplacer les données locales actuelles par cette sauvegarde ?'))return;saveCurrent(p.current);saveHistory(p.history);if(p.learning&&validLearning(p.learning))saveLearning(p.learning);else localStorage.removeItem(LEARNING_KEY);if(p.profile&&typeof p.profile==='object')localStorage.setItem(PROFILE_KEY,JSON.stringify(p.profile));else localStorage.removeItem(PROFILE_KEY);renderProfile();renderCalendar();render();setBackupStatus('Sauvegarde importée avec succès.');const status=document.getElementById('backup-status');if(status)status.focus();}catch(e){setBackupStatus('La sauvegarde n’a pas été importée : fichier invalide, incomplet ou d’une autre version.');const status=document.getElementById('backup-status');if(status)status.focus();}finally{event.target.value='';}};reader.readAsText(file);}
+function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;if(file.size>2*1024*1024){setBackupStatus('La sauvegarde dépasse la taille maximale autorisée de 2 Mo.');const status=document.getElementById('backup-status');if(status)status.focus();event.target.value='';return;}const reader=new FileReader();reader.onload=()=>{try{const p=JSON.parse(reader.result);if(!p||typeof p!=='object'||Array.isArray(p)||!validBackup(p))throw new Error('format');if(!confirm('Remplacer les données locales actuelles par cette sauvegarde ?'))return;saveCurrent(p.current);saveHistory(p.history);if(p.learning&&validLearning(p.learning))saveLearning(p.learning);else localStorage.removeItem(LEARNING_KEY);if(p.profile&&typeof p.profile==='object')localStorage.setItem(PROFILE_KEY,JSON.stringify(p.profile));else localStorage.removeItem(PROFILE_KEY);renderProfile();renderCalendar();render();setBackupStatus('Sauvegarde importée avec succès.');const status=document.getElementById('backup-status');if(status)status.focus();}catch(e){setBackupStatus('La sauvegarde n’a pas été importée : fichier invalide, incomplet ou d’une autre version.');const status=document.getElementById('backup-status');if(status)status.focus();}finally{event.target.value='';}};reader.readAsText(file);}
 document.getElementById('resume-learning').addEventListener('click', () => openLesson(loadLearning().lastModule || MODULES[0].id));
 document.getElementById('reset-learning').addEventListener('click', resetLearning);
 renderLearning();
