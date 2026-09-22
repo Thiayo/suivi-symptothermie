@@ -168,3 +168,11 @@ test('les champs heure et glaire disposent d’une aide accessible', () => {
   assert.match(page, /id="f-mucus"[^>]*aria-describedby="mucus-help"/);
   assert.match(page, /id="mucus-help"/);
 });
+
+
+test('les champs saignement et contexte disposent de repères accessibles', () => {
+  assert.match(page, /id="f-bleeding"[^>]*aria-describedby="bleeding-help"/);
+  assert.match(page, /id="bleeding-help"/);
+  assert.match(page, /role="group" aria-labelledby="factors-label"/);
+  assert.match(page, /id="factors-label"/);
+});
