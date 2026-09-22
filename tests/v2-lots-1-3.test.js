@@ -267,3 +267,10 @@ test('les actions courantes disposent d’un statut accessible', () => {
   assert.doesNotMatch(page, /alert\('Le cycle en cours est déjà vide\.'/);
   assert.doesNotMatch(page, /alert\('Toutes les données locales ont été effacées\.'/);
 });
+
+
+test('l’export vérifie la présence d’une observation et nettoie le lien de téléchargement', () => {
+  assert.match(page, /const current=loadCurrent\(\);if\(!current\.length\)/);
+  assert.match(page, /document\.body\.appendChild\(a\);a\.click\(\);a\.remove\(\)/);
+  assert.match(page, /setBackupStatus\('Sauvegarde exportée\.'/);
+});
