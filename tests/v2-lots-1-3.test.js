@@ -282,3 +282,10 @@ test('l’enregistrement du profil valide le nom et l’objectif', () => {
   assert.match(page, /Nom d’affichage ne peut pas dépasser 80 caractères/);
   assert.match(page, /Objectif de profil invalide/);
 });
+
+
+test('les erreurs de stockage local disposent d’un retour accessible', () => {
+  assert.match(page, /id="storage-status"[^>]*role="status"[^>]*aria-live="polite"/);
+  assert.match(page, /setStorageStatus\(message\)/);
+  assert.match(page, /n’ont pas pu être enregistrées durablement/);
+});
