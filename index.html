@@ -387,6 +387,7 @@
       <div id="notes-help" class="learn-meta">Décris ce que tu observes ou le contexte de la mesure, sans chercher à en tirer automatiquement une conclusion.</div>
     </div>
     <div id="edit-status" class="notice" style="display:none;margin-bottom:12px;" aria-live="polite"></div>
+    <div id="entry-action-status" class="notice" style="display:none;margin-bottom:12px;" role="status" aria-live="polite" tabindex="-1"></div>
     <div class="row-actions">
       <button type="button" class="btn" id="save-entry-btn" onclick="addEntry()">Enregistrer l'entrée</button>
       <button type="button" class="btn btn-secondary" id="cancel-edit-btn" onclick="cancelEdit()" style="display:none">Annuler la modification</button>
@@ -584,7 +585,7 @@ function addEntry() {
   entries.sort((a,b) => a.date.localeCompare(b.date));
   saveCurrent(entries);
   cancelEdit();
-  document.getElementById('f-date').valueAsDate = new Date();
+  document.getElementById('f-date').value = localDateKey();
   render();
 }
 
@@ -837,6 +838,8 @@ function renderTodaySummary(entries) {
 }
 
 function render() {
+  const dateField = document.getElementById('f-date');
+  if (dateField && !dateField.value) dateField.value = localDateKey();
   const entries = loadCurrent();
   renderTodaySummary(entries);
   renderChart(entries);
@@ -907,7 +910,13 @@ function setBackupStatus(message) {
 }
 function setActionStatus(message) {
   const status = document.getElementById('action-status');
+  const entryStatus = document.getElementById('entry-action-status');
   if (status) status.textContent = message;
+  if (entryStatus) {
+    entryStatus.textContent = message;
+    entryStatus.style.display = 'block';
+    entryStatus.focus();
+  }
 }
 
 function exportData(){const current=loadCurrent();const history=loadHistory();if(!current.length&&!history.length){setBackupStatus("Ajoute au moins une observation ou archive un cycle avant d’exporter.");return;}const exportedAt=new Date().toISOString();const payload={version:APP_DATA_VERSION,exportedAt,current,history,learning:loadLearning(),profile:loadProfile()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='suivi-symptothermie-sauvegarde.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);setBackupStatus('Sauvegarde exportée.');}
