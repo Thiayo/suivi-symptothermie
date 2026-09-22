@@ -319,7 +319,7 @@
       </div>
       <div>
         <label for="f-temp">Température (°C) <a href="#apprendre" onclick="openLesson('m4')">Conseils de mesure</a></label>
-        <input type="number" id="f-temp" step="0.01" min="34" max="40" placeholder="36.50">
+        <input type="number" id="f-temp" step="0.01" min="34" max="40" placeholder="36.50">\n      </div>\n      <div>\n        <label for="f-time">Heure de mesure (optionnel)</label>\n        <input type="time" id="f-time">
       </div>
       <div>
         <label for="f-mucus">Glaire cervicale <a href="#apprendre" onclick="openLesson('m3')">Apprendre à observer</a></label>
@@ -550,7 +550,7 @@ function addEntry() {
 
   let entries = loadCurrent();
   entries = entries.filter(e => e.date !== date);
-  entries.push({ date, temp: isNaN(temp) ? null : temp, mucus, notes, factors });
+  const time = document.getElementById("f-time").value;\n  entries.push({ date, temp: isNaN(temp) ? null : temp, mucus, notes, factors, time: time || null });
   entries.sort((a,b) => a.date.localeCompare(b.date));
   saveCurrent(entries);
   cancelEdit();
@@ -712,13 +712,13 @@ function renderTable(entries) {
   const factorLabels = {maladie:'maladie/fièvre', sommeil:'sommeil perturbé', horaire:'horaire inhabituel', voyage:'voyage/déplacement', alcool:'alcool', medicament:'médicament'};
   let rows = entries.slice().reverse().map(e => {
     const factors = Array.isArray(e.factors) && e.factors.length ? ' · Contexte : ' + e.factors.map(f => factorLabels[f] || f).join(', ') : '';
-    const safeNotes = e.notes ? e.notes.replace(/</g,'&lt;') : '';
+    const safeNotes = e.notes ? e.notes.replace(/</g,'&lt;') : '';\n    const timeLabel = e.time ? ' · Heure : ' + e.time : '';
     return `
     <tr>
       <td>${formatDate(e.date)}</td>
       <td>${e.temp !== null ? e.temp.toFixed(2) + '°C' : '—'}</td>
       <td>${MUCUS_LABELS[e.mucus] || e.mucus}</td>
-      <td>${safeNotes}${factors ? '<div class="learn-meta">' + factors + '</div>' : ''}</td>
+      <td>${safeNotes}${timeLabel}${factors ? '<div class="learn-meta">' + factors + '</div>' : ''}</td>
       <td class="no-print"><button class="btn edit-btn" onclick="editEntry('${e.date}')">Modifier</button><button class="btn btn-danger" onclick="deleteEntry('${e.date}')">✕</button></td>
     </tr>`;
   }).join('');
@@ -803,7 +803,7 @@ function showCalendarDetail(date) {
   if (!detail || !entry) return;
   const temp = entry.temp !== null ? Number(entry.temp).toFixed(2) + ' °C' : 'Non renseignée';
   detail.style.display = 'block';
-  const factorLabels = {maladie:'maladie/fièvre', sommeil:'sommeil perturbé', horaire:'horaire inhabituel', voyage:'voyage/déplacement', alcool:'alcool', medicament:'médicament'};\n  const factors = Array.isArray(entry.factors) && entry.factors.length ? '<br>Contexte : ' + entry.factors.map(f => factorLabels[f] || f).join(', ') : '';\n  const notes = entry.notes ? '<br>Notes : ' + entry.notes.replace(/</g,'&lt;') : '';\n  detail.innerHTML = '<strong>' + formatDate(date) + '</strong> — Température : ' + temp + ' — Observation : ' + (MUCUS_LABELS[entry.mucus] || 'non renseignée') + factors + notes;
+  const factorLabels = {maladie:'maladie/fièvre', sommeil:'sommeil perturbé', horaire:'horaire inhabituel', voyage:'voyage/déplacement', alcool:'alcool', medicament:'médicament'};\n  const factors = Array.isArray(entry.factors) && entry.factors.length ? '<br>Contexte : ' + entry.factors.map(f => factorLabels[f] || f).join(', ') : '';\n  const notes = entry.notes ? '<br>Notes : ' + entry.notes.replace(/</g,'&lt;') : '';\n  const time = entry.time ? '<br>Heure de mesure : ' + entry.time : '';\n  detail.innerHTML = '<strong>' + formatDate(date) + '</strong> — Température : ' + temp + ' — Observation : ' + (MUCUS_LABELS[entry.mucus] || 'non renseignée') + time + factors + notes;
 }
 
 function changeCalendarMonth(delta){calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()+delta,1);renderCalendar();}
