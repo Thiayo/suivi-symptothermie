@@ -506,20 +506,22 @@ function completeLesson(id) { const progress = loadLearning(); progress.complete
 // of silently failing to show what was just entered.
 let memCurrent = null;
 let memHistory = null;
+let memProfile = null;
 let storageAvailable = true;
 
-function loadCurrent() {
-  if (memCurrent !== null) return memCurrent;
-  try {
-    const raw = localStorage.getItem(CURRENT_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    if (!Array.isArray(parsed)) throw new Error('format');
-    memCurrent = parsed;
-  } catch (e) {
-    storageAvailable = false;
-    memCurrent = [];
-    setStorageStatus('Les données locales du cycle en cours sont illisibles. Une nouvelle saisie peut être enregistrée dans cette session.');
-  }
+const VALID_MUCUS = ['sec','collante','cremeuse','blanc-oeuf'];
+const VALID_BLEEDING = ['aucun','regles','spotting'];
+const VALID_FACTORS = ['maladie','sommeil','horaire','voyage','alcool','medicament'];
+
+function validStoredTemperature(value){return value===null||(typeof value==='number'&&Number.isFinite(value)&&value>=34&&value<=42);}
+function validStoredTime(value){return value===null||(typeof value==='string'&&/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value));}
+function validStoredEntry(e){return !!e&&typeof e==='object'&&!Array.isArray(e)&&isValidDateKey(e.date)&&validStoredTemperature(e.temp)&&typeof e.mucus==='string'&&VALID_MUCUS.includes(e.mucus)&&typeof e.notes==='string'&&(!('factors'in e)||(Array.isArray(e.factors)&&e.factors.every(f=>VALID_FACTORS.includes(f))))&&(!('bleeding'in e)||(typeof e.bleeding==='string'&&VALID_BLEEDING.includes(e.bleeding)))&&(!('time'in e)||validStoredTime(e.time));}
+function validStoredHistoryCycle(c){return !!c&&typeof c==='object'&&!Array.isArray(c)&&isValidDateKey(c.start)&&isValidDateKey(c.end)&&c.start<=c.end&&Array.isArray(c.entries)&&c.entries.length>0&&c.entries.every(validStoredEntry);}
+
+function loadCurrent(){
+  if(memCurrent!==null)return memCurrent;
+  try{const raw=localStorage.getItem(CURRENT_KEY),parsed=raw?JSON.parse(raw):[];if(!Array.isArray(parsed)||!parsed.every(validStoredEntry))throw new Error('format');memCurrent=parsed;}
+  catch(e){storageAvailable=false;memCurrent=[];setStorageStatus('Les données locales du cycle en cours sont illisibles ou incomplètes. Une nouvelle saisie peut être enregistrée dans cette session.');}
   return memCurrent;
 }
 function setStorageStatus(message){const status=document.getElementById('storage-status');if(status)status.textContent=message;}
@@ -527,24 +529,8 @@ function saveCurrent(entries) {
   memCurrent = entries;
   try { localStorage.setItem(CURRENT_KEY, JSON.stringify(entries)); } catch (e) { storageAvailable = false; setStorageStatus('Les données restent disponibles pendant cette session, mais n’ont pas pu être enregistrées durablement dans ce navigateur.'); }
 }
-function loadHistory() {
-  if (memHistory !== null) return memHistory;
-  try {
-    const raw = localStorage.getItem(HISTORY_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    if (!Array.isArray(parsed)) throw new Error('format');
-    memHistory = parsed;
-  } catch (e) {
-    storageAvailable = false;
-    memHistory = [];
-    setStorageStatus('L’historique local est illisible. Il reste vide dans cette session ; si tu as une sauvegarde exportée, utilise-la pour récupérer tes données.');
-  }
-  return memHistory;
-}
-function saveHistory(hist) {
-  memHistory = hist;
-  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(hist)); } catch (e) { storageAvailable = false; setStorageStatus('Les données restent disponibles pendant cette session, mais n’ont pas pu être enregistrées durablement dans ce navigateur.'); }
-}
+function loadHistory(){if(memHistory!==null)return memHistory;try{const raw=localStorage.getItem(HISTORY_KEY),parsed=raw?JSON.parse(raw):[];if(!Array.isArray(parsed)||!parsed.every(validStoredHistoryCycle))throw new Error('format');memHistory=parsed;}catch(e){storageAvailable=false;memHistory=[];setStorageStatus('L’historique local est illisible ou incomplet. Il reste vide dans cette session ; si tu as une sauvegarde exportée, utilise-la pour récupérer tes données.');}return memHistory;}
+function saveHistory(hist){memHistory=hist;try{localStorage.setItem(HISTORY_KEY,JSON.stringify(hist));}catch(e){storageAvailable=false;setStorageStatus('Les données restent disponibles pendant cette session, mais n’ont pas pu être enregistrées durablement dans ce navigateur.');}}
 
 document.getElementById('f-date').valueAsDate = new Date();
 document.getElementById('today-date').textContent =
@@ -841,10 +827,10 @@ function exportPDF() {
 const APP_DATA_VERSION = 2;
 const PROFILE_KEY = 'symptothermie_profile';
 let calendarDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-function loadProfile(){try{const v=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null');if(!v||typeof v!=='object'||(v.version!==undefined&&v.version!==APP_DATA_VERSION)||('name' in v&&typeof v.name!=='string')||('goal' in v&&!['observer','apprendre','suivi'].includes(v.goal)))throw new Error('format');return v||{version:APP_DATA_VERSION,name:'',goal:'observer'};}catch(e){storageAvailable=false;setStorageStatus('Le profil local est illisible. Tu peux en enregistrer un nouveau dans cette session.');return {version:APP_DATA_VERSION,name:'',goal:'observer'};}}
+function loadProfile(){if(memProfile!==null)return memProfile;const fallback={version:APP_DATA_VERSION,name:'',goal:'observer'};try{const v=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null');if(v===null){memProfile=fallback;return memProfile;}if(typeof v!=='object'||Array.isArray(v)||(v.version!==undefined&&v.version!==APP_DATA_VERSION)||('name'in v&&(typeof v.name!=='string'||v.name.length>80))||('goal'in v&&!['observer','apprendre','suivi'].includes(v.goal)))throw new Error('format');memProfile={version:APP_DATA_VERSION,name:v.name||'',goal:v.goal||'observer'};}catch(e){storageAvailable=false;memProfile=fallback;setStorageStatus('Le profil local est illisible. Tu peux en enregistrer un nouveau dans cette session.');}return memProfile;}
 function renderProfile(){const p=loadProfile();const n=document.getElementById('profile-name'),g=document.getElementById('profile-goal');if(n)n.value=p.name||'';if(g)g.value=p.goal||'observer';}
 function setProfileStatus(message){const status=document.getElementById('profile-status');if(status)status.textContent=message;}
-function saveProfile(){const name=(document.getElementById('profile-name').value||'').trim();const goal=document.getElementById('profile-goal').value;if(name.length>80){setProfileStatus('Le nom d’affichage ne peut pas dépasser 80 caractères.');const status=document.getElementById('profile-status');if(status)status.focus();return;}if(!['observer','apprendre','suivi'].includes(goal)){setProfileStatus('Objectif de profil invalide.');const status=document.getElementById('profile-status');if(status)status.focus();return;}const p={version:APP_DATA_VERSION,name,goal};try{localStorage.setItem(PROFILE_KEY,JSON.stringify(p));setProfileStatus('Profil enregistré.');const status=document.getElementById('profile-status');if(status)status.focus();}catch(e){storageAvailable=false;setProfileStatus('Le profil n’a pas pu être enregistré.');setStorageStatus('Le profil n’a pas pu être enregistré durablement dans ce navigateur.');const status=document.getElementById('profile-status');if(status)status.focus();}}
+function saveProfile(){const name=(document.getElementById('profile-name').value||'').trim(),goal=document.getElementById('profile-goal').value;if(name.length>80){setProfileStatus('Le nom d’affichage ne peut pas dépasser 80 caractères.');document.getElementById('profile-status')?.focus();return;}if(!['observer','apprendre','suivi'].includes(goal)){setProfileStatus('Objectif de profil invalide.');document.getElementById('profile-status')?.focus();return;}const p={version:APP_DATA_VERSION,name,goal};memProfile=p;try{localStorage.setItem(PROFILE_KEY,JSON.stringify(p));setProfileStatus('Profil enregistré.');}catch(e){storageAvailable=false;setProfileStatus('Le profil n’a pas pu être enregistré durablement. Il reste disponible pendant cette session.');setStorageStatus('Le profil n’a pas pu être enregistré durablement dans ce navigateur.');}document.getElementById('profile-status')?.focus();}
 function allEntriesForCalendar(){const map={};[...loadHistory().flatMap(c=>c.entries||[]),...loadCurrent()].forEach(e=>{map[e.date]=e;});return map;}
 function renderCalendar(){const grid=document.getElementById('calendar-grid'),title=document.getElementById('calendar-title');if(!grid||!title)return;const y=calendarDate.getFullYear(),m=calendarDate.getMonth();title.textContent=new Date(y,m,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});const first=new Date(y,m,1),days=new Date(y,m+1,0).getDate(),offset=(first.getDay()+6)%7,map=allEntriesForCalendar();let html=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map(d=>'<div class="calendar-head">'+d+'</div>').join('');for(let i=0;i<offset;i++)html+='<div class="calendar-day empty" aria-hidden="true"></div>';for(let d=1;d<=days;d++){const key=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),e=map[key],cls='calendar-day'+(e?' has-entry':'')+(e&&e.bleeding==='regles'?' is-period':'');html+='<div class="'+cls+'"'+(e?' role="button" tabindex="0" aria-label="Voir les observations du '+formatDate(key)+'" data-calendar-date="'+key+'" onclick="showCalendarDetail(\''+key+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();showCalendarDetail(\''+key+'\')}\'"':'')+'><span class="day-num">'+d+'</span>'+(e?'<span class="day-meta">'+(e.temp!==null?e.temp.toFixed(1)+'°C':'Observation')+'</span>':'')+'</div>';}grid.innerHTML=html;}
 function escapeHtml(value) {\n  return String(value).replace(/[&<>\"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[char]));\n}\nfunction showCalendarDetail(date) {
@@ -858,14 +844,7 @@ function escapeHtml(value) {\n  return String(value).replace(/[&<>\"']/g, char =
 }
 
 function changeCalendarMonth(delta){calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()+delta,1);renderCalendar();}
-function clearAllData() {
-  if (!confirm('Effacer toutes les données locales de cette application ? Cette action ne peut pas être annulée.')) return;
-  [CURRENT_KEY, HISTORY_KEY, LEARNING_KEY, PROFILE_KEY].forEach(key => localStorage.removeItem(key));
-  setActionStatus('Toutes les données locales ont été effacées.');
-  const status=document.getElementById('action-status');if(status)status.focus();
-  location.reload();
-}
-
+function clearAllData(){if(!confirm('Effacer toutes les données locales de cette application ? Cette action ne peut pas être annulée.'))return;memCurrent=[];memHistory=[];memLearning={version:LEARNING_VERSION,completed:{},lastModule:null};memProfile={version:APP_DATA_VERSION,name:'',goal:'observer'};try{[CURRENT_KEY,HISTORY_KEY,LEARNING_KEY,PROFILE_KEY].forEach(key=>localStorage.removeItem(key));storageAvailable=true;}catch(e){storageAvailable=false;}setActionStatus(storageAvailable?'Toutes les données locales ont été effacées.':'Les données ont été effacées pour cette session, mais le navigateur n’a pas permis de confirmer leur suppression durable.');document.getElementById('action-status')?.focus();renderProfile();renderLearning();renderCalendar();render();}
 function setBackupStatus(message) {
   const status = document.getElementById('backup-status');
   if (status) status.textContent = message;
@@ -882,21 +861,7 @@ function isValidDateKey(value) {
   return !Number.isNaN(d.getTime()) && localDateKey(d) === value;
 }
 
-function validBackup(value) {
-  if (!value || typeof value !== 'object' || value.version !== APP_DATA_VERSION) return false;
-  if (!Array.isArray(value.current) || !Array.isArray(value.history)) return false;
-  const validTemp = value => value === null || (typeof value === 'number' && Number.isFinite(value) && value >= 34 && value <= 42);
-  const validMucus = ['sec','collante','cremeuse','blanc-oeuf'];
-  const validBleeding = ['aucun','regles','spotting'];
-  const validTime = value => value === null || (typeof value === 'string' && /^(?:[01]\\d|2[0-3]):[0-5]\\d$/.test(value));
-  const validEntry = e => e && typeof e === 'object' && isValidDateKey(e.date) && validTemp(e.temp) && typeof e.mucus === 'string' && validMucus.includes(e.mucus) && typeof e.notes === 'string' && (!('factors' in e) || (Array.isArray(e.factors) && e.factors.every(f => ['maladie','sommeil','horaire','voyage','alcool','medicament'].includes(f)))) && (!('bleeding' in e) || (typeof e.bleeding === 'string' && validBleeding.includes(e.bleeding))) && (!('time' in e) || validTime(e.time));
-  const validProfile = !('profile' in value) || (value.profile === null || (typeof value.profile === 'object' && !Array.isArray(value.profile) && (value.profile.version === undefined || value.profile.version === APP_DATA_VERSION) && (value.profile.name === undefined || (typeof value.profile.name === 'string' && value.profile.name.length <= 80)) && (value.profile.goal === undefined || ['observer','apprendre','suivi'].includes(value.profile.goal))));
-  if (!validProfile) return false;
-  if (typeof value.exportedAt !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value.exportedAt) || Number.isNaN(Date.parse(value.exportedAt))) return false;
-  if (!value.current.every(validEntry)) return false;
-  if (!value.history.every(c => c && typeof c === 'object' && !Array.isArray(c) && isValidDateKey(c.start) && isValidDateKey(c.end) && c.start <= c.end && Array.isArray(c.entries) && c.entries.length > 0 && c.entries.every(validEntry))) return false;
-  return true;
-}
+function validBackup(value){if(!value||typeof value!=='object'||value.version!==APP_DATA_VERSION||!Array.isArray(value.current)||!Array.isArray(value.history))return false;const p=value.profile;if(p!==undefined&&p!==null&&(typeof p!=='object'||Array.isArray(p)||(p.version!==undefined&&p.version!==APP_DATA_VERSION)||(p.name!==undefined&&(typeof p.name!=='string'||p.name.length>80))||(p.goal!==undefined&&!['observer','apprendre','suivi'].includes(p.goal))))return false;if(typeof value.exportedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value.exportedAt)||Number.isNaN(Date.parse(value.exportedAt)))return false;return value.current.every(validStoredEntry)&&value.history.every(validStoredHistoryCycle);}
 function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;if(file.size>2*1024*1024){setBackupStatus('La sauvegarde dépasse la taille maximale autorisée de 2 Mo.');const status=document.getElementById('backup-status');if(status)status.focus();event.target.value='';return;}const reader=new FileReader();reader.onload=()=>{try{const p=JSON.parse(reader.result);if(!p||typeof p!=='object'||Array.isArray(p)||!validBackup(p))throw new Error('format');if(!confirm('Remplacer les données locales actuelles par cette sauvegarde ?'))return;saveCurrent(p.current);saveHistory(p.history);if(p.learning&&validLearning(p.learning))saveLearning(p.learning);else localStorage.removeItem(LEARNING_KEY);if(p.profile&&typeof p.profile==='object')localStorage.setItem(PROFILE_KEY,JSON.stringify(p.profile));else localStorage.removeItem(PROFILE_KEY);renderProfile();renderCalendar();render();setBackupStatus('Sauvegarde importée avec succès.');const status=document.getElementById('backup-status');if(status)status.focus();}catch(e){setBackupStatus('La sauvegarde n’a pas été importée : fichier invalide, incomplet ou d’une autre version.');const status=document.getElementById('backup-status');if(status)status.focus();}finally{event.target.value='';}};reader.readAsText(file);}
 document.getElementById('resume-learning').addEventListener('click', () => openLesson(loadLearning().lastModule || MODULES[0].id));
 document.getElementById('reset-learning').addEventListener('click', resetLearning);
