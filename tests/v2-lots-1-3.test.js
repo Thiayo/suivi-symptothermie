@@ -46,3 +46,11 @@ test('non-diagnostic protections from the learning lots remain present', () => {
   assert.doesNotMatch(page, /detectLatePeriod/);
   assert.doesNotMatch(page, /renderLatePeriodBanner/);
 });
+
+
+test('backup import is versioned and validates entry structure', () => {
+  assert.match(page, /function validBackup\(value\)/);
+  assert.match(page, /value\.version !== APP_DATA_VERSION/);
+  assert.match(page, /validEntry = e =>/);
+  assert.match(page, /Sauvegarde importée avec succès/);
+});
