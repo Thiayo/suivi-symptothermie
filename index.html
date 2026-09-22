@@ -154,6 +154,7 @@
     color: var(--text-muted);
     border: 1px solid var(--border);
   }
+  .edit-btn{background:transparent;color:var(--blue);border:1px solid var(--border);padding:6px 10px;font-size:.8rem}.edit-btn:hover{border-color:var(--blue)}
   .btn-danger {
     background: var(--danger);
     padding: 6px 10px;
@@ -347,8 +348,10 @@
       <label for="f-notes">Notes (optionnel)</label>
       <textarea id="f-notes" placeholder="Ressenti, douleurs, humeur..."></textarea>
     </div>
+    <div id="edit-status" class="notice" style="display:none;margin-bottom:12px;" aria-live="polite"></div>
     <div class="row-actions">
-      <button class="btn" onclick="addEntry()">Enregistrer l'entrée</button>
+      <button class="btn" id="save-entry-btn" onclick="addEntry()">Enregistrer l'entrée</button>
+      <button class="btn btn-secondary" id="cancel-edit-btn" onclick="cancelEdit()" style="display:none">Annuler la modification</button>
       <button class="btn btn-secondary" onclick="startNewCycle()">Commencer un nouveau cycle</button>
     </div>
   </div>
@@ -532,15 +535,43 @@ function addEntry() {
   }
 
   let entries = loadCurrent();
-  entries = entries.filter(e => e.date !== date);  entries.push({ date, temp: isNaN(temp) ? null : temp, mucus, notes });
+  entries = entries.filter(e => e.date !== date);
+  entries.push({ date, temp: isNaN(temp) ? null : temp, mucus, notes });
   entries.sort((a,b) => a.date.localeCompare(b.date));
   saveCurrent(entries);
-
-  document.getElementById('f-temp').value = '';
-  document.getElementById('f-notes').value = '';
+  cancelEdit();
   document.getElementById('f-date').valueAsDate = new Date();
-
   render();
+}
+
+function editEntry(date) {
+  const entry = loadCurrent().find(e => e.date === date);
+  if (!entry) return;
+  document.getElementById('f-date').value = entry.date;
+  document.getElementById('f-temp').value = entry.temp === null ? '' : entry.temp;
+  document.getElementById('f-mucus').value = entry.mucus || 'sec';
+  document.getElementById('f-notes').value = entry.notes || '';
+  document.getElementById('save-entry-btn').textContent = 'Enregistrer la modification';
+  document.getElementById('cancel-edit-btn').style.display = 'inline-block';
+  const status = document.getElementById('edit-status');
+  status.style.display = 'block';
+  status.textContent = 'Modification en cours : vérifie les données puis enregistre.';
+  document.getElementById('f-date').focus();
+}
+
+function cancelEdit() {
+  const status = document.getElementById('edit-status');
+  const saveBtn = document.getElementById('save-entry-btn');
+  const cancelBtn = document.getElementById('cancel-edit-btn');
+  if (status) status.style.display = 'none';
+  if (saveBtn) saveBtn.textContent = "Enregistrer l'entrée";
+  if (cancelBtn) cancelBtn.style.display = 'none';
+  const form = document.getElementById('f-date');
+  if (form) form.valueAsDate = new Date();
+  const temp = document.getElementById('f-temp');
+  const notes = document.getElementById('f-notes');
+  if (temp) temp.value = '';
+  if (notes) notes.value = '';
 }
 
 function deleteEntry(date) {
@@ -669,7 +700,7 @@ function renderTable(entries) {
       <td>${e.temp !== null ? e.temp.toFixed(2) + '°C' : '—'}</td>
       <td>${MUCUS_LABELS[e.mucus] || e.mucus}</td>
       <td>${e.notes ? e.notes.replace(/</g,'&lt;') : ''}</td>
-      <td class="no-print"><button class="btn btn-danger" onclick="deleteEntry('${e.date}')">✕</button></td>
+      <td class="no-print"><button class="btn edit-btn" onclick="editEntry('${e.date}')">Modifier</button><button class="btn btn-danger" onclick="deleteEntry('${e.date}')">✕</button></td>
     </tr>`).join('');
   container.innerHTML = `<table>
     <thead><tr><th>Date</th><th>Temp.</th><th>Glaire</th><th>Notes</th><th class="no-print"></th></tr></thead>
