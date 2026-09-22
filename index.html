@@ -428,6 +428,7 @@
     <h2>👤 Profil et confidentialité</h2>
     <div class="profile-grid"><div><label for="profile-name">Prénom ou nom d’affichage (facultatif)</label><input id="profile-name" type="text" maxlength="80" placeholder="Mon profil"></div><div><label for="profile-goal">Objectif d’observation</label><select id="profile-goal"><option value="observer">Observer mon cycle</option><option value="apprendre">Apprendre la symptothermie</option><option value="suivi">Préparer un suivi avec une professionnelle ou un professionnel</option></select></div></div>
     <div class="row-actions" style="margin-top:12px;"><button class="btn" type="button" onclick="saveProfile()">Enregistrer le profil</button><span id="profile-status" class="learn-meta" role="status" aria-live="polite"></span></div>
+    <span id="storage-status" class="learn-meta" role="status" aria-live="polite"></span>
     <div class="privacy-box" style="margin-top:14px;"><strong>Confidentialité :</strong> les données de suivi sont conservées localement dans ce navigateur. Cette page ne les envoie pas à un serveur applicatif.</div>
     <div class="row-actions" style="margin-top:12px;"><button class="btn btn-secondary" type="button" onclick="exportData()">Exporter mes données</button><button class="btn btn-secondary" type="button" onclick="document.getElementById('import-data').click()">Importer une sauvegarde</button><input id="import-data" type="file" accept="application/json" style="display:none" onchange="importData(event)"><span id="backup-status" class="learn-meta" role="status" aria-live="polite" tabindex="-1"></span></div><div class="row-actions" style="margin-top:10px;"><button class="btn btn-danger" type="button" onclick="clearAllData()">Effacer toutes mes données</button></div><p class="learn-meta" style="margin-top:8px;">Cette action supprime les observations, cycles archivés, progression pédagogique et profil de ce navigateur.</p>
   </div>
@@ -478,7 +479,7 @@ function loadLearning() {
   catch (e) { storageAvailable = false; memLearning = {version:LEARNING_VERSION, completed:{}, lastModule:null}; }
   return memLearning;
 }
-function saveLearning(value) { memLearning = value; try { localStorage.setItem(LEARNING_KEY, JSON.stringify(value)); } catch (e) { storageAvailable = false; } }
+function saveLearning(value) { memLearning = value; try { localStorage.setItem(LEARNING_KEY, JSON.stringify(value)); } catch (e) { storageAvailable = false; setStorageStatus('La progression reste disponible pendant cette session, mais n’a pas pu être enregistrée durablement dans ce navigateur.'); } }
 function renderLearning() {
   const progress = loadLearning(), completed = Object.keys(progress.completed).length;
   document.getElementById('overall-progress').style.width = `${completed / MODULES.length * 100}%`;
@@ -519,9 +520,10 @@ function loadCurrent() {
   }
   return memCurrent;
 }
+function setStorageStatus(message){const status=document.getElementById('storage-status');if(status)status.textContent=message;}
 function saveCurrent(entries) {
   memCurrent = entries;
-  try { localStorage.setItem(CURRENT_KEY, JSON.stringify(entries)); } catch (e) { storageAvailable = false; }
+  try { localStorage.setItem(CURRENT_KEY, JSON.stringify(entries)); } catch (e) { storageAvailable = false; setStorageStatus('Les données restent disponibles pendant cette session, mais n’ont pas pu être enregistrées durablement dans ce navigateur.'); }
 }
 function loadHistory() {
   if (memHistory !== null) return memHistory;
@@ -536,7 +538,7 @@ function loadHistory() {
 }
 function saveHistory(hist) {
   memHistory = hist;
-  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(hist)); } catch (e) { storageAvailable = false; }
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(hist)); } catch (e) { storageAvailable = false; setStorageStatus('Les données restent disponibles pendant cette session, mais n’ont pas pu être enregistrées durablement dans ce navigateur.'); }
 }
 
 document.getElementById('f-date').valueAsDate = new Date();
@@ -832,7 +834,7 @@ let calendarDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 function loadProfile(){try{const v=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null');return v&&typeof v==='object'?v:{version:APP_DATA_VERSION,name:'',goal:'observer'};}catch(e){return {version:APP_DATA_VERSION,name:'',goal:'observer'};}}
 function renderProfile(){const p=loadProfile();const n=document.getElementById('profile-name'),g=document.getElementById('profile-goal');if(n)n.value=p.name||'';if(g)g.value=p.goal||'observer';}
 function setProfileStatus(message){const status=document.getElementById('profile-status');if(status)status.textContent=message;}
-function saveProfile(){const name=(document.getElementById('profile-name').value||'').trim();const goal=document.getElementById('profile-goal').value;if(name.length>80){setProfileStatus('Le nom d’affichage ne peut pas dépasser 80 caractères.');return;}if(!['observer','apprendre','suivi'].includes(goal)){setProfileStatus('Objectif de profil invalide.');return;}const p={version:APP_DATA_VERSION,name,goal};try{localStorage.setItem(PROFILE_KEY,JSON.stringify(p));setProfileStatus('Profil enregistré.');}catch(e){storageAvailable=false;setProfileStatus('Le profil n’a pas pu être enregistré.');}}
+function saveProfile(){const name=(document.getElementById('profile-name').value||'').trim();const goal=document.getElementById('profile-goal').value;if(name.length>80){setProfileStatus('Le nom d’affichage ne peut pas dépasser 80 caractères.');return;}if(!['observer','apprendre','suivi'].includes(goal)){setProfileStatus('Objectif de profil invalide.');return;}const p={version:APP_DATA_VERSION,name,goal};try{localStorage.setItem(PROFILE_KEY,JSON.stringify(p));setProfileStatus('Profil enregistré.');}catch(e){storageAvailable=false;setProfileStatus('Le profil n’a pas pu être enregistré.');setStorageStatus('Le profil n’a pas pu être enregistré durablement dans ce navigateur.');}}
 function allEntriesForCalendar(){const map={};[...loadHistory().flatMap(c=>c.entries||[]),...loadCurrent()].forEach(e=>{map[e.date]=e;});return map;}
 function renderCalendar(){const grid=document.getElementById('calendar-grid'),title=document.getElementById('calendar-title');if(!grid||!title)return;const y=calendarDate.getFullYear(),m=calendarDate.getMonth();title.textContent=new Date(y,m,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});const first=new Date(y,m,1),days=new Date(y,m+1,0).getDate(),offset=(first.getDay()+6)%7,map=allEntriesForCalendar();let html=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map(d=>'<div class="calendar-head">'+d+'</div>').join('');for(let i=0;i<offset;i++)html+='<div class="calendar-day empty" aria-hidden="true"></div>';for(let d=1;d<=days;d++){const key=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),e=map[key],cls='calendar-day'+(e?' has-entry':'')+(e&&e.bleeding==='regles'?' is-period':'');html+='<div class="'+cls+'"'+(e?' role="button" tabindex="0" aria-label="Voir les observations du '+formatDate(key)+'" data-calendar-date="'+key+'" onclick="showCalendarDetail(\''+key+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();showCalendarDetail(\''+key+'\')}\'"':'')+'><span class="day-num">'+d+'</span>'+(e?'<span class="day-meta">'+(e.temp!==null?e.temp.toFixed(1)+'°C':'Observation')+'</span>':'')+'</div>';}grid.innerHTML=html;}
 function escapeHtml(value) {\n  return String(value).replace(/[&<>\"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[char]));\n}\nfunction showCalendarDetail(date) {
