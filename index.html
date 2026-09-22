@@ -370,7 +370,7 @@
 </section>
 <section id="graphique" class="app-section">
   <div class="card">
-    <h2>📈 Courbe du cycle en cours <span id="ovu-badge"></span></h2><p class="learn-meta">Le graphique est descriptif, pas diagnostique. <a href="#apprendre" onclick="openLesson('m5')">Apprendre à le lire</a> · <a href="#apprendre" onclick="openLesson('m6')">Comprendre le décalage thermique</a></p>
+    <h2>📈 Courbe du cycle en cours <span id="thermal-badge"></span></h2><p class="learn-meta">Le graphique est descriptif, pas diagnostique. <a href="#apprendre" onclick="openLesson('m5')">Apprendre à le lire</a> · <a href="#apprendre" onclick="openLesson('m6')">Comprendre le décalage thermique</a></p>
     <div class="chart-wrap" id="chart-container"></div>
     <div class="legend">
       <span><span class="dot" style="background:var(--period-color)"></span>Règles</span>
@@ -614,7 +614,7 @@ function deleteHistoryCycle(idx) {
 }
 
 // Detect ovulation shift using simplified 3-over-6 rule
-function detectShift(entries) {
+function detectThermalReference(entries) {
   const withTemp = entries.filter(e => e.temp !== null);
   for (let i = 6; i < withTemp.length; i++) {
     const prev6 = withTemp.slice(i-6, i).map(e => e.temp);
@@ -631,16 +631,16 @@ function detectShift(entries) {
 
 function renderChart(entries) {
   const container = document.getElementById('chart-container');
-  const badge = document.getElementById('ovu-badge');
+  const badge = document.getElementById('thermal-badge');
   if (entries.length === 0) {
     container.innerHTML = '<p class="empty">Ajoute des entrées pour voir ta courbe.</p>';
     badge.innerHTML = '';
     return;
   }
   const withTemp = entries.filter(e => e.temp !== null);
-  const shift = withTemp.length >= 9 ? detectShift(entries) : null;
+  const shift = withTemp.length >= 9 ? detectThermalReference(entries) : null;
   badge.innerHTML = shift
-    ? `<span class="badge badge-ovu">Hausse durable observée autour du ${formatDate(shift.date)}</span>`
+    ? `<span class="badge badge-info">Repère thermique descriptif autour du ${formatDate(shift.date)}</span>`
     : `<span class="badge badge-info">Pas encore assez de données pour afficher un repère</span>`;
 
   const w = Math.max(600, entries.length * 46);
