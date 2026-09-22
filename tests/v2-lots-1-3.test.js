@@ -220,3 +220,10 @@ test('la validation du profil correspond aux objectifs réellement proposés', (
   assert.match(page, /\['observer','apprendre','suivi'\]\.includes\(value\.profile\.goal\)/);
   assert.match(page, /value="suivi">Préparer un suivi/);
 });
+
+
+test('les opérations de sauvegarde disposent d’un statut accessible', () => {
+  assert.match(page, /id="backup-status"[^>]*role="status"[^>]*aria-live="polite"/);
+  assert.match(page, /Sauvegarde exportée/);
+  assert.match(page, /Sauvegarde importée avec succès/);
+});
