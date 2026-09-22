@@ -289,3 +289,11 @@ test('les erreurs de stockage local disposent d’un retour accessible', () => {
   assert.match(page, /setStorageStatus\(message\)/);
   assert.match(page, /n’ont pas pu être enregistrées durablement/);
 });
+
+
+test('le chargement du stockage local vérifie les structures de base', () => {
+  assert.match(page, /const parsed = raw \? JSON\.parse\(raw\) : \[\];/);
+  assert.match(page, /if \(!Array\.isArray\(parsed\)\) throw new Error\('format'\)/);
+  assert.match(page, /Une nouvelle saisie peut être enregistrée dans cette session/);
+  assert.match(page, /utilise-la pour récupérer tes données/);
+});
