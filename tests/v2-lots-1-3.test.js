@@ -320,3 +320,39 @@ test('les statuts d’action et de profil peuvent recevoir le focus après une a
   assert.match(page, /setActionStatus\('Toutes les données locales ont été effacées\.'\);\s*const status=document\.getElementById\('action-status'\);if\(status\)status\.focus\(\)/);
   assert.match(page, /setProfileStatus\('Profil enregistré\.'\);const status=document\.getElementById\('profile-status'\);if\(status\)status\.focus\(\)/);
 });
+
+
+test('l’export fonctionne aussi avec des cycles archivés sans cycle courant', () => {
+  assert.match(page, /const history=loadHistory\(\);if\(!current\.length&&!history\.length\)/);
+  assert.match(page, /const payload=\{version:APP_DATA_VERSION,exportedAt,current,history,learning:loadLearning\(\),profile:loadProfile\(\)\}/);
+});
+
+test('l’import limite la taille des sauvegardes', () => {
+  assert.match(page, /file\.size>2\*1024\*1024/);
+  assert.match(page, /taille maximale autorisée de 2 Mo/);
+});
+
+test('la progression pédagogique importée vérifie aussi le dernier module', () => {
+  assert.match(page, /value\.lastModule !== null && value\.lastModule !== undefined/);
+  assert.match(page, /!MODULES\.some\(module => module\.id === value\.lastModule\)/);
+});
+
+test('les cycles archivés importés ont des bornes de dates cohérentes', () => {
+  assert.match(page, /isValidDateKey\(c\.start\) && isValidDateKey\(c\.end\) && c\.start <= c\.end/);
+  assert.match(page, /c\.entries\.length > 0/);
+});
+
+test('la sauvegarde locale indisponible utilise un message adapté à l’application web', () => {
+  assert.match(page, /La sauvegarde locale est indisponible dans ce navigateur/);
+  assert.doesNotMatch(page, /Essaie d'ouvrir ce fichier avec un autre navigateur/);
+});
+
+test('les actions de suppression et d’archivage annoncent leur résultat', () => {
+  assert.match(page, /setActionStatus\('Observation supprimée\.'/);
+  assert.match(page, /setActionStatus\('Cycle archivé et nouveau cycle démarré\.'/);
+  assert.match(page, /setActionStatus\('Cycle archivé supprimé\.'/);
+});
+
+test('le panneau de leçon possède un nom accessible', () => {
+  assert.match(page, /id="lesson-view"[^>]*aria-live="polite"[^>]*aria-label="Leçon en cours"/);
+});
