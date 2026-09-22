@@ -252,3 +252,9 @@ test('le statut de sauvegarde est focalisable après un import', () => {
 test('la version du profil importé reste cohérente avec la version de l’application', () => {
   assert.match(page, /value\.profile\.version === undefined \|\| value\.profile\.version === APP_DATA_VERSION/);
 });
+
+
+test('les cycles archivés disposent d’un titre accessible', () => {
+  assert.match(page, /<article class="history-item" aria-labelledby="history-cycle-\$\{i\}">/);
+  assert.match(page, /<h3 id="history-cycle-\$\{i\}">Cycle du/);
+});
