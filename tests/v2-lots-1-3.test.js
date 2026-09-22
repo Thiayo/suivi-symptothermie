@@ -208,3 +208,9 @@ test('le profil des sauvegardes utilise des valeurs cohérentes', () => {
   assert.match(page, /const validProfile =/);
   assert.match(page, /\['observer','apprendre','professionnel'\]\.includes\(value\.profile\.goal\)/);
 });
+
+
+test('les sauvegardes vérifient la date d’export', () => {
+  assert.match(page, /typeof value\.exportedAt !== 'string'/);
+  assert.match(page, /Date\.parse\(value\.exportedAt\)/);
+});
