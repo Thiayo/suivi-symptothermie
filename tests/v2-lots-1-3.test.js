@@ -121,3 +121,13 @@ test('les zones principales du suivi sont accessibles', () => {
   assert.match(page, /id="calendar-detail"[^>]*tabindex="-1"/);
   assert.match(page, /detail\.focus\(\)/);
 });
+
+
+test('la validation des sauvegardes contrôle les valeurs des observations', () => {
+  assert.match(page, /const validMucus = \['sec','collante','cremeuse','blanc-oeuf'\]/);
+  assert.match(page, /const validBleeding = \['aucun','regles','spotting'\]/);
+  assert.match(page, /validTime = value => value === null/);
+  assert.match(page, /validMucus\.includes\(e\.mucus\)/);
+  assert.match(page, /validBleeding\.includes\(e\.bleeding\)/);
+  assert.match(page, /validTime\(e\.time\)/);
+});
