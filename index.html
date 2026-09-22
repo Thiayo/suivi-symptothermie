@@ -709,16 +709,21 @@ function renderTable(entries) {
     container.innerHTML = '<p class="empty">Aucune entrée pour ce cycle.</p>';
     return;
   }
-  let rows = entries.slice().reverse().map(e => `
+  const factorLabels = {maladie:'maladie/fièvre', sommeil:'sommeil perturbé', horaire:'horaire inhabituel', voyage:'voyage/déplacement', alcool:'alcool', medicament:'médicament'};
+  let rows = entries.slice().reverse().map(e => {
+    const factors = Array.isArray(e.factors) && e.factors.length ? ' · Contexte : ' + e.factors.map(f => factorLabels[f] || f).join(', ') : '';
+    const safeNotes = e.notes ? e.notes.replace(/</g,'&lt;') : '';
+    return `
     <tr>
       <td>${formatDate(e.date)}</td>
       <td>${e.temp !== null ? e.temp.toFixed(2) + '°C' : '—'}</td>
       <td>${MUCUS_LABELS[e.mucus] || e.mucus}</td>
-      <td>${e.notes ? e.notes.replace(/</g,'&lt;') : ''}</td>
+      <td>${safeNotes}${factors ? '<div class="learn-meta">' + factors + '</div>' : ''}</td>
       <td class="no-print"><button class="btn edit-btn" onclick="editEntry('${e.date}')">Modifier</button><button class="btn btn-danger" onclick="deleteEntry('${e.date}')">✕</button></td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
   container.innerHTML = `<table>
-    <thead><tr><th>Date</th><th>Temp.</th><th>Glaire</th><th>Notes</th><th class="no-print"></th></tr></thead>
+    <thead><tr><th>Date</th><th>Temp.</th><th>Glaire</th><th>Notes / contexte</th><th class="no-print">Actions</th></tr></thead>
     <tbody>${rows}</tbody>
   </table>`;
 }
