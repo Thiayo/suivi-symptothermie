@@ -214,3 +214,9 @@ test('les sauvegardes vérifient la date d’export', () => {
   assert.match(page, /typeof value\.exportedAt !== 'string'/);
   assert.match(page, /Date\.parse\(value\.exportedAt\)/);
 });
+
+
+test('la validation du profil correspond aux objectifs réellement proposés', () => {
+  assert.match(page, /\['observer','apprendre','suivi'\]\.includes\(value\.profile\.goal\)/);
+  assert.match(page, /value="suivi">Préparer un suivi/);
+});
