@@ -240,3 +240,10 @@ test('l’enregistrement du profil dispose d’un statut accessible', () => {
 test('la validation du profil limite le nom importé à 80 caractères', () => {
   assert.match(page, /value\.profile\.name\.length <= 80/);
 });
+
+
+test('le statut de sauvegarde est focalisable après un import', () => {
+  assert.match(page, /id="backup-status"[^>]*role="status"[^>]*aria-live="polite"[^>]*tabindex="-1"/);
+  assert.match(page, /setBackupStatus\('Sauvegarde importée avec succès\.'\);const status=document\.getElementById\('backup-status'\);if\(status\)status\.focus\(\)/);
+  assert.match(page, /La sauvegarde n’a pas été importée/);
+});
