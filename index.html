@@ -786,7 +786,15 @@ function clearAllData() {
 }
 
 function exportData(){const payload={version:APP_DATA_VERSION,exportedAt:new Date().toISOString(),current:loadCurrent(),history:loadHistory(),learning:loadLearning(),profile:loadProfile()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='suivi-symptothermie-sauvegarde.json';a.click();URL.revokeObjectURL(url);}
-function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const p=JSON.parse(reader.result);if(!p||!Array.isArray(p.current)||!Array.isArray(p.history))throw new Error('format');if(!confirm('Remplacer les données locales actuelles par cette sauvegarde ?'))return;saveCurrent(p.current);saveHistory(p.history);if(p.learning&&validLearning(p.learning))saveLearning(p.learning);if(p.profile&&typeof p.profile==='object')localStorage.setItem(PROFILE_KEY,JSON.stringify(p.profile));renderProfile();renderCalendar();render();}catch(e){alert('Sauvegarde invalide ou illisible.');}finally{event.target.value='';}};reader.readAsText(file);}
+function validBackup(value) {
+  if (!value || typeof value !== 'object' || value.version !== APP_DATA_VERSION) return false;
+  if (!Array.isArray(value.current) || !Array.isArray(value.history)) return false;
+  const validEntry = e => e && typeof e === 'object' && /^\d{4}-\d{2}-\d{2}$/.test(e.date) && (e.temp === null || (typeof e.temp === 'number' && Number.isFinite(e.temp))) && typeof e.mucus === 'string' && typeof e.notes === 'string';
+  if (!value.current.every(validEntry)) return false;
+  if (!value.history.every(c => c && typeof c === 'object' && Array.isArray(c.entries) && c.entries.every(validEntry))) return false;
+  return true;
+}
+function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const p=JSON.parse(reader.result);if(!validBackup(p))throw new Error('format');if(!confirm('Remplacer les données locales actuelles par cette sauvegarde ?'))return;saveCurrent(p.current);saveHistory(p.history);if(p.learning&&validLearning(p.learning))saveLearning(p.learning);else localStorage.removeItem(LEARNING_KEY);if(p.profile&&typeof p.profile==='object')localStorage.setItem(PROFILE_KEY,JSON.stringify(p.profile));else localStorage.removeItem(PROFILE_KEY);renderProfile();renderCalendar();render();alert('Sauvegarde importée avec succès.');}catch(e){alert('Sauvegarde invalide, incomplète ou issue d’une autre version.');}finally{event.target.value='';}};reader.readAsText(file);}
 document.getElementById('resume-learning').addEventListener('click', () => openLesson(loadLearning().lastModule || MODULES[0].id));
 document.getElementById('reset-learning').addEventListener('click', resetLearning);
 renderLearning();
