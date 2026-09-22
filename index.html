@@ -718,18 +718,18 @@ function renderTable(entries) {
   const factorLabels = {maladie:'maladie/fièvre', sommeil:'sommeil perturbé', horaire:'horaire inhabituel', voyage:'voyage/déplacement', alcool:'alcool', medicament:'médicament'};
   let rows = entries.slice().reverse().map(e => {
     const factors = Array.isArray(e.factors) && e.factors.length ? ' · Contexte : ' + e.factors.map(f => factorLabels[f] || f).join(', ') : '';
-    const safeNotes = e.notes ? e.notes.replace(/</g,'&lt;') : '';\n    const timeLabel = e.time ? ' · Heure : ' + e.time : '';
+    const safeNotes = e.notes ? e.notes.replace(/</g,'&lt;') : '';\n    const timeLabel = e.time ? ' · Heure : ' + e.time : '';\n    const bleedingLabel = e.bleeding && e.bleeding !== 'aucun' ? ' · Saignement : ' + (e.bleeding === 'regles' ? 'règles' : 'spotting') : '';
     return `
     <tr>
       <td>${formatDate(e.date)}</td>
       <td>${e.temp !== null ? e.temp.toFixed(2) + '°C' : '—'}</td>
-      <td>${MUCUS_LABELS[e.mucus] || e.mucus}</td>
-      <td>${safeNotes}${timeLabel}${factors ? '<div class="learn-meta">' + factors + '</div>' : ''}</td>
+      <td>${e.bleeding && e.bleeding !== 'aucun' ? (e.bleeding === 'regles' ? 'Règles' : 'Spotting') : '—'}</td>\n      <td>${MUCUS_LABELS[e.mucus] || e.mucus}</td>
+      <td>${safeNotes}${bleedingLabel}${timeLabel}${factors ? '<div class="learn-meta">' + factors + '</div>' : ''}</td>
       <td class="no-print"><button class="btn edit-btn" onclick="editEntry('${e.date}')">Modifier</button><button class="btn btn-danger" onclick="deleteEntry('${e.date}')">✕</button></td>
     </tr>`;
   }).join('');
   container.innerHTML = `<table>
-    <thead><tr><th>Date</th><th>Temp.</th><th>Glaire</th><th>Notes / contexte</th><th class="no-print">Actions</th></tr></thead>
+    <thead><tr><th>Date</th><th>Temp.</th><th>Saignement</th><th>Glaire</th><th>Notes / contexte</th><th class="no-print">Actions</th></tr></thead>
     <tbody>${rows}</tbody>
   </table>`;
 }
