@@ -66,3 +66,12 @@ test('journal displays recorded observation context', () => {
   assert.match(page, /Contexte :/);
   assert.match(page, /Notes \/ contexte/);
 });
+
+
+test('history provides descriptive cycle summaries', () => {
+  assert.match(page, /function renderHistory\(\)/);
+  assert.match(page, /température\(s\)/);
+  assert.match(page, /période couverte/);
+  assert.match(page, /Contexte renseigné sur/);
+  assert.match(page, /aria-label="Supprimer ce cycle archivé"/);
+});
