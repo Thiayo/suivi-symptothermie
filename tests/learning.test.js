@@ -33,3 +33,19 @@ test('each module has a quiz with an explanatory result announced to assistive t
   assert.match(page, /quiz-result[^>]*aria-live="polite"/);
   assert.match(page, /\$\{quiz\.explain\}/);
 });
+
+
+test('modules 6 to 8 keep the requested non-diagnostic educational scope', () => {
+  assert.match(page, /Le principe général d’une hausse durable/);
+  assert.match(page, /n’est pas, à elle seule, une preuve automatique d’ovulation/);
+  for (const item of ['maladie','fièvre','sommeil perturbé','voyage','alcool','médicaments','postpartum','allaitement','périménopause']) assert.match(page, new RegExp(item));
+  for (const item of ['Exercice 1 — Glaire','Exercice 2 — Température perturbée','Exercice 3 — Graphique','Exercice 4 — Observation ou interprétation','Exercice 5 — Donnée manquante']) assert.match(page, new RegExp(item));
+  assert.match(page, /Sources et limites/);
+});
+
+test('contextual learning links are available from observations and graph', () => {
+  assert.match(page, /openLesson\('m4'\)/);
+  assert.match(page, /openLesson\('m3'\)/);
+  assert.match(page, /openLesson\('m5'\)/);
+  assert.match(page, /openLesson\('m6'\)/);
+});
