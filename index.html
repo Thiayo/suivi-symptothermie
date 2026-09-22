@@ -568,6 +568,8 @@ function addEntry() {
 }
 
 function editEntry(date) {
+  announceEditStatus('Modification de l’observation du ' + formatDate(date) + '.');
+
   const entry = loadCurrent().find(e => e.date === date);
   if (!entry) return;
   document.getElementById('f-date').value = entry.date;
@@ -582,6 +584,11 @@ function editEntry(date) {
   status.style.display = 'block';
   status.textContent = 'Modification en cours : vérifie les données puis enregistre.';
   document.getElementById('f-date').focus();
+}
+
+function announceEditStatus(message) {
+  const status = document.getElementById('edit-status');
+  if (status) status.textContent = message;
 }
 
 function cancelEdit() {
@@ -604,6 +611,7 @@ function cancelEdit() {
   if (mucus) mucus.value = 'sec';
   if (notes) notes.value = '';
   document.querySelectorAll('.factor').forEach(el => { el.checked = false; });
+  announceEditStatus('Formulaire réinitialisé.');
 }
 
 function deleteEntry(date) {
