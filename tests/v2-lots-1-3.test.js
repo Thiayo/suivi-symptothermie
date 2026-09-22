@@ -274,3 +274,11 @@ test('l’export vérifie la présence d’une observation et nettoie le lien de
   assert.match(page, /document\.body\.appendChild\(a\);a\.click\(\);a\.remove\(\)/);
   assert.match(page, /setBackupStatus\('Sauvegarde exportée\.'/);
 });
+
+
+test('l’enregistrement du profil valide le nom et l’objectif', () => {
+  assert.match(page, /name\.length>80/);
+  assert.match(page, /\['observer','apprendre','suivi'\]\.includes\(goal\)/);
+  assert.match(page, /Nom d’affichage ne peut pas dépasser 80 caractères/);
+  assert.match(page, /Objectif de profil invalide/);
+});
