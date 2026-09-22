@@ -247,8 +247,7 @@
   .learn-nav { display:flex; justify-content:center; margin:0 0 18px; }
   .app-nav{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 18px;position:sticky;top:8px;z-index:10}
   .app-nav a{text-align:center;text-decoration:none;padding:9px 7px;border:1px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--text);font-weight:600;font-size:.86rem}
-  .app-nav a:hover,.app-nav a:focus-visible{color:var(--blue);border-color:var(--blue)}
-  .app-section{scroll-margin-top:72px}
+  .app-nav a:hover,.app-nav a:focus-visible{color:var(--blue);border-color:var(--blue)}  .app-section{scroll-margin-top:72px}
   .calendar-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
   .calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
   .calendar-head,.calendar-day{min-height:42px;padding:5px;border:1px solid var(--border);border-radius:8px;font-size:.75rem}
@@ -497,8 +496,7 @@ function openLesson(id) {
   panel.scrollIntoView({behavior:'smooth', block:'start'});
 }
 function answerQuiz(id, choice) { const quiz = MODULES.find(item => item.id === id).quiz, correct = choice === quiz.answer; document.getElementById('quiz-result').textContent = `${correct ? 'Réponse juste.' : 'À revoir.'} ${quiz.explain}`; }
-function completeLesson(id) { const progress = loadLearning(); progress.completed[id] = true; progress.lastModule = id; saveLearning(progress); renderLearning(); openLesson(id); }
-function resetLearning() { if (!confirm('Réinitialiser toute la progression pédagogique ?')) return; saveLearning({version:LEARNING_VERSION, completed:{}, lastModule:null}); document.getElementById('lesson-view').hidden = true; renderLearning(); }
+function completeLesson(id) { const progress = loadLearning(); progress.completed[id] = true; progress.lastModule = id; saveLearning(progress); renderLearning(); openLesson(id); }function resetLearning() { if (!confirm('Réinitialiser toute la progression pédagogique ?')) return; saveLearning({version:LEARNING_VERSION, completed:{}, lastModule:null}); document.getElementById('lesson-view').hidden = true; renderLearning(); }
 
 
 // In-memory cache acts as the source of truth for this session. localStorage
@@ -747,8 +745,7 @@ function renderChart(entries) {
 }
 
 function formatDate(d) {
-  const dt = new Date(d + 'T00:00:00');
-  return dt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+  const dt = new Date(d + 'T00:00:00');  return dt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
 }
 
 function renderTable(entries) {
@@ -878,7 +875,7 @@ function setActionStatus(message) {
   if (status) status.textContent = message;
 }
 
-function exportData(){const current=loadCurrent();if(!current.length){setBackupStatus("Ajoute au moins une entrée avant d'exporter.");return;}const exportedAt=new Date().toISOString();const payload={version:APP_DATA_VERSION,exportedAt,current,history:loadHistory(),learning:loadLearning(),profile:loadProfile()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='suivi-symptothermie-sauvegarde.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);setBackupStatus('Sauvegarde exportée.');}
+function exportData(){const current=loadCurrent();const history=loadHistory();if(!current.length&&!history.length){setBackupStatus("Ajoute au moins une observation ou archive un cycle avant d’exporter.");return;}const exportedAt=new Date().toISOString();const payload={version:APP_DATA_VERSION,exportedAt,current,history,learning:loadLearning(),profile:loadProfile()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='suivi-symptothermie-sauvegarde.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);setBackupStatus('Sauvegarde exportée.');}
 function isValidDateKey(value) {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const d = new Date(value + 'T00:00:00');
