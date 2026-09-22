@@ -148,3 +148,10 @@ test('les champs du formulaire disposent d’une aide accessible', () => {
   assert.match(page, /id="f-notes"[^>]*aria-describedby="notes-help"/);
   assert.match(page, /id="notes-help"/);
 });
+
+
+test('les suppressions demandent une confirmation et restent accessibles', () => {
+  assert.match(page, /Supprimer l’observation du/);
+  assert.match(page, /Supprimer définitivement le cycle du/);
+  assert.match(page, /aria-label="Supprimer l’observation du/);
+});
