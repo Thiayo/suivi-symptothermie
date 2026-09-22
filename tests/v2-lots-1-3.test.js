@@ -356,3 +356,25 @@ test('les actions de suppression et d’archivage annoncent leur résultat', () 
 test('le panneau de leçon possède un nom accessible', () => {
   assert.match(page, /id="lesson-view"[^>]*aria-live="polite"[^>]*aria-label="Leçon en cours"/);
 });
+
+
+test('l’import valide la progression pédagogique avant toute écriture', () => {
+  assert.match(page, /!validBackup\(p\)\|\|\('learning'in p&&p\.learning!==undefined&&!validLearning\(p\.learning\)\)/);
+});
+
+test('l’import sauvegarde les anciennes données avant les écritures et prévoit un rollback', () => {
+  assert.match(page, /const keys=\[CURRENT_KEY,HISTORY_KEY,LEARNING_KEY,PROFILE_KEY\],previous=\{\}/);
+  assert.match(page, /localStorage\.setItem\(CURRENT_KEY,JSON\.stringify\(p\.current\)\)/);
+  assert.match(page, /localStorage\.setItem\(HISTORY_KEY,JSON\.stringify\(p\.history\)\)/);
+  assert.match(page, /previous\[key\]===null\)localStorage\.removeItem\(key\);else localStorage\.setItem\(key,previous\[key\])/);
+});
+
+test('l’import ne met à jour les caches mémoire qu’après les écritures réussies', () => {
+  assert.match(page, /memCurrent=p\.current;memHistory=p\.history;memLearning=nextLearning;memProfile=nextProfile/);
+  assert.match(page, /Sauvegarde importée avec succès/);
+});
+
+test('la page possède une description adaptée au référencement et à la confidentialité', () => {
+  assert.match(page, /<meta name="description" content="Application locale de suivi des observations du cycle/);
+  assert.match(page, /Les données restent dans le navigateur/);
+});
