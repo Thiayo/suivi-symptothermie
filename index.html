@@ -735,12 +735,22 @@ function renderHistory() {
     container.innerHTML = '<p class="empty">Pas encore de cycle archivé.</p>';
     return;
   }
-  container.innerHTML = hist.map((c, i) => `
-    <div class="history-item">
-      <span>Cycle du ${formatDate(c.start)} au ${formatDate(c.end)} — ${c.entries.length} jours notés</span>
-      <button class="btn btn-danger" onclick="deleteHistoryCycle(${i})">Supprimer</button>
-    </div>
-  `).join('');
+  container.innerHTML = hist.map((c, i) => {
+    const temps = c.entries.filter(e => Number.isFinite(Number(e.temp))).length;
+    const contexts = c.entries.filter(e => Array.isArray(e.factors) && e.factors.length).length;
+    const first = c.entries.slice().sort((a,b) => a.date.localeCompare(b.date))[0];
+    const last = c.entries.slice().sort((a,b) => a.date.localeCompare(b.date)).slice(-1)[0];
+    const span = first && last ? Math.floor((new Date(last.date+'T00:00:00') - new Date(first.date+'T00:00:00')) / 86400000) + 1 : c.entries.length;
+    return `
+    <article class="history-item">
+      <div>
+        <strong>Cycle du ${formatDate(c.start)} au ${formatDate(c.end)}</strong>
+        <div class="learn-meta">${c.entries.length} observation(s) enregistrée(s) · ${temps} température(s) · période couverte : ${span} jour(s)</div>
+        ${contexts ? '<div class="learn-meta">Contexte renseigné sur ' + contexts + ' observation(s)</div>' : ''}
+      </div>
+      <button class="btn btn-danger" onclick="deleteHistoryCycle(${i})" aria-label="Supprimer ce cycle archivé">Supprimer</button>
+    </article>`;
+  }).join('');
 }
 
 function renderTodaySummary(entries) {\n  const box = document.getElementById('today-summary');\n  if (!box) return;\n  const today = new Date().toISOString().slice(0,10);\n  const todayEntry = entries.find(e => e.date === today);\n  const sorted = [...entries].sort((a,b) => a.date.localeCompare(b.date));\n  const first = sorted[0];\n  const cycleDay = first ? Math.max(1, Math.floor((new Date(today+'T00:00:00') - new Date(first.date+'T00:00:00')) / 86400000) + 1) : null;\n  const temp = todayEntry && Number.isFinite(Number(todayEntry.temp)) ? Number(todayEntry.temp).toFixed(2) + ' °C' : 'Non renseignée';\n  const mucus = todayEntry ? (MUCUS_LABELS[todayEntry.mucus] || 'Observation enregistrée') : 'Aucune observation';\n  box.innerHTML = '<div class=\"today-stat\"><strong>' + (todayEntry ? '✓ Enregistrée' : 'À renseigner') + '</strong><span>Observation du jour</span></div>' + '<div class=\"today-stat\"><strong>' + temp + '</strong><span>Température</span></div>' + '<div class=\"today-stat\"><strong>' + mucus + '</strong><span>Glaire / observation</span></div>' + '<div class=\"today-stat\"><strong>' + (cycleDay ? 'Jour ' + cycleDay : '—') + '</strong><span>Repère dans le cycle</span></div>';\n}\n\nfunction render() {
