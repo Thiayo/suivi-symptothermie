@@ -83,3 +83,12 @@ test('backup import is versioned and validates entry structure', () => {
   assert.match(page, /validEntry = e =>/);
   assert.match(page, /Sauvegarde importée avec succès/);
 });
+
+
+test('thermal chart wording stays descriptive', () => {
+  assert.match(page, /function detectThermalReference\(entries\)/);
+  assert.match(page, /id="thermal-badge"/);
+  assert.match(page, /Repère thermique descriptif/);
+  assert.doesNotMatch(page, /badge-ovu/);
+  assert.doesNotMatch(page, /id="ovu-badge"/);
+});
