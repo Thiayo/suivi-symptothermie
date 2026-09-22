@@ -323,7 +323,7 @@
           <option value="sec">Sec / absent</option>
           <option value="collante">Collante</option>
           <option value="cremeuse">Crémeuse</option>
-          <option value="blanc-oeuf">Blanc d'œuf (fertile)</option>
+          <option value="blanc-oeuf">Blanc d'œuf (observation)</option>
         </select>
       </div>
     </div>
@@ -331,7 +331,7 @@
       <summary style="cursor:pointer; color:var(--blue); font-weight:600;">ℹ️ Que veut dire chaque type ?</summary>
       <div style="margin-top:10px; line-height:1.6;">
         <strong style="color:var(--period-color);">Règles</strong> : le flux menstruel normal, du 1er au dernier jour.<br>
-        <strong style="color:var(--spotting-color);">Spotting</strong> : de très légères pertes teintées de sang, en dehors des règles — souvent sans gravité (autour de l'ovulation, en tout début de grossesse, sous contraception hormonale), mais à signaler à un médecin si ça se répète, dure ou s'accompagne de douleurs.<br>
+        <strong style="color:var(--spotting-color);">Spotting</strong> : de très légères pertes teintées de sang, en dehors des règles — souvent sans gravité (autour de l'ovulation, dans certains contextes hormonaux ou du cycle), mais à signaler à un médecin si ça se répète, dure ou s'accompagne de douleurs.<br>
         <strong style="color:var(--dry-color);">Sec / absent</strong> : aucune sensation d'humidité ni de glaire visible — habituel juste après les règles.<br>
         <strong style="color:var(--sticky-color);">Collante</strong> et <strong style="color:var(--creamy-color);">Crémeuse</strong> : ce qu'on appelle couramment les "pertes blanches". Ce sont des sécrétions normales et saines qui épaississent puis s'assouplissent à mesure que l'ovulation approche.<br>
         <strong style="color:var(--egg-white-color);">Blanc d'œuf</strong> : glaire transparente, élastique et glissante — un repère descriptif parmi d’autres, qui peut varier selon les personnes.<br><br>
@@ -346,8 +346,6 @@
       <button class="btn" onclick="addEntry()">Enregistrer l'entrée</button>
       <button class="btn btn-secondary" onclick="startNewCycle()">Commencer un nouveau cycle</button>
     </div>
-  </div>
-
   </div>
 </section>
 <section id="graphique" class="app-section">
@@ -376,8 +374,6 @@
       <button class="btn btn-secondary" onclick="exportPDF()">🖨️ Exporter le cycle en PDF</button>
     </div>
   </div>
-
-  </div>
 </section>
 <section id="calendrier" class="app-section">
   <div class="card">
@@ -385,7 +381,6 @@
     <div class="calendar-toolbar"><button class="btn btn-secondary" type="button" onclick="changeCalendarMonth(-1)">‹ Mois précédent</button><strong id="calendar-title"></strong><button class="btn btn-secondary" type="button" onclick="changeCalendarMonth(1)">Mois suivant ›</button></div>
     <div id="calendar-grid" class="calendar-grid" aria-live="polite"></div>
     <p class="learn-meta" style="margin-top:10px;">Le calendrier affiche uniquement les observations enregistrées. Il ne fournit pas de prédiction ni de conclusion sur la fertilité.</p>
-  </div>
 </section>
 <section id="historique" class="app-section">
   <div class="card">
@@ -396,7 +391,6 @@
   <div class="card no-print">
     <h2>🗂️ Cycles précédents</h2>
     <div id="history-container"></div>
-  </div>
 </section>
 <section id="profil" class="app-section">
   <div class="card no-print">
