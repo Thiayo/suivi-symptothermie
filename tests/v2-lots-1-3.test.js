@@ -247,3 +247,8 @@ test('le statut de sauvegarde est focalisable après un import', () => {
   assert.match(page, /setBackupStatus\('Sauvegarde importée avec succès\.'\);const status=document\.getElementById\('backup-status'\);if\(status\)status\.focus\(\)/);
   assert.match(page, /La sauvegarde n’a pas été importée/);
 });
+
+
+test('la version du profil importé reste cohérente avec la version de l’application', () => {
+  assert.match(page, /value\.profile\.version === undefined \|\| value\.profile\.version === APP_DATA_VERSION/);
+});
