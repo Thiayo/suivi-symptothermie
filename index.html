@@ -775,7 +775,7 @@ function exportPDF() {
     return;
   }
   const withTemp = entries.filter(e => e.temp !== null);
-  const shift = withTemp.length >= 9 ? detectShift(entries) : null;
+  const shift = withTemp.length >= 9 ? detectThermalReference(entries) : null;
   const today = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 
   let summary = `<strong>Retrouver l'harmonie hormonale — Suivi de cycle</strong><br>
@@ -799,7 +799,7 @@ function allEntriesForCalendar(){const map={};[...loadHistory().flatMap(c=>c.ent
 function renderCalendar(){const grid=document.getElementById('calendar-grid'),title=document.getElementById('calendar-title');if(!grid||!title)return;const y=calendarDate.getFullYear(),m=calendarDate.getMonth();title.textContent=new Date(y,m,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});const first=new Date(y,m,1),days=new Date(y,m+1,0).getDate(),offset=(first.getDay()+6)%7,map=allEntriesForCalendar();let html=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map(d=>'<div class="calendar-head">'+d+'</div>').join('');for(let i=0;i<offset;i++)html+='<div class="calendar-day empty" aria-hidden="true"></div>';for(let d=1;d<=days;d++){const key=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),e=map[key],cls='calendar-day'+(e?' has-entry':'')+(e&&e.mucus==='regles'?' is-period':'');html+='<div class="'+cls+'"><span class="day-num">'+d+'</span>'+(e?'<span class="day-meta">'+(e.temp!==null?e.temp.toFixed(1)+'°C':'Observation')+'</span>':'')+'</div>';}grid.innerHTML=html;}
 function showCalendarDetail(date) {
   const detail = document.getElementById('calendar-detail');
-  const entry = allEntriesForCalendar().find(e => e.date === date);
+  const entry = allEntriesForCalendar()[date];
   if (!detail || !entry) return;
   const temp = entry.temp !== null ? Number(entry.temp).toFixed(2) + ' °C' : 'Non renseignée';
   detail.style.display = 'block';
