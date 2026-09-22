@@ -176,3 +176,10 @@ test('les champs saignement et contexte disposent de repères accessibles', () =
   assert.match(page, /role="group" aria-labelledby="factors-label"/);
   assert.match(page, /id="factors-label"/);
 });
+
+
+test('le mode édition fournit une annonce accessible', () => {
+  assert.match(page, /id="edit-status"[^>]*role="status"[^>]*aria-live="polite"/);
+  assert.match(page, /function announceEditStatus\(message\)/);
+  assert.match(page, /Modification de l’observation du/);
+});
