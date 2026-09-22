@@ -321,7 +321,7 @@
       </div>
       <div>
         <label for="f-temp">Température (°C) <a href="#apprendre" onclick="openLesson('m4')">Conseils de mesure</a></label>
-        <input type="number" id="f-temp" step="0.01" min="34" max="40" placeholder="36.50" aria-describedby="temp-help">\n        <div id="temp-help" class="learn-meta">Valeur observée au moment de la mesure. Laisse vide si aucune mesure n’a été prise.</div>\n      </div>\n      <div>\n        <label for="f-time">Heure de mesure (optionnel)</label>\n        <input type="time" id="f-time" aria-describedby="time-help">
+        <input type="number" id="f-temp" step="0.01" min="34" max="42" placeholder="36.50" inputmode="decimal" aria-describedby="temp-help">\n        <div id="temp-help" class="learn-meta">Valeur observée au moment de la mesure. Laisse vide si aucune mesure n’a été prise.</div>\n      </div>\n      <div>\n        <label for="f-time">Heure de mesure (optionnel)</label>\n        <input type="time" id="f-time" aria-describedby="time-help">
 <div id="time-help" class="learn-meta">Heure à laquelle la température a été mesurée, si tu souhaites la conserver.</div>
       </div>
       <div>
@@ -536,6 +536,7 @@ function loadHistory(){if(memHistory!==null)return memHistory;try{const raw=loca
 function saveHistory(hist){memHistory=hist;try{localStorage.setItem(HISTORY_KEY,JSON.stringify(hist));}catch(e){storageAvailable=false;setStorageStatus('Les données restent disponibles pendant cette session, mais n’ont pas pu être enregistrées durablement dans ce navigateur.');}}
 
 document.getElementById('f-date').valueAsDate = new Date();
+document.getElementById('f-date').max = localDateKey();
 document.getElementById('today-date').textContent =
   'Aujourd\'hui : ' + new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -547,6 +548,8 @@ function addEntry() {
   const factors = [...document.querySelectorAll('.factor:checked')].map(el => el.value);
 
   if (!date) { setActionStatus('Merci de choisir une date.'); return; }
+  if (!isValidDateKey(date)) { setActionStatus('La date saisie est invalide.'); document.getElementById('action-status')?.focus(); return; }
+  if (date > localDateKey()) { setActionStatus('Une observation future ne peut pas être enregistrée.'); document.getElementById('action-status')?.focus(); return; }
   if (isNaN(temp) && bleeding !== 'regles') {
     if (!confirm("Aucune température saisie, continuer quand même ?")) return;
   }
@@ -556,7 +559,9 @@ function addEntry() {
 
   let entries = loadCurrent();
   entries = entries.filter(e => e.date !== date);
-  const time = document.getElementById("f-time").value;\n  entries.push({ date, temp: isNaN(temp) ? null : temp, mucus, bleeding, notes, factors, time: time || null });
+  const time = document.getElementById("f-time").value;\n  const candidate = { date, temp: isNaN(temp) ? null : temp, mucus, bleeding, notes, factors, time: time || null };
+  if (!validStoredEntry(candidate)) { setActionStatus('Les données saisies ne sont pas valides. Vérifie les champs avant d’enregistrer.'); document.getElementById('action-status')?.focus(); return; }
+  entries.push(candidate);
   entries.sort((a,b) => a.date.localeCompare(b.date));
   saveCurrent(entries);
   cancelEdit();
