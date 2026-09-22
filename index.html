@@ -513,10 +513,13 @@ function loadCurrent() {
   if (memCurrent !== null) return memCurrent;
   try {
     const raw = localStorage.getItem(CURRENT_KEY);
-    memCurrent = raw ? JSON.parse(raw) : [];
+    const parsed = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(parsed)) throw new Error('format');
+    memCurrent = parsed;
   } catch (e) {
     storageAvailable = false;
     memCurrent = [];
+    setStorageStatus('Les données locales du cycle en cours sont illisibles. Une nouvelle saisie peut être enregistrée dans cette session.');
   }
   return memCurrent;
 }
@@ -529,10 +532,13 @@ function loadHistory() {
   if (memHistory !== null) return memHistory;
   try {
     const raw = localStorage.getItem(HISTORY_KEY);
-    memHistory = raw ? JSON.parse(raw) : [];
+    const parsed = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(parsed)) throw new Error('format');
+    memHistory = parsed;
   } catch (e) {
     storageAvailable = false;
     memHistory = [];
+    setStorageStatus('L’historique local est illisible. Il reste vide dans cette session ; si tu as une sauvegarde exportée, utilise-la pour récupérer tes données.');
   }
   return memHistory;
 }
