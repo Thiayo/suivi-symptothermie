@@ -308,7 +308,7 @@
   <div id="storage-warning" class="no-print" style="display:none; background:var(--pink-light); color:var(--pink); border-radius:12px; padding:12px 16px; margin-bottom:18px; font-size:0.85rem;"></div><section id="accueil" class="app-section">
   <div class="card today-card" aria-labelledby="today-title">
     <h2 id="today-title">🌿 Aujourd’hui</h2>
-    <div id="today-summary" class="today-summary" aria-live="polite"></div>
+    <div id="today-summary" role="region" aria-label="Résumé des observations du jour" class="today-summary" aria-live="polite"></div>
     <div class="row-actions" style="margin-top:12px;"><button class="btn" type="button" onclick="document.getElementById('f-date').focus()">📝 Ajouter l’observation du jour</button><button class="btn btn-secondary" type="button" onclick="document.getElementById('graphique').scrollIntoView({behavior:'smooth'})">📈 Voir le graphique</button></div>
   </div>
   <div class="card no-print">
@@ -378,7 +378,7 @@
 <section id="graphique" class="app-section">
   <div class="card">
     <h2>📈 Courbe du cycle en cours <span id="thermal-badge"></span></h2><p class="learn-meta">Le graphique est descriptif, pas diagnostique. <a href="#apprendre" onclick="openLesson('m5')">Apprendre à le lire</a> · <a href="#apprendre" onclick="openLesson('m6')">Comprendre le décalage thermique</a></p>
-    <div class="chart-wrap" id="chart-container"></div>
+    <div class="chart-wrap" id="chart-container" role="img" aria-label="Graphique descriptif des températures et observations du cycle"></div>
     <div class="legend">
       <span><span class="dot" style="background:var(--period-color)"></span>Règles</span>
       <span><span class="dot" style="background:var(--spotting-color)"></span>Spotting</span>
@@ -407,7 +407,7 @@
     <h2>🗓️ Calendrier du suivi</h2>
     <div class="calendar-toolbar"><button class="btn btn-secondary" type="button" onclick="changeCalendarMonth(-1)">‹ Mois précédent</button><strong id="calendar-title"></strong><button class="btn btn-secondary" type="button" onclick="changeCalendarMonth(1)">Mois suivant ›</button></div>
     <div id="calendar-grid" class="calendar-grid" aria-live="polite"></div>
-    <div id="calendar-detail" role="status" aria-live="polite" class="notice" style="margin-top:12px;display:none;"></div>
+    <div id="calendar-detail" role="status" aria-live="polite" tabindex="-1" class="notice" style="margin-top:12px;display:none;"></div>
     <p class="learn-meta" style="margin-top:10px;">Le calendrier affiche uniquement les observations enregistrées. Il ne fournit pas de prédiction ni de conclusion sur la fertilité.</p>
 </section>
 <section id="historique" class="app-section">
@@ -823,6 +823,7 @@ function escapeHtml(value) {\n  return String(value).replace(/[&<>\"']/g, char =
   const temp = entry.temp !== null ? Number(entry.temp).toFixed(2) + ' °C' : 'Non renseignée';
   detail.style.display = 'block';
   const factorLabels = {maladie:'maladie/fièvre', sommeil:'sommeil perturbé', horaire:'horaire inhabituel', voyage:'voyage/déplacement', alcool:'alcool', medicament:'médicament'};\n  const factors = Array.isArray(entry.factors) && entry.factors.length ? '<br>Contexte : ' + entry.factors.map(f => escapeHtml(factorLabels[f] || f)).join(', ') : '';\n  const notes = entry.notes ? '<br>Notes : ' + escapeHtml(entry.notes) : '';\n  const time = entry.time ? '<br>Heure de mesure : ' + escapeHtml(entry.time) : '';\n  const bleeding = entry.bleeding && entry.bleeding !== 'aucun' ? '<br>Saignement : ' + (entry.bleeding === 'regles' ? 'règles' : 'spotting') : '';\n  detail.innerHTML = '<strong>' + formatDate(date) + '</strong> — Température : ' + temp + ' — Observation : ' + (MUCUS_LABELS[entry.mucus] || 'non renseignée') + bleeding + time + factors + notes;
+  detail.focus();
 }
 
 function changeCalendarMonth(delta){calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()+delta,1);renderCalendar();}

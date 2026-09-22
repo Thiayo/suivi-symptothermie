@@ -113,3 +113,11 @@ test('thermal chart wording stays descriptive', () => {
   assert.doesNotMatch(page, /badge-ovu/);
   assert.doesNotMatch(page, /id="ovu-badge"/);
 });
+
+
+test('les zones principales du suivi sont accessibles', () => {
+  assert.match(page, /id="chart-container"[^>]*role="img"/);
+  assert.match(page, /id="today-summary"[^>]*role="region"/);
+  assert.match(page, /id="calendar-detail"[^>]*tabindex="-1"/);
+  assert.match(page, /detail\.focus\(\)/);
+});
