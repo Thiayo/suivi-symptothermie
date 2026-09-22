@@ -872,7 +872,7 @@ function validBackup(value) {
   const validBleeding = ['aucun','regles','spotting'];
   const validTime = value => value === null || (typeof value === 'string' && /^(?:[01]\\d|2[0-3]):[0-5]\\d$/.test(value));
   const validEntry = e => e && typeof e === 'object' && isValidDateKey(e.date) && validTemp(e.temp) && typeof e.mucus === 'string' && validMucus.includes(e.mucus) && typeof e.notes === 'string' && (!('factors' in e) || (Array.isArray(e.factors) && e.factors.every(f => ['maladie','sommeil','horaire','voyage','alcool','medicament'].includes(f)))) && (!('bleeding' in e) || (typeof e.bleeding === 'string' && validBleeding.includes(e.bleeding))) && (!('time' in e) || validTime(e.time));
-  const validProfile = !('profile' in value) || (value.profile === null || (typeof value.profile === 'object' && (value.profile.name === undefined || typeof value.profile.name === 'string') && (value.profile.goal === undefined || ['observer','apprendre','suivi'].includes(value.profile.goal))));
+  const validProfile = !('profile' in value) || (value.profile === null || (typeof value.profile === 'object' && (value.profile.name === undefined || (typeof value.profile.name === 'string' && value.profile.name.length <= 80)) && (value.profile.goal === undefined || ['observer','apprendre','suivi'].includes(value.profile.goal))));
   if (!validProfile) return false;
   if (typeof value.exportedAt !== 'string' || Number.isNaN(Date.parse(value.exportedAt))) return false;
   if (!value.current.every(validEntry)) return false;
