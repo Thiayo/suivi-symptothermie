@@ -3,7 +3,7 @@ const vm = require('node:vm');
 
 const html = fs.readFileSync('index.html', 'utf8');
 const scripts = [];
-const re = new RegExp('<script(?:\\\\s[^>]*)?>([\\\\s\\\\S]*?)<\\\\/script>', 'gi');
+const re = /<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi;
 for (const match of html.matchAll(re)) {
   if (match[1].trim()) scripts.push(match[1]);
 }
