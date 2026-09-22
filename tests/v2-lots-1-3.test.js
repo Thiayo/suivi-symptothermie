@@ -202,3 +202,9 @@ test('les températures des sauvegardes restent dans une plage corporelle cohér
 test('les facteurs de contexte des sauvegardes utilisent les valeurs prévues', () => {
   assert.match(page, /\['maladie','sommeil','horaire','voyage','alcool','medicament'\]\.includes\(f\)/);
 });
+
+
+test('le profil des sauvegardes utilise des valeurs cohérentes', () => {
+  assert.match(page, /const validProfile =/);
+  assert.match(page, /\['observer','apprendre','professionnel'\]\.includes\(value\.profile\.goal\)/);
+});
