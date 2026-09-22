@@ -253,7 +253,7 @@
   .calendar-day{background:var(--bg);position:relative}.calendar-day.empty{background:transparent;border-color:transparent}
   .calendar-day.has-entry{border-color:var(--blue)}.calendar-day.is-period{background:var(--pink-light)}
   .calendar-day .day-num{font-weight:700}.calendar-day .day-meta{display:block;margin-top:4px;color:var(--text-muted);font-size:.68rem}
-  .profile-grid{display:grid;gap:12px}.privacy-box{background:var(--blue-light);padding:12px;border-radius:10px;font-size:.9rem;line-height:1.5}
+  .profile-grid{display:grid;gap:12px}.privacy-box{background:var(--blue-light);padding:12px;border-radius:10px;font-size:.9rem;line-height:1.5}.today-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.today-stat{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px}.today-stat strong{display:block;font-size:1.05rem;margin-bottom:3px}.today-stat span{font-size:.78rem;color:var(--text-muted)}
   @media (min-width:620px){.app-nav{grid-template-columns:repeat(6,1fr)}.profile-grid{grid-template-columns:1fr 1fr}}
   .learn-progress { height: 12px; background: var(--blue-light); border-radius: 999px; overflow:hidden; margin:10px 0 6px; }
   .learn-progress > span { display:block; height:100%; width:0; background:linear-gradient(90deg,var(--blue),var(--pink)); transition:width .2s; }
@@ -304,6 +304,11 @@
 
   <div id="print-summary"></div>
   <div id="storage-warning" class="no-print" style="display:none; background:var(--pink-light); color:var(--pink); border-radius:12px; padding:12px 16px; margin-bottom:18px; font-size:0.85rem;"></div><section id="accueil" class="app-section">
+  <div class="card today-card" aria-labelledby="today-title">
+    <h2 id="today-title">🌿 Aujourd’hui</h2>
+    <div id="today-summary" class="today-summary" aria-live="polite"></div>
+    <div class="row-actions" style="margin-top:12px;"><button class="btn" type="button" onclick="document.getElementById('f-date').focus()">📝 Ajouter l’observation du jour</button><button class="btn btn-secondary" type="button" onclick="document.getElementById('graphique').scrollIntoView({behavior:'smooth'})">📈 Voir le graphique</button></div>
+  </div>
   <div class="card no-print">
     <h2>➕ Ajouter une entrée</h2>
     <div class="form-grid">
@@ -687,8 +692,9 @@ function renderHistory() {
   `).join('');
 }
 
-function render() {
+function renderTodaySummary(entries) {\n  const box = document.getElementById('today-summary');\n  if (!box) return;\n  const today = new Date().toISOString().slice(0,10);\n  const todayEntry = entries.find(e => e.date === today);\n  const sorted = [...entries].sort((a,b) => a.date.localeCompare(b.date));\n  const first = sorted[0];\n  const cycleDay = first ? Math.max(1, Math.floor((new Date(today+'T00:00:00') - new Date(first.date+'T00:00:00')) / 86400000) + 1) : null;\n  const temp = todayEntry && Number.isFinite(Number(todayEntry.temp)) ? Number(todayEntry.temp).toFixed(2) + ' °C' : 'Non renseignée';\n  const mucus = todayEntry ? (MUCUS_LABELS[todayEntry.mucus] || 'Observation enregistrée') : 'Aucune observation';\n  box.innerHTML = '<div class=\"today-stat\"><strong>' + (todayEntry ? '✓ Enregistrée' : 'À renseigner') + '</strong><span>Observation du jour</span></div>' + '<div class=\"today-stat\"><strong>' + temp + '</strong><span>Température</span></div>' + '<div class=\"today-stat\"><strong>' + mucus + '</strong><span>Glaire / observation</span></div>' + '<div class=\"today-stat\"><strong>' + (cycleDay ? 'Jour ' + cycleDay : '—') + '</strong><span>Repère dans le cycle</span></div>';\n}\n\nfunction render() {
   const entries = loadCurrent();
+  renderTodaySummary(entries);
   renderChart(entries);
   renderTable(entries);
   renderHistory();
