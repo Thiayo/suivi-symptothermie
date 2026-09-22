@@ -383,9 +383,9 @@
     </div>
     <div id="edit-status" class="notice" style="display:none;margin-bottom:12px;" aria-live="polite"></div>
     <div class="row-actions">
-      <button class="btn" id="save-entry-btn" onclick="addEntry()">Enregistrer l'entrée</button>
-      <button class="btn btn-secondary" id="cancel-edit-btn" onclick="cancelEdit()" style="display:none">Annuler la modification</button>
-      <button class="btn btn-secondary" onclick="startNewCycle()">Commencer un nouveau cycle</button>
+      <button type="button" class="btn" id="save-entry-btn" onclick="addEntry()">Enregistrer l'entrée</button>
+      <button type="button" class="btn btn-secondary" id="cancel-edit-btn" onclick="cancelEdit()" style="display:none">Annuler la modification</button>
+      <button type="button" class="btn btn-secondary" onclick="startNewCycle()">Commencer un nouveau cycle</button>
     </div>
   </div>
 </section>
@@ -412,7 +412,7 @@
       </div>
     </details>
     <div class="row-actions no-print" style="margin-top:14px;">
-      <button class="btn btn-secondary" onclick="exportPDF()">🖨️ Exporter le cycle en PDF</button>
+      <button type="button" class="btn btn-secondary" onclick="exportPDF()">🖨️ Exporter le cycle en PDF</button>
     </div>
   </div>
 </section>
@@ -776,7 +776,7 @@ function renderTable(entries) {
       <td>${e.bleeding && e.bleeding !== 'aucun' ? (e.bleeding === 'regles' ? 'Règles' : 'Spotting') : '—'}</td>
       <td>${MUCUS_LABELS[e.mucus] || e.mucus}</td>
       <td>${safeNotes}${bleedingLabel}${timeLabel}${factors ? '<div class="learn-meta">' + factors + '</div>' : ''}</td>
-      <td class="no-print"><button class="btn edit-btn" onclick="editEntry('${e.date}')">Modifier</button><button class="btn btn-danger" onclick="deleteEntry('${e.date}')" aria-label="Supprimer l’observation du ${formatDate(e.date)}">✕</button></td>
+      <td class="no-print"><button type="button" class="btn edit-btn" onclick="editEntry('${e.date}')">Modifier</button><button type="button" class="btn btn-danger" onclick="deleteEntry('${e.date}')" aria-label="Supprimer l’observation du ${formatDate(e.date)}">✕</button></td>
     </tr>`;
   }).join('');
   container.innerHTML = `<div class="table-scroll"><table>
@@ -809,7 +809,7 @@ function renderHistory() {
         <div class="learn-meta">${mucusCount} observation(s) de glaire renseignée(s) · ${bleedingCount} observation(s) avec saignement · ${completeness}% des champs température/glaire renseignés</div>
         ${contexts ? '<div class="learn-meta">Contexte renseigné sur ' + contexts + ' observation(s)</div>' : ''}
       </div>
-      <button class="btn btn-danger" onclick="deleteHistoryCycle(${i})" aria-label="Supprimer ce cycle archivé">Supprimer</button>
+      <button type="button" class="btn btn-danger" onclick="deleteHistoryCycle(${i})" aria-label="Supprimer ce cycle archivé">Supprimer</button>
     </article>`;
   }).join('');
 }
