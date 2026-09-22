@@ -183,3 +183,10 @@ test('le mode édition fournit une annonce accessible', () => {
   assert.match(page, /function announceEditStatus\(message\)/);
   assert.match(page, /Modification de l’observation du/);
 });
+
+
+test('les dates des sauvegardes sont validées comme de vraies dates', () => {
+  assert.match(page, /function isValidDateKey\(value\)/);
+  assert.match(page, /localDateKey\(d\) === value/);
+  assert.match(page, /isValidDateKey\(e\.date\)/);
+});
