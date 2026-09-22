@@ -848,7 +848,7 @@ function validBackup(value) {
   if (!Array.isArray(value.current) || !Array.isArray(value.history)) return false;
   const validMucus = ['sec','collante','cremeuse','blanc-oeuf'];
   const validBleeding = ['aucun','regles','spotting'];
-  const validTime = value => value === null || (typeof value === 'string' && /^\\d{2}:\\d{2}$/.test(value));
+  const validTime = value => value === null || (typeof value === 'string' && /^(?:[01]\\d|2[0-3]):[0-5]\\d$/.test(value));
   const validEntry = e => e && typeof e === 'object' && /^\\d{4}-\\d{2}-\\d{2}$/.test(e.date) && (e.temp === null || (typeof e.temp === 'number' && Number.isFinite(e.temp))) && typeof e.mucus === 'string' && validMucus.includes(e.mucus) && typeof e.notes === 'string' && (!('factors' in e) || (Array.isArray(e.factors) && e.factors.every(f => typeof f === 'string'))) && (!('bleeding' in e) || (typeof e.bleeding === 'string' && validBleeding.includes(e.bleeding))) && (!('time' in e) || validTime(e.time));
   if (!value.current.every(validEntry)) return false;
   if (!value.history.every(c => c && typeof c === 'object' && Array.isArray(c.entries) && c.entries.every(validEntry))) return false;
