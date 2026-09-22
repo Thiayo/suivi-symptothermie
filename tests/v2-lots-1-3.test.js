@@ -258,3 +258,12 @@ test('les cycles archivés disposent d’un titre accessible', () => {
   assert.match(page, /<article class="history-item" aria-labelledby="history-cycle-\$\{i\}">/);
   assert.match(page, /<h3 id="history-cycle-\$\{i\}">Cycle du/);
 });
+
+
+test('les actions courantes disposent d’un statut accessible', () => {
+  assert.match(page, /id="action-status"[^>]*role="status"[^>]*aria-live="polite"/);
+  assert.match(page, /setActionStatus\('Merci de choisir une date\.'/);
+  assert.doesNotMatch(page, /alert\('Merci de choisir une date\.'/);
+  assert.doesNotMatch(page, /alert\('Le cycle en cours est déjà vide\.'/);
+  assert.doesNotMatch(page, /alert\('Toutes les données locales ont été effacées\.'/);
+});
