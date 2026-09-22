@@ -423,6 +423,7 @@
     <div id="history-container"></div>
 </section>
 <section id="profil" class="app-section">
+  <span id="action-status" class="learn-meta" role="status" aria-live="polite" tabindex="-1"></span>
   <div class="card no-print">
     <h2>👤 Profil et confidentialité</h2>
     <div class="profile-grid"><div><label for="profile-name">Prénom ou nom d’affichage (facultatif)</label><input id="profile-name" type="text" maxlength="80" placeholder="Mon profil"></div><div><label for="profile-goal">Objectif d’observation</label><select id="profile-goal"><option value="observer">Observer mon cycle</option><option value="apprendre">Apprendre la symptothermie</option><option value="suivi">Préparer un suivi avec une professionnelle ou un professionnel</option></select></div></div>
@@ -549,7 +550,7 @@ function addEntry() {
   const notes = document.getElementById('f-notes').value.trim();
   const factors = [...document.querySelectorAll('.factor:checked')].map(el => el.value);
 
-  if (!date) { alert('Merci de choisir une date.'); return; }
+  if (!date) { setActionStatus('Merci de choisir une date.'); return; }
   if (isNaN(temp) && bleeding !== 'regles') {
     if (!confirm("Aucune température saisie, continuer quand même ?")) return;
   }
@@ -623,7 +624,7 @@ function deleteEntry(date) {
 
 function startNewCycle() {
   const entries = loadCurrent();
-  if (entries.length === 0) { alert('Le cycle en cours est déjà vide.'); return; }
+  if (entries.length === 0) { setActionStatus('Le cycle en cours est déjà vide.'); return; }
   if (!confirm("Archiver le cycle en cours et démarrer un nouveau cycle ?")) return;
   const hist = loadHistory();
   hist.unshift({ start: entries[0].date, end: entries[entries.length-1].date, entries });
@@ -807,7 +808,7 @@ function localDateKey(date = new Date()) {\n  return date.getFullYear() + '-' + 
 function exportPDF() {
   const entries = loadCurrent();
   if (entries.length === 0) {
-    alert("Ajoute au moins une entrée avant d'exporter.");
+    setBackupStatus("Ajoute au moins une entrée avant d'exporter.");
     return;
   }
   const withTemp = entries.filter(e => e.temp !== null);
@@ -848,12 +849,16 @@ function changeCalendarMonth(delta){calendarDate=new Date(calendarDate.getFullYe
 function clearAllData() {
   if (!confirm('Effacer toutes les données locales de cette application ? Cette action ne peut pas être annulée.')) return;
   [CURRENT_KEY, HISTORY_KEY, LEARNING_KEY, PROFILE_KEY].forEach(key => localStorage.removeItem(key));
-  alert('Toutes les données locales ont été effacées.');
+  setActionStatus('Toutes les données locales ont été effacées.');
   location.reload();
 }
 
 function setBackupStatus(message) {
   const status = document.getElementById('backup-status');
+  if (status) status.textContent = message;
+}
+function setActionStatus(message) {
+  const status = document.getElementById('action-status');
   if (status) status.textContent = message;
 }
 
