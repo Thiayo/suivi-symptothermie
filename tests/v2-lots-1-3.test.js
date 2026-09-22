@@ -75,3 +75,11 @@ test('history provides descriptive cycle summaries', () => {
   assert.match(page, /Contexte renseigné sur/);
   assert.match(page, /aria-label="Supprimer ce cycle archivé"/);
 });
+
+
+test('backup import is versioned and validates entry structure', () => {
+  assert.match(page, /function validBackup\\(value\\)/);
+  assert.match(page, /value\\.version !== APP_DATA_VERSION/);
+  assert.match(page, /validEntry = e =>/);
+  assert.match(page, /Sauvegarde importée avec succès/);
+});
