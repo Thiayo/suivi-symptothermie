@@ -628,17 +628,17 @@ function deleteHistoryCycle(idx) {
   render();
 }
 
-// Detect a descriptive thermal reference using a simplified 3-over-6 rule
+// Compare successive temperature observations to display a visual reference line; this is not an ovulation detector
 function detectThermalReference(entries) {
   const withTemp = entries.filter(e => e.temp !== null);
   for (let i = 6; i < withTemp.length; i++) {
     const prev6 = withTemp.slice(i-6, i).map(e => e.temp);
     const maxPrev = Math.max(...prev6);
-    const coverline = maxPrev + 0.1;
-    if (withTemp[i].temp > coverline &&
-        withTemp[i+1] && withTemp[i+1].temp > coverline &&
-        withTemp[i+2] && withTemp[i+2].temp > coverline) {
-      return { index: i, date: withTemp[i].date, coverline };
+    const referenceLine = maxPrev + 0.1;
+    if (withTemp[i].temp > referenceLine &&
+        withTemp[i+1] && withTemp[i+1].temp > referenceLine &&
+        withTemp[i+2] && withTemp[i+2].temp > referenceLine) {
+      return { index: i, date: withTemp[i].date, referenceLine };
     }
   }
   return null;
