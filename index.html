@@ -744,6 +744,9 @@ function renderHistory() {
   container.innerHTML = hist.map((c, i) => {
     const temps = c.entries.filter(e => Number.isFinite(Number(e.temp))).length;
     const contexts = c.entries.filter(e => Array.isArray(e.factors) && e.factors.length).length;
+    const mucusCount = c.entries.filter(e => e.mucus && e.mucus !== 'sec').length;
+    const bleedingCount = c.entries.filter(e => e.bleeding && e.bleeding !== 'aucun').length;
+    const completeness = c.entries.length ? Math.round(((temps + mucusCount) / (c.entries.length * 2)) * 100) : 0;
     const first = c.entries.slice().sort((a,b) => a.date.localeCompare(b.date))[0];
     const last = c.entries.slice().sort((a,b) => a.date.localeCompare(b.date)).slice(-1)[0];
     const span = first && last ? Math.floor((new Date(last.date+'T00:00:00') - new Date(first.date+'T00:00:00')) / 86400000) + 1 : c.entries.length;
@@ -752,6 +755,7 @@ function renderHistory() {
       <div>
         <strong>Cycle du ${formatDate(c.start)} au ${formatDate(c.end)}</strong>
         <div class="learn-meta">${c.entries.length} observation(s) enregistrée(s) · ${temps} température(s) · période couverte : ${span} jour(s)</div>
+        <div class="learn-meta">${mucusCount} observation(s) de glaire renseignée(s) · ${bleedingCount} observation(s) avec saignement · ${completeness}% des champs température/glaire renseignés</div>
         ${contexts ? '<div class="learn-meta">Contexte renseigné sur ' + contexts + ' observation(s)</div>' : ''}
       </div>
       <button class="btn btn-danger" onclick="deleteHistoryCycle(${i})" aria-label="Supprimer ce cycle archivé">Supprimer</button>
