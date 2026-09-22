@@ -155,3 +155,8 @@ test('les suppressions demandent une confirmation et restent accessibles', () =>
   assert.match(page, /Supprimer définitivement le cycle du/);
   assert.match(page, /aria-label="Supprimer l’observation du/);
 });
+
+
+test('les heures de mesure sauvegardées utilisent un format horaire valide', () => {
+  assert.match(page, /\(\?:\[01\]\\\\d\|2\[0-3\]\):\[0-5\]\\\\d/);
+});
