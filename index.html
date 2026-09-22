@@ -606,6 +606,7 @@ function cancelEdit() {
 }
 
 function deleteEntry(date) {
+  if (!confirm('Supprimer l’observation du ' + formatDate(date) + ' ?')) return;
   let entries = loadCurrent().filter(e => e.date !== date);
   saveCurrent(entries);
   render();
@@ -624,6 +625,9 @@ function startNewCycle() {
 
 function deleteHistoryCycle(idx) {
   const hist = loadHistory();
+  const cycle = hist[idx];
+  if (!cycle) return;
+  if (!confirm('Supprimer définitivement le cycle du ' + formatDate(cycle.start) + ' au ' + formatDate(cycle.end) + ' ?')) return;
   hist.splice(idx, 1);
   saveHistory(hist);
   render();
@@ -738,7 +742,7 @@ function renderTable(entries) {
       <td>${e.temp !== null ? e.temp.toFixed(2) + '°C' : '—'}</td>
       <td>${e.bleeding && e.bleeding !== 'aucun' ? (e.bleeding === 'regles' ? 'Règles' : 'Spotting') : '—'}</td>\n      <td>${MUCUS_LABELS[e.mucus] || e.mucus}</td>
       <td>${safeNotes}${bleedingLabel}${timeLabel}${factors ? '<div class="learn-meta">' + factors + '</div>' : ''}</td>
-      <td class="no-print"><button class="btn edit-btn" onclick="editEntry('${e.date}')">Modifier</button><button class="btn btn-danger" onclick="deleteEntry('${e.date}')">✕</button></td>
+      <td class="no-print"><button class="btn edit-btn" onclick="editEntry('${e.date}')">Modifier</button><button class="btn btn-danger" onclick="deleteEntry('${e.date}')" aria-label="Supprimer l’observation du ${formatDate(e.date)}">✕</button></td>
     </tr>`;
   }).join('');
   container.innerHTML = `<div class="table-scroll"><table>
