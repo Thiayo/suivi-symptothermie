@@ -407,7 +407,7 @@
     <div class="profile-grid"><div><label for="profile-name">Prénom ou nom d’affichage (facultatif)</label><input id="profile-name" type="text" maxlength="80" placeholder="Mon profil"></div><div><label for="profile-goal">Objectif d’observation</label><select id="profile-goal"><option value="observer">Observer mon cycle</option><option value="apprendre">Apprendre la symptothermie</option><option value="suivi">Préparer un suivi avec une professionnelle ou un professionnel</option></select></div></div>
     <div class="row-actions" style="margin-top:12px;"><button class="btn" type="button" onclick="saveProfile()">Enregistrer le profil</button></div>
     <div class="privacy-box" style="margin-top:14px;"><strong>Confidentialité :</strong> les données de suivi sont conservées localement dans ce navigateur. Cette page ne les envoie pas à un serveur applicatif.</div>
-    <div class="row-actions" style="margin-top:12px;"><button class="btn btn-secondary" type="button" onclick="exportData()">Exporter mes données</button><button class="btn btn-secondary" type="button" onclick="document.getElementById('import-data').click()">Importer une sauvegarde</button><input id="import-data" type="file" accept="application/json" style="display:none" onchange="importData(event)"></div>
+    <div class="row-actions" style="margin-top:12px;"><button class="btn btn-secondary" type="button" onclick="exportData()">Exporter mes données</button><button class="btn btn-secondary" type="button" onclick="document.getElementById('import-data').click()">Importer une sauvegarde</button><input id="import-data" type="file" accept="application/json" style="display:none" onchange="importData(event)"></div><div class="row-actions" style="margin-top:10px;"><button class="btn btn-danger" type="button" onclick="clearAllData()">Effacer toutes mes données</button></div><p class="learn-meta" style="margin-top:8px;">Cette action supprime les observations, cycles archivés, progression pédagogique et profil de ce navigateur.</p>
   </div>
 </section>
 </div>
@@ -778,6 +778,13 @@ function showCalendarDetail(date) {
 }
 
 function changeCalendarMonth(delta){calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()+delta,1);renderCalendar();}
+function clearAllData() {
+  if (!confirm('Effacer toutes les données locales de cette application ? Cette action ne peut pas être annulée.')) return;
+  [CURRENT_KEY, HISTORY_KEY, LEARNING_KEY, PROFILE_KEY].forEach(key => localStorage.removeItem(key));
+  alert('Toutes les données locales ont été effacées.');
+  location.reload();
+}
+
 function exportData(){const payload={version:APP_DATA_VERSION,exportedAt:new Date().toISOString(),current:loadCurrent(),history:loadHistory(),learning:loadLearning(),profile:loadProfile()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='suivi-symptothermie-sauvegarde.json';a.click();URL.revokeObjectURL(url);}
 function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const p=JSON.parse(reader.result);if(!p||!Array.isArray(p.current)||!Array.isArray(p.history))throw new Error('format');if(!confirm('Remplacer les données locales actuelles par cette sauvegarde ?'))return;saveCurrent(p.current);saveHistory(p.history);if(p.learning&&validLearning(p.learning))saveLearning(p.learning);if(p.profile&&typeof p.profile==='object')localStorage.setItem(PROFILE_KEY,JSON.stringify(p.profile));renderProfile();renderCalendar();render();}catch(e){alert('Sauvegarde invalide ou illisible.');}finally{event.target.value='';}};reader.readAsText(file);}
 document.getElementById('resume-learning').addEventListener('click', () => openLesson(loadLearning().lastModule || MODULES[0].id));
