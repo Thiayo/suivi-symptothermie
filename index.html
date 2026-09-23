@@ -537,7 +537,7 @@ function openLesson(id) {
   panel.innerHTML = `<h3>Module ${MODULES.indexOf(module)+1} — ${module.title}</h3>${module.body}<div class="quiz"><h4>Question de vérification</h4><p>${module.quiz.q}</p>${module.quiz.options.map((option, i) => `<button class="btn btn-secondary" type="button" data-action="answer-quiz" data-module="${escapeHtml(id)}" data-option="${i}">${option}</button>`).join('')}<p id="quiz-result" class="quiz-result" aria-live="polite"></p></div><div class="row-actions"><button class="btn" type="button" data-action="complete-lesson" data-module="${escapeHtml(id)}">${progress.completed[id] ? 'Leçon déjà terminée' : 'Marquer la leçon comme terminée'}</button><button class="btn btn-secondary" type="button" data-action="close-lesson">Fermer la leçon</button></div>`;
   panel.scrollIntoView({behavior:'smooth', block:'start'});
 }
-function answerQuiz(id, choice) { const module = MODULES.find(item => item.id === id); if (!module || !module.quiz || !Number.isInteger(choice) || choice < 0 || choice >= module.quiz.options.length) return; const quiz = module.quiz, correct = choice === quiz.answer; document.getElementById('quiz-result').textContent = `${correct ? 'Réponse juste.' : 'À revoir.'} ${quiz.explain}`; }
+function answerQuiz(id, choice) { const module = MODULES.find(item => item.id === id); if (!module || !module.quiz || !Number.isInteger(choice) || choice < 0 || choice >= module.quiz.options.length) return; const quiz = module.quiz, correct = choice === quiz.answer; document.getElementById('quiz-result').textContent = `${correct ? dt('yes') : dt('review')} ${quiz.explain}`; }
 function completeLesson(id) { if (!MODULES.some(module => module.id === id)) return; const progress = loadLearning(); progress.completed[id] = true; progress.lastModule = id; saveLearning(progress); renderLearning(); openLesson(id); }function resetLearning() { if (!confirm('Réinitialiser toute la progression pédagogique ?')) return; saveLearning({version:LEARNING_VERSION, completed:{}, lastModule:null}); document.getElementById('lesson-view').hidden = true; renderLearning(); }
 
 
@@ -667,17 +667,17 @@ function editEntry(date) {
   const entry = loadCurrent().find(e => e.date === date);
   if (!entry) return;
   document.getElementById('f-date').value = entry.date;
-  document.getElementById('f-temp').value = entry.temp === null ? '' : entry.temp;
+  document.getElementById('f-temp').value = entry.temp === null ? '' : celsiusToDisplay(entry.temp).toFixed(2);
   document.getElementById('f-time').value = entry.time || '';
   document.getElementById('f-mucus').value = entry.mucus || 'sec';
   document.getElementById('f-bleeding').value = entry.bleeding || (entry.mucus === 'regles' ? 'regles' : entry.mucus === 'spotting' ? 'spotting' : 'aucun');
   document.getElementById('f-notes').value = entry.notes || '';
   document.querySelectorAll('.factor').forEach(el => { el.checked = Array.isArray(entry.factors) && entry.factors.includes(el.value); });
-  document.getElementById('save-entry-btn').textContent = 'Enregistrer la modification';
+  document.getElementById('save-entry-btn').textContent = dt('editSave');
   document.getElementById('cancel-edit-btn').style.display = 'inline-block';
   const status = document.getElementById('edit-status');
   status.style.display = 'block';
-  status.textContent = 'Modification en cours : vérifie les données puis enregistre.';
+  status.textContent = dt('editInProgress');
   document.getElementById('f-date').focus();
 }
 
@@ -788,15 +788,15 @@ function renderChart(entries) {
   const container = document.getElementById('chart-container');
   const badge = document.getElementById('thermal-badge');
   if (entries.length === 0) {
-    container.innerHTML = '<p class="empty">Ajoute des entrées pour voir ta courbe.</p>';
+    container.innerHTML = '<p class="empty">' + dt('addFirst') + '</p>';
     badge.innerHTML = '';
     return;
   }
   const withTemp = entries.filter(e => e.temp !== null);
   const shift = withTemp.length >= 9 ? detectThermalReference(entries) : null;
   badge.innerHTML = shift
-    ? `<span class="badge badge-info">Repère thermique descriptif autour du ${formatDate(shift.date)}</span>`
-    : `<span class="badge badge-info">Pas encore assez de données pour afficher un repère</span>`;
+    ? `<span class="badge badge-info">${dt('shiftAround')} ${formatDate(shift.date)}</span>`
+    : `<span class="badge badge-info">${dt('noShift')}</span>`;
 
   const w = Math.max(600, entries.length * 46);
   const h = 260;
@@ -980,6 +980,12 @@ const APP_DATA_VERSION = 2;
 const PROFILE_KEY = 'symptothermie_profile';
 let calendarDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 const LANGUAGE_KEY = 'symptothermie_language';
+const DYNAMIC_TEXTS = {
+  fr:{saved:'✓ Enregistrée',toFill:'À renseigner',todayObs:'Observation du jour',temperature:'Température',mucusObs:'Glaire / observation',cycleRef:'Repère dans le cycle',noObs:'Aucune observation',obsSaved:'Observation enregistrée',notFilled:'Non renseignée',observation:'Observation',context:'Contexte',notes:'Notes',measurementTime:'Heure de mesure',bleeding:'Saignement',period:'règles',spotting:'spotting',yes:'Réponse juste.',review:'À revoir.',addFirst:'Ajoute des entrées pour voir ta courbe.',noShift:'Pas encore assez de données pour afficher un repère',shiftAround:'Repère thermique descriptif autour du',savedJournal:'✓ Observation enregistrée dans le journal du cycle en cours.',save:'Enregistrer l’entrée',editSave:'Enregistrer la modification',editInProgress:'Modification en cours : vérifie les données puis enregistre.'},
+  es:{saved:'✓ Registrada',toFill:'Por completar',todayObs:'Observación del día',temperature:'Temperatura',mucusObs:'Moco / observación',cycleRef:'Referencia del ciclo',noObs:'Ninguna observación',obsSaved:'Observación registrada',notFilled:'No indicada',observation:'Observación',context:'Contexto',notes:'Notas',measurementTime:'Hora de medición',bleeding:'Sangrado',period:'menstruación',spotting:'manchado',yes:'Respuesta correcta.',review:'Revisar.',addFirst:'Añade registros para ver tu curva.',noShift:'Aún no hay suficientes datos para mostrar una referencia',shiftAround:'Referencia térmica descriptiva alrededor del',savedJournal:'✓ Observación registrada en el diario del ciclo actual.',save:'Guardar la entrada',editSave:'Guardar la modificación',editInProgress:'Modificación en curso: revisa los datos y guarda.'},
+  ar:{saved:'✓ مسجّلة',toFill:'تحتاج إلى إدخال',todayObs:'ملاحظة اليوم',temperature:'درجة الحرارة',mucusObs:'المخاط / الملاحظة',cycleRef:'مرجع في الدورة',noObs:'لا توجد ملاحظة',obsSaved:'تم تسجيل الملاحظة',notFilled:'غير مُدخلة',observation:'الملاحظة',context:'السياق',notes:'ملاحظات',measurementTime:'وقت القياس',bleeding:'النزيف',period:'الحيض',spotting:'تبقيع',yes:'إجابة صحيحة.',review:'تحتاج إلى مراجعة.',addFirst:'أضيفي ملاحظات لرؤية المنحنى.',noShift:'لا توجد بيانات كافية بعد لعرض مرجع',shiftAround:'مرجع حراري وصفي حول',savedJournal:'✓ تم تسجيل الملاحظة في سجل الدورة الحالية.',save:'حفظ الإدخال',editSave:'حفظ التعديل',editInProgress:'التعديل جارٍ: تحققي من البيانات ثم احفظي.'}
+};
+function dt(key){return (DYNAMIC_TEXTS[getLanguage()]||DYNAMIC_TEXTS.fr)[key]||DYNAMIC_TEXTS.fr[key]||key;}
 function getLanguage(){const v=loadProfile().language;return ['fr','es','ar'].includes(v)?v:'fr';}
 function getUnit(){return loadProfile().unit==='f'?'f':'c';}
 function celsiusToDisplay(value){const n=Number(value);return getUnit()==='f'?(n*9/5+32):n;}
@@ -1038,14 +1044,14 @@ function showCalendarDetail(date) {
   const detail = document.getElementById('calendar-detail');
   const entry = allEntriesForCalendar()[date];
   if (!detail || !entry) return;
-  const temp = entry.temp !== null ? formatTemperature(entry.temp,2) : 'Non renseignée';
+  const temp = entry.temp !== null ? formatTemperature(entry.temp,2) : dt('notFilled');
   detail.style.display = 'block';
-  const factorLabels = {maladie:'maladie/fièvre', sommeil:'sommeil perturbé', horaire:'horaire inhabituel', voyage:'voyage/déplacement', alcool:'alcool', medicament:'médicament'};
-  const factors = Array.isArray(entry.factors) && entry.factors.length ? '<br>Contexte : ' + entry.factors.map(f => escapeHtml(factorLabels[f] || f)).join(', ') : '';
-  const notes = entry.notes ? '<br>Notes : ' + escapeHtml(entry.notes) : '';
-  const time = entry.time ? '<br>Heure de mesure : ' + escapeHtml(entry.time) : '';
-  const bleeding = entry.bleeding && entry.bleeding !== 'aucun' ? '<br>Saignement : ' + (entry.bleeding === 'regles' ? 'règles' : 'spotting') : '';
-  detail.innerHTML = '<strong>' + formatDate(date) + '</strong> — Température : ' + temp + ' — Observation : ' + (MUCUS_LABELS[entry.mucus] || 'non renseignée') + bleeding + time + factors + notes;
+  const factorLabels = getLanguage()==='es' ? {maladie:'enfermedad/fiebre',sommeil:'sueño alterado',horaire:'horaio inusual',voyage:'viaje/desplazamiento',alcool:'alcohol',medicament:'medicamento'} : getLanguage()==='ar' ? {maladie:'مرض/حمى',sommeil:'اضطراب النوم',horaire:'وقت غير معتاد',voyage:'سفر/تنقّل',alcool:'كحول',medicament:'دواء'} : {maladie:'maladie/fièvre',sommeil:'sommeil perturbé',horaire:'horaire inhabituel',voyage:'voyage/déplacement',alcool:'alcool',medicament:'médicament'};
+  const factors = Array.isArray(entry.factors) && entry.factors.length ? '<br>' + dt('context') + ' : ' + entry.factors.map(f => escapeHtml(factorLabels[f] || f)).join(', ') : '';
+  const notes = entry.notes ? '<br>' + dt('notes') + ' : ' + escapeHtml(entry.notes) : '';
+  const time = entry.time ? '<br>' + dt('measurementTime') + ' : ' + escapeHtml(entry.time) : '';
+  const bleeding = entry.bleeding && entry.bleeding !== 'aucun' ? '<br>' + dt('bleeding') + ' : ' + (entry.bleeding === 'regles' ? dt('period') : dt('spotting')) : '';
+  detail.innerHTML = '<strong>' + formatDate(date) + '</strong> — ' + dt('temperature') + ' : ' + temp + ' — ' + dt('observation') + ' : ' + (MUCUS_LABELS[entry.mucus] || dt('notFilled')) + bleeding + time + factors + notes;
   detail.focus();
 }
 
@@ -1222,7 +1228,7 @@ document.getElementById('toggle-modules').addEventListener('click', () => {
   const expanded = list.hidden;
   list.hidden = !expanded;
   button.setAttribute('aria-expanded', String(expanded));
-  button.textContent = expanded ? 'Masquer les modules' : 'Afficher les modules';
+  button.textContent = expanded ? (getLanguage()==='es'?'Ocultar módulos':getLanguage()==='ar'?'إخفاء الوحدات':'Masquer les modules') : (getLanguage()==='es'?'Mostrar módulos':getLanguage()==='ar'?'عرض الوحدات':'Afficher les modules');
 });
 document.getElementById('reset-learning').addEventListener('click', resetLearning);
 renderLearning();
