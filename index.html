@@ -265,7 +265,9 @@
   .learn-progress { height: 12px; background: var(--blue-light); border-radius: 999px; overflow:hidden; margin:10px 0 6px; }
   .learn-progress > span { display:block; height:100%; width:0; background:linear-gradient(90deg,var(--blue),var(--pink)); transition:width .2s; }
   .learn-meta { color:var(--text-muted); font-size:.88rem; margin:0; }
-  .module-list { display:grid; gap:10px; }
+  .module-overlay { position:relative; z-index:20; }
+  #apprendre { position:relative; overflow:visible; }
+  .module-list { display:grid; gap:10px; position:absolute; top:0; left:0; right:0; padding:14px; border:1px solid var(--border); border-radius:12px; background:var(--card-bg); box-shadow:var(--shadow); }
   .module-card { border:1px solid var(--border); border-radius:12px; padding:14px; background:var(--bg); }
   .module-card h3 { font-size:1rem; margin:0 0 6px; }
   .module-card p { margin:0 0 10px; color:var(--text-muted); font-size:.9rem; }
@@ -300,7 +302,7 @@
     <div class="learn-progress" role="progressbar" aria-label="Progression globale" aria-valuemin="0" aria-valuemax="8" aria-valuenow="0"><span id="overall-progress"></span></div>
     <p class="learn-meta" id="overall-progress-text"></p>
     <div class="row-actions" style="margin:14px 0"><button class="btn" id="resume-learning" type="button">Reprendre mon apprentissage</button><button class="btn btn-secondary" id="toggle-modules" type="button" aria-expanded="false" aria-controls="module-list">Afficher les modules</button><button class="btn btn-secondary" id="reset-learning" type="button">Réinitialiser la progression</button></div>
-    <div id="module-list" class="module-list" aria-label="Modules pédagogiques" hidden></div>
+    <div class="module-overlay"><div id="module-list" class="module-list" aria-label="Modules pédagogiques" hidden></div></div>
   </section>
   <section id="lesson-view" class="card lesson-panel no-print" hidden aria-live="polite" aria-label="Leçon en cours"></section>
   <section class="card no-print" aria-labelledby="sources-title">
@@ -983,13 +985,10 @@ document.getElementById('toggle-modules').addEventListener('click', () => {
   const list = document.getElementById('module-list');
   const button = document.getElementById('toggle-modules');
   if (!list || !button) return;
-  const scrollY = window.scrollY;
   const expanded = list.hidden;
   list.hidden = !expanded;
   button.setAttribute('aria-expanded', String(expanded));
   button.textContent = expanded ? 'Masquer les modules' : 'Afficher les modules';
-  // Déplier/replier sans déplacer la position de lecture.
-  requestAnimationFrame(() => window.scrollTo({ top: scrollY, left: window.scrollX, behavior: 'instant' }));
 });
 document.getElementById('reset-learning').addEventListener('click', resetLearning);
 renderLearning();
