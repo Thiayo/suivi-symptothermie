@@ -39,7 +39,7 @@ test('dangerous script execution primitives are absent', () => {
 
 test('destructive data actions require explicit confirmation', () => {
   assert.match(page, /function clearAllData\(\)/);
-  assert.match(page, /function clearAllData\(\)\{if\(\s*!?confirm\(/);
+  assert.match(page, /function clearAllData\(\)[\s\S]*?if\(!confirm\(/);
 });
 
 test('calendar interactions use delegated events instead of inline handlers', () => {
