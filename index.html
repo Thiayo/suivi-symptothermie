@@ -1085,13 +1085,13 @@ function handleThermometerMeasurement(event) {
     return;
   }
   const field = document.getElementById('f-temp');
-  if (field) field.value = value.toFixed(2);
+  if (field) field.value = celsiusToDisplay(value).toFixed(2);
   const timeField = document.getElementById('f-time');
   if (timeField && !timeField.value) {
     const now = new Date();
     timeField.value = now.toTimeString().slice(0, 5);
   }
-  setThermometerStatus(`Mesure Bluetooth reçue : ${value.toFixed(2)} °C. Vérifie-la puis enregistre l'observation.`);
+  setThermometerStatus(`Mesure Bluetooth reçue : ${formatTemperature(value, 2)}. Vérifie-la puis enregistre l'observation.`);
 }
 
 async function connectThermometer() {
