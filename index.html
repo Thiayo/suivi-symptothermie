@@ -858,33 +858,37 @@ function renderChart(entries) {
 }
 
 function formatDate(d) {
-  const dt = new Date(d + 'T00:00:00');  return dt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+  const value = new Date(d + 'T00:00:00');
+  const locale = getLanguage()==='es' ? 'es-ES' : getLanguage()==='ar' ? 'ar' : 'fr-FR';
+  return value.toLocaleDateString(locale, { day: 'numeric', month: 'long' });
+}
+function factorLabel(key){
+  const labels=getLanguage()==='es'?{maladie:'enfermedad/fiebre',sommeil:'sueño alterado',horaire:'horario inusual',voyage:'viaje/desplazamiento',alcool:'alcohol',medicament:'medicamento'}:getLanguage()==='ar'?{maladie:'مرض/حمى',sommeil:'اضطراب النوم',horaire:'وقت غير معتاد',voyage:'سفر/تنقّل',alcool:'كحول',medicament:'دواء'}:{maladie:'maladie/fièvre',sommeil:'sommeil perturbé',horaire:'horaire inhabituel',voyage:'voyage/déplacement',alcool:'alcool',medicament:'médicament'};
+  return labels[key]||key;
 }
 
 function renderTable(entries) {
   const container = document.getElementById('table-container');
-  if (entries.length === 0) {
-    container.innerHTML = '<p class="empty">Aucune entrée pour ce cycle.</p>';
-    return;
-  }
-  const factorLabels = {maladie:'maladie/fièvre', sommeil:'sommeil perturbé', horaire:'horaire inhabituel', voyage:'voyage/déplacement', alcool:'alcool', medicament:'médicament'};
+  const lang=getLanguage();
+  const labels=lang==='es'?{empty:'No hay registros para este ciclo.',context:'Contexto',time:'Hora',bleeding:'Sangrado',period:'menstruación',spotting:'manchado',actions:'Acciones',date:'Fecha',temp:'Temp.',mucus:'Moco',notes:'Notas / contexto',edit:'Editar',delete:'Eliminar'}:lang==='ar'?{empty:'لا توجد إدخالات لهذه الدورة.',context:'السياق',time:'الوقت',bleeding:'النزيف',period:'الحيض',spotting:'تبقيع',actions:'الإجراءات',date:'التاريخ',temp:'الحرارة',mucus:'المخاط',notes:'ملاحظات / سياق',edit:'تعديل',delete:'حذف'}:{empty:'Aucune entrée pour ce cycle.',context:'Contexte',time:'Heure',bleeding:'Saignement',period:'règles',spotting:'spotting',actions:'Actions',date:'Date',temp:'Temp.',mucus:'Glaire',notes:'Notes / contexte',edit:'Modifier',delete:'Supprimer'};
+  if (entries.length === 0) { container.innerHTML = '<p class="empty">'+labels.empty+'</p>'; return; }
   let rows = entries.slice().reverse().map(e => {
-    const factors = Array.isArray(e.factors) && e.factors.length ? ' · Contexte : ' + e.factors.map(f => escapeHtml(factorLabels[f] || f)).join(', ') : '';
+    const factors = Array.isArray(e.factors) && e.factors.length ? ' · '+labels.context+' : ' + e.factors.map(f => escapeHtml(factorLabel(f))).join(', ') : '';
     const safeNotes = e.notes ? escapeHtml(e.notes) : '';
-    const timeLabel = e.time ? ' · Heure : ' + escapeHtml(e.time) : '';
-    const bleedingLabel = e.bleeding && e.bleeding !== 'aucun' ? ' · Saignement : ' + (e.bleeding === 'regles' ? 'règles' : 'spotting') : '';
+    const timeLabel = e.time ? ' · '+labels.time+' : ' + escapeHtml(e.time) : '';
+    const bleedingLabel = e.bleeding && e.bleeding !== 'aucun' ? ' · '+labels.bleeding+' : ' + (e.bleeding === 'regles' ? labels.period : labels.spotting) : '';
     return `
     <tr>
       <td>${formatDate(e.date)}</td>
       <td>${e.temp !== null ? formatTemperature(e.temp,2) : '—'}</td>
-      <td>${e.bleeding && e.bleeding !== 'aucun' ? (e.bleeding === 'regles' ? 'Règles' : 'Spotting') : '—'}</td>
-      <td>${mucusLabel(e.mucus) || e.mucus}</td>
+      <td>${e.bleeding && e.bleeding !== 'aucun' ? (e.bleeding === 'regles' ? labels.period : labels.spotting) : '—'}</td>
+      <td>${mucusLabel(e.mucus)}</td>
       <td>${safeNotes}${bleedingLabel}${timeLabel}${factors ? '<div class="learn-meta">' + factors + '</div>' : ''}</td>
-      <td class="no-print"><button type="button" class="btn edit-btn" data-action="edit-entry" data-date="${escapeHtml(e.date)}">Modifier</button><button type="button" class="btn btn-danger" data-action="delete-entry" data-date="${escapeHtml(e.date)}" aria-label="Supprimer l’observation du ${formatDate(e.date)}">✕</button></td>
+      <td class="no-print"><button type="button" class="btn edit-btn" data-action="edit-entry" data-date="${escapeHtml(e.date)}">${labels.edit}</button><button type="button" class="btn btn-danger" data-action="delete-entry" data-date="${escapeHtml(e.date)}" aria-label="${labels.delete} ${formatDate(e.date)}">✕</button></td>
     </tr>`;
   }).join('');
   container.innerHTML = `<div class="table-scroll"><table>
-    <thead><tr><th>Date</th><th>Temp.</th><th>Saignement</th><th>Glaire</th><th>Notes / contexte</th><th class="no-print">Actions</th></tr></thead>
+    <thead><tr><th>${labels.date}</th><th>${labels.temp}</th><th>${labels.bleeding}</th><th>${labels.mucus}</th><th>${labels.notes}</th><th class="no-print">${labels.actions}</th></tr></thead>
     <tbody>${rows}</tbody>
   </table></div>`;
 }
