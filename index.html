@@ -323,7 +323,7 @@
   <div class="card today-card" aria-labelledby="today-title">
     <h2 id="today-title">🌿 Aujourd’hui</h2>
     <div id="today-summary" role="region" aria-label="Résumé des observations du jour" class="today-summary" aria-live="polite"></div>
-    <div class="row-actions" style="margin-top:12px;"><button class="btn" type="button" onclick="document.getElementById('f-date').focus()">📝 Ajouter l’observation du jour</button><button class="btn btn-secondary" type="button" onclick="document.getElementById('graphique').scrollIntoView({behavior:'smooth'})">📈 Voir le graphique</button></div>
+    <div class="row-actions" style="margin-top:12px;"><button class="btn" type="button" data-action="focus-date">📝 Ajouter l’observation du jour</button><button class="btn btn-secondary" type="button" data-action="scroll-graph">📈 Voir le graphique</button></div>
   </div>
   <div class="card no-print">
     <h2>➕ Ajouter une entrée</h2>
@@ -333,7 +333,7 @@
         <input type="date" id="f-date">
       </div>
       <div>
-        <label for="f-temp">Température (°C) <a href="#apprendre" onclick="openLesson('m4')">Conseils de mesure</a></label>
+        <label for="f-temp">Température (°C) <a href="#apprendre" data-action="open-lesson" data-module="m4">Conseils de mesure</a></label>
         <input type="number" id="f-temp" step="0.01" min="34" max="42" placeholder="36.50" inputmode="decimal" aria-describedby="temp-help">
         <div id="temp-help" class="learn-meta">Valeur observée au moment de la mesure. Laisse vide si aucune mesure n’a été prise.</div>
       </div>
@@ -352,7 +352,7 @@
         <div id="bleeding-help" class="learn-meta">Indique uniquement ce que tu observes aujourd’hui, sans interprétation automatique.</div>
       </div>
       <div>
-        <label for="f-mucus">Glaire cervicale <a href="#apprendre" onclick="openLesson('m3')">Apprendre à observer</a></label>
+        <label for="f-mucus">Glaire cervicale <a href="#apprendre" data-action="open-lesson" data-module="m3">Apprendre à observer</a></label>
         <select id="f-mucus" aria-describedby="mucus-help">
           <option value="sec">Sec / absent</option>
           <option value="collante">Collante</option>
@@ -394,14 +394,14 @@
     <div id="entry-action-status" class="notice" style="display:none;margin-bottom:12px;" role="status" aria-live="polite" tabindex="-1"></div>
     <div class="row-actions">
       <button type="button" class="btn" id="save-entry-btn">Enregistrer l'entrée</button>
-      <button type="button" class="btn btn-secondary" id="cancel-edit-btn" onclick="cancelEdit()" style="display:none">Annuler la modification</button>
-      <button type="button" class="btn btn-secondary" onclick="startNewCycle()">Commencer un nouveau cycle</button>
+      <button type="button" class="btn btn-secondary" id="cancel-edit-btn" data-action="cancel-edit" style="display:none">Annuler la modification</button>
+      <button type="button" class="btn btn-secondary" data-action="start-new-cycle">Commencer un nouveau cycle</button>
     </div>
   </div>
 </section>
 <section id="graphique" class="app-section">
   <div class="card">
-    <h2>📈 Courbe du cycle en cours <span id="thermal-badge"></span></h2><p class="learn-meta">Le graphique est descriptif, pas diagnostique. Le repère visuel des températures n’est pas un détecteur d’ovulation. <a href="#apprendre" onclick="openLesson('m5')">Apprendre à le lire</a> · <a href="#apprendre" onclick="openLesson('m6')">Comprendre le décalage thermique</a></p>
+    <h2>📈 Courbe du cycle en cours <span id="thermal-badge"></span></h2><p class="learn-meta">Le graphique est descriptif, pas diagnostique. Le repère visuel des températures n’est pas un détecteur d’ovulation. <a href="#apprendre" data-action="open-lesson" data-module="m5">Apprendre à le lire</a> · <a href="#apprendre" data-action="open-lesson" data-module="m6">Comprendre le décalage thermique</a></p>
     <div class="chart-wrap" id="chart-container" role="img" aria-label="Graphique descriptif des températures et observations du cycle"></div>
     <div class="legend">
       <span><span class="dot" style="background:var(--period-color)"></span>Règles</span>
@@ -422,14 +422,14 @@
       </div>
     </details>
     <div class="row-actions no-print" style="margin-top:14px;">
-      <button type="button" class="btn btn-secondary" onclick="exportPDF()">🖨️ Exporter le cycle en PDF</button>
+      <button type="button" class="btn btn-secondary" data-action="export-pdf">🖨️ Exporter le cycle en PDF</button>
     </div>
   </div>
 </section>
 <section id="calendrier" class="app-section">
   <div class="card">
     <h2>🗓️ Calendrier du suivi</h2>
-    <div class="calendar-toolbar"><button class="btn btn-secondary" type="button" onclick="changeCalendarMonth(-1)">‹ Mois précédent</button><strong id="calendar-title"></strong><button class="btn btn-secondary" type="button" onclick="changeCalendarMonth(1)">Mois suivant ›</button></div>
+    <div class="calendar-toolbar"><button class="btn btn-secondary" type="button" data-action="calendar-prev">‹ Mois précédent</button><strong id="calendar-title"></strong><button class="btn btn-secondary" type="button" data-action="calendar-next">Mois suivant ›</button></div>
     <div id="calendar-grid" class="calendar-grid" aria-live="polite"></div>
     <div id="calendar-detail" role="status" aria-live="polite" tabindex="-1" class="notice" style="margin-top:12px;display:none;"></div>
     <p class="learn-meta" style="margin-top:10px;">Le calendrier affiche uniquement les observations enregistrées. Il ne fournit pas de prédiction ni de conclusion sur la fertilité.</p>
@@ -451,10 +451,10 @@
   <div class="card no-print">
     <h2>👤 Profil et confidentialité</h2>
     <div class="profile-grid"><div><label for="profile-name">Prénom ou nom d’affichage (facultatif)</label><input id="profile-name" type="text" maxlength="80" placeholder="Mon profil"></div><div><label for="profile-goal">Objectif d’observation</label><select id="profile-goal"><option value="observer">Observer mon cycle</option><option value="apprendre">Apprendre la symptothermie</option><option value="suivi">Préparer un suivi avec une professionnelle ou un professionnel</option></select></div></div>
-    <div class="row-actions" style="margin-top:12px;"><button class="btn" type="button" onclick="saveProfile()">Enregistrer le profil</button><span id="profile-status" class="learn-meta" role="status" aria-live="polite"></span></div>
+    <div class="row-actions" style="margin-top:12px;"><button class="btn" type="button" data-action="save-profile">Enregistrer le profil</button><span id="profile-status" class="learn-meta" role="status" aria-live="polite"></span></div>
     <span id="storage-status" class="learn-meta" role="status" aria-live="polite"></span>
     <div class="privacy-box" style="margin-top:14px;"><strong>Confidentialité :</strong> les données de suivi sont conservées localement dans ce navigateur. Cette page ne les envoie pas à un serveur applicatif.</div>
-    <div class="row-actions" style="margin-top:12px;"><button class="btn btn-secondary" type="button" onclick="exportData()">Exporter mes données</button><button class="btn btn-secondary" type="button" onclick="document.getElementById('import-data').click()">Importer une sauvegarde</button><input id="import-data" type="file" accept="application/json" style="display:none" onchange="importData(event)"><span id="backup-status" class="learn-meta" role="status" aria-live="polite" tabindex="-1"></span></div><div class="row-actions" style="margin-top:10px;"><button class="btn btn-danger" type="button" onclick="clearAllData()">Effacer toutes mes données</button></div><p class="learn-meta" style="margin-top:8px;">Cette action supprime les observations, cycles archivés, progression pédagogique et profil de ce navigateur.</p>
+    <div class="row-actions" style="margin-top:12px;"><button class="btn btn-secondary" type="button" data-action="export-data">Exporter mes données</button><button class="btn btn-secondary" type="button" data-action="import-data">Importer une sauvegarde</button><input id="import-data" type="file" accept="application/json" style="display:none"><span id="backup-status" class="learn-meta" role="status" aria-live="polite" tabindex="-1"></span></div><div class="row-actions" style="margin-top:10px;"><button class="btn btn-danger" type="button" data-action="clear-all-data">Effacer toutes mes données</button></div><p class="learn-meta" style="margin-top:8px;">Cette action supprime les observations, cycles archivés, progression pédagogique et profil de ce navigateur.</p>
   </div>
 </section>
 </div>
@@ -513,14 +513,14 @@ function renderLearning() {
   document.getElementById('overall-progress').style.width = `${completed / MODULES.length * 100}%`;
   document.querySelector('.learn-progress').setAttribute('aria-valuenow', completed);
   document.getElementById('overall-progress-text').textContent = `${completed} leçon${completed > 1 ? 's' : ''} terminée${completed > 1 ? 's' : ''} sur ${MODULES.length}.`;
-  document.getElementById('module-list').innerHTML = MODULES.map((module, index) => `<article class="module-card"><h3>Module ${index+1} — ${module.title}</h3><p>${module.summary}</p><div class="learn-progress" aria-hidden="true"><span style="width:${progress.completed[module.id] ? 100 : 0}%"></span></div><div class="row-actions"><span class="learn-meta">${progress.completed[module.id] ? 'Leçon terminée' : 'À découvrir'} · ${progress.completed[module.id] ? '100' : '0'} %</span><button class="btn btn-secondary" type="button" onclick="openLesson('${module.id}')">${progress.completed[module.id] ? 'Reprendre' : 'Ouvrir la leçon'}</button></div></article>`).join('');
+  document.getElementById('module-list').innerHTML = MODULES.map((module, index) => `<article class="module-card"><h3>Module ${index+1} — ${module.title}</h3><p>${module.summary}</p><div class="learn-progress" aria-hidden="true"><span style="width:${progress.completed[module.id] ? 100 : 0}%"></span></div><div class="row-actions"><span class="learn-meta">${progress.completed[module.id] ? 'Leçon terminée' : 'À découvrir'} · ${progress.completed[module.id] ? '100' : '0'} %</span><button class="btn btn-secondary" type="button" data-action="open-lesson" data-module="${escapeHtml(module.id)}">${progress.completed[module.id] ? 'Reprendre' : 'Ouvrir la leçon'}</button></div></article>`).join('');
 }
 function openLesson(id) {
   const module = MODULES.find(item => item.id === id); if (!module) return;
   const progress = loadLearning(); progress.lastModule = id; saveLearning(progress);
   const panel = document.getElementById('lesson-view');
   panel.hidden = false;
-  panel.innerHTML = `<h3>Module ${MODULES.indexOf(module)+1} — ${module.title}</h3>${module.body}<div class="quiz"><h4>Question de vérification</h4><p>${module.quiz.q}</p>${module.quiz.options.map((option, i) => `<button class="btn btn-secondary" type="button" onclick="answerQuiz('${id}',${i})">${option}</button>`).join('')}<p id="quiz-result" class="quiz-result" aria-live="polite"></p></div><div class="row-actions"><button class="btn" type="button" onclick="completeLesson('${id}')">${progress.completed[id] ? 'Leçon déjà terminée' : 'Marquer la leçon comme terminée'}</button><button class="btn btn-secondary" type="button" onclick="document.getElementById('lesson-view').hidden=true">Fermer la leçon</button></div>`;
+  panel.innerHTML = `<h3>Module ${MODULES.indexOf(module)+1} — ${module.title}</h3>${module.body}<div class="quiz"><h4>Question de vérification</h4><p>${module.quiz.q}</p>${module.quiz.options.map((option, i) => `<button class="btn btn-secondary" type="button" data-action="answer-quiz" data-module="${escapeHtml(id)}" data-option="${i}">${option}</button>`).join('')}<p id="quiz-result" class="quiz-result" aria-live="polite"></p></div><div class="row-actions"><button class="btn" type="button" data-action="complete-lesson" data-module="${escapeHtml(id)}">${progress.completed[id] ? 'Leçon déjà terminée' : 'Marquer la leçon comme terminée'}</button><button class="btn btn-secondary" type="button" data-action="close-lesson">Fermer la leçon</button></div>`;
   panel.scrollIntoView({behavior:'smooth', block:'start'});
 }
 function answerQuiz(id, choice) { const quiz = MODULES.find(item => item.id === id).quiz, correct = choice === quiz.answer; document.getElementById('quiz-result').textContent = `${correct ? 'Réponse juste.' : 'À revoir.'} ${quiz.explain}`; }
@@ -993,7 +993,23 @@ document.addEventListener('click', (event) => {
   if (action === 'edit-entry') editEntry(target.dataset.date);
   else if (action === 'delete-entry') deleteEntry(target.dataset.date);
   else if (action === 'delete-history-cycle') deleteHistoryCycle(Number(target.dataset.index));
+  else if (action === 'focus-date') document.getElementById('f-date')?.focus();
+  else if (action === 'scroll-graph') document.getElementById('graphique')?.scrollIntoView({behavior:'smooth'});
+  else if (action === 'open-lesson') openLesson(target.dataset.module);
+  else if (action === 'cancel-edit') cancelEdit();
+  else if (action === 'start-new-cycle') startNewCycle();
+  else if (action === 'export-pdf') exportPDF();
+  else if (action === 'calendar-prev') changeCalendarMonth(-1);
+  else if (action === 'calendar-next') changeCalendarMonth(1);
+  else if (action === 'save-profile') saveProfile();
+  else if (action === 'export-data') exportData();
+  else if (action === 'import-data') document.getElementById('import-data')?.click();
+  else if (action === 'clear-all-data') clearAllData();
+  else if (action === 'answer-quiz') answerQuiz(target.dataset.module, Number(target.dataset.option));
+  else if (action === 'complete-lesson') completeLesson(target.dataset.module);
+  else if (action === 'close-lesson') document.getElementById('lesson-view').hidden = true;
 });
+document.getElementById('import-data')?.addEventListener('change', importData);
 document.addEventListener('keydown', (event) => {
   if (event.key !== 'Enter' && event.key !== ' ') return;
   const target = event.target.closest('[data-calendar-date]');
