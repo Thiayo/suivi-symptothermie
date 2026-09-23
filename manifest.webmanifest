@@ -9,5 +9,8 @@
   "display": "standalone",
   "theme_color": "#173f5f",
   "background_color": "#fdf6f8",
-  "categories": ["health", "lifestyle"]
+  "categories": ["health", "lifestyle"],
+  "icons": [
+    {"src":"./icons/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
 }
