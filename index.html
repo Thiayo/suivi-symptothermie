@@ -504,14 +504,9 @@ function loadLearning() {
 function saveLearning(value) { memLearning = value; try { localStorage.setItem(LEARNING_KEY, JSON.stringify(value)); } catch (e) { storageAvailable = false; setStorageStatus('La progression reste disponible pendant cette session, mais n’a pas pu être enregistrée durablement dans ce navigateur.'); } }
 function renderLearning() {
   const progress = loadLearning(), completed = Object.keys(progress.completed).length;
-  const moduleList = document.getElementById('module-list');
-  const toggleModules = document.getElementById('toggle-modules');
-  if (moduleList && toggleModules) {
-    const expanded = moduleList.hidden === false;
-    moduleList.hidden = !expanded;
-    toggleModules.setAttribute('aria-expanded', String(expanded));
-    toggleModules.textContent = expanded ? 'Masquer les modules' : 'Afficher les modules';
-  }
+  // L'état ouvert/fermé est géré uniquement par le bouton.
+  // renderLearning() ne doit pas le modifier, sinon chaque rafraîchissement
+  // inverserait l'état du panneau.
   document.getElementById('overall-progress').style.width = `${completed / MODULES.length * 100}%`;
   document.querySelector('.learn-progress').setAttribute('aria-valuenow', completed);
   document.getElementById('overall-progress-text').textContent = `${completed} leçon${completed > 1 ? 's' : ''} terminée${completed > 1 ? 's' : ''} sur ${MODULES.length}.`;
