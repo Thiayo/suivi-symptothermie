@@ -545,11 +545,16 @@ function loadLearning() {
 function saveLearning(value) { memLearning = value; try { localStorage.setItem(LEARNING_KEY, JSON.stringify(value)); } catch (e) { storageAvailable = false; setStorageStatus('La progression reste disponible pendant cette session, mais n’a pas pu être enregistrée durablement dans ce navigateur.'); } }
 function renderLearning() {
   const progress = loadLearning(), completed = Object.keys(progress.completed).length;
+  const progressBar = document.getElementById('overall-progress');
+  const progressText = document.getElementById('overall-progress-text');
+  const moduleList = document.getElementById('module-list');
+  const learnBar = document.querySelector('.learn-progress');
+  if (!progressBar || !progressText || !moduleList || !learnBar) return;
   // L'état ouvert/fermé est géré uniquement par le bouton.
   // renderLearning() ne doit pas le modifier, sinon chaque rafraîchissement
   // inverserait l'état du panneau.
-  document.getElementById('overall-progress').style.width = `${completed / MODULES.length * 100}%`;
-  document.querySelector('.learn-progress').setAttribute('aria-valuenow', completed);
+  progressBar.style.width = `${completed / MODULES.length * 100}%`;
+  learnBar.setAttribute('aria-valuenow', completed);
   const learnText=getLanguage()==='en'?completed+' lesson'+(completed===1?'':'s')+' completed out of '+MODULES.length+'.':getLanguage()==='es'?completed+' lección'+(completed>1?'es':'')+' completada'+(completed>1?'s':'')+' de '+MODULES.length+'.':getLanguage()==='ar'?completed+' من '+MODULES.length+' من الدروس مكتملة.':completed+' leçon'+(completed>1?'s':'')+' terminée'+(completed>1?'s':'')+' sur '+MODULES.length+'.'; document.getElementById('overall-progress-text').textContent=learnText;
   document.getElementById('module-list').innerHTML = localizedModules().map((module, index) => `<article class="module-card"><h3>Module ${index+1} — ${module.title}</h3><p>${module.summary}</p><div class="learn-progress" aria-hidden="true"><span style="width:${progress.completed[module.id] ? 100 : 0}%"></span></div><div class="row-actions"><span class="learn-meta">${progress.completed[module.id] ? (getLanguage()==='en'?'Lesson completed':getLanguage()==='es'?'Lección completada':getLanguage()==='ar'?'الدرس مكتمل':'Leçon terminée') : (getLanguage()==='en'?'Not started':getLanguage()==='es'?'Por descubrir':getLanguage()==='ar'?'للاكتشاف':'À découvrir')} · ${progress.completed[module.id] ? '100' : '0'} %</span><button class="btn btn-secondary" type="button" data-action="open-lesson" data-module="${escapeHtml(module.id)}">${progress.completed[module.id] ? (getLanguage()==='en'?'Continue':getLanguage()==='es'?'Continuar':getLanguage()==='ar'?'متابعة':'Reprendre') : (getLanguage()==='en'?'Open lesson':getLanguage()==='es'?'Abrir la lección':getLanguage()==='ar'?'فتح الدرس':'Ouvrir la leçon')}</button></div></article>`).join('');
 }
@@ -811,6 +816,7 @@ function detectThermalReference(entries) {
 function renderChart(entries) {
   const container = document.getElementById('chart-container');
   const badge = document.getElementById('thermal-badge');
+  if (!container || !badge) return;
   if (entries.length === 0) {
     container.innerHTML = '<p class="empty">' + dt('addFirst') + '</p>';
     badge.innerHTML = '';
@@ -892,6 +898,7 @@ function factorLabel(key){
 
 function renderTable(entries) {
   const container = document.getElementById('table-container');
+  if (!container) return;
   const lang=getLanguage();
   const labels=lang==='es'?{empty:'No hay registros para este ciclo.',context:'Contexto',time:'Hora',bleeding:'Sangrado',period:'menstruación',spotting:'manchado',actions:'Acciones',date:'Fecha',temp:'Temp.',mucus:'Moco',notes:'Notas / contexto',edit:'Editar',delete:'Eliminar'}:lang==='ar'?{empty:'لا توجد إدخالات لهذه الدورة.',context:'السياق',time:'الوقت',bleeding:'النزيف',period:'الحيض',spotting:'تبقيع',actions:'الإجراءات',date:'التاريخ',temp:'الحرارة',mucus:'المخاط',notes:'ملاحظات / سياق',edit:'تعديل',delete:'حذف'}:{empty:'Aucune entrée pour ce cycle.',context:'Contexte',time:'Heure',bleeding:'Saignement',period:'règles',spotting:'spotting',actions:'Actions',date:'Date',temp:'Temp.',mucus:'Glaire',notes:'Notes / contexte',edit:'Modifier',delete:'Supprimer'};
   if (entries.length === 0) { container.innerHTML = '<p class="empty">'+labels.empty+'</p>'; return; }
@@ -919,6 +926,7 @@ function renderTable(entries) {
 function renderHistory() {
   const hist = loadHistory();
   const container = document.getElementById('history-container');
+  if (!container) return;
   const lang=getLanguage();
   const t=lang==='es'?{empty:'Aún no hay ciclos archivados.',cycle:'Ciclo del',to:'al',obs:'observación(es) registrada(s)',temps:'temperatura(s)',covered:'período cubierto',days:'día(s)',mucus:'observación(es) de moco registrada(s)',bleeding:'observación(es) con sangrado',complete:'de los campos temperatura/moco completados',context:'Contexto registrado en',delete:'Eliminar'}:lang==='ar'?{empty:'لا توجد دورات مؤرشفة بعد.',cycle:'الدورة من',to:'إلى',obs:'ملاحظة مسجلة',temps:'درجة حرارة',covered:'الفترة المغطاة',days:'يوم',mucus:'ملاحظة للمخاط',bleeding:'ملاحظة مع نزيف',complete:'من حقول الحرارة/المخاط مكتملة',context:'السياق مسجل في',delete:'حذف'}:{empty:'Pas encore de cycle archivé.',cycle:'Cycle du',to:'au',obs:'observation(s) enregistrée(s)',temps:'température(s)',covered:'période couverte',days:'jour(s)',mucus:'observation(s) de glaire renseignée(s)',bleeding:'observation(s) avec saignement',complete:'des champs température/glaire renseignés',context:'Contexte renseigné sur',delete:'Supprimer'};
   if (hist.length === 0) { container.innerHTML = '<p class="empty">'+t.empty+'</p>'; return; }
