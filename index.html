@@ -366,7 +366,7 @@
         <div id="bleeding-help" class="learn-meta">Indique uniquement ce que tu observes aujourd’hui, sans interprétation automatique.</div>
       </div>
       <div>
-        <label for="f-mucus">Glaire cervicale <a href="#apprendre" data-action="open-lesson" data-module="m3">Apprendre à observer</a></label>
+        <label for="f-mucus"><span id="mucus-label-text">Glaire cervicale</span> <a href="#apprendre" data-action="open-lesson" data-module="m3">Apprendre à observer</a></label>
         <select id="f-mucus" aria-describedby="mucus-help">
           <option value="sec">Sec / absent</option>
           <option value="collante">Collante</option>
@@ -1064,7 +1064,7 @@ function applyLanguage(){
   set('section#accueil .card:nth-of-type(2) h2',d.ui.add);set('#calendrier h2',d.ui.calendar);set('#historique .card:first-child h2',d.ui.history);set('#historique .card:nth-child(2) h2',d.ui.previous);
   set('label[for="profile-language"]',d.language);set('label[for="profile-unit"]',d.unit);set('label[for="profile-name"]',lang==='fr'?'Prénom ou nom d’affichage (facultatif)':lang==='en'?'Display name (optional)':lang==='es'?'Nombre para mostrar (opcional)':'اسم العرض (اختياري)');
   set('label[for="profile-goal"]',lang==='fr'?'Objectif d’observation':lang==='en'?'Observation goal':lang==='es'?'Objetivo de observación':'هدف المتابعة');
-  set('label[for="f-date"]',d.ui.date);set('label[for="f-temp"]',d.ui.temp);set('label[for="f-time"]',d.ui.time);set('label[for="f-bleeding"]',d.ui.bleeding);set('label[for="f-mucus"]',d.ui.mucus);set('#factors-label',d.ui.factors);set('label[for="f-notes"]',d.ui.notes);
+  set('label[for="f-date"]',d.ui.date);set('#temp-label-text',d.ui.temp);set('label[for="f-time"]',d.ui.time);set('label[for="f-bleeding"]',d.ui.bleeding);set('#mucus-label-text',d.ui.mucus);set('#factors-label',d.ui.factors);set('label[for="f-notes"]',d.ui.notes);
   set('#today-add-btn',d.ui.todayAdd);set('#today-graph-btn',d.ui.todayGraph);set('#entry-title',d.ui.addTitle);set('#temp-label-text',d.ui.temp);set('#temp-help-link',d.ui.tempLink);set('#chart-title',d.ui.chartTitle);set('#chart-description',d.ui.chartDescription);set('#calendar-heading',d.ui.calendarTitle);set('#calendar-prev-btn',d.ui.prevMonth);set('#calendar-next-btn',d.ui.nextMonth);
   const saveProfile=document.querySelector('[data-action="save-profile"]');if(saveProfile)saveProfile.textContent=d.ui.saveProfile;
   const privacy=document.querySelector('.privacy-box');if(privacy)privacy.firstChild.textContent=d.ui.privacy+' ';
@@ -1317,7 +1317,7 @@ render();
 })();
 </script>
 <script>
-if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
   window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
 }
 </script>
