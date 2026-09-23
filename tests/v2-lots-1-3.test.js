@@ -400,3 +400,23 @@ test('optional Bluetooth thermometer integration uses the standard Health Thermo
   assert.match(page, /gattserverdisconnected/);
   assert.match(page, /Connecter un thermomètre Bluetooth/);
 });
+
+
+test('temperature units and multilingual profile settings are persisted and validated', () => {
+  assert.match(page, /profile-language/);
+  assert.match(page, /profile-unit/);
+  assert.match(page, /value="es">Español/);
+  assert.match(page, /value="ar">العربية/);
+  assert.match(page, /function celsiusToDisplay/);
+  assert.match(page, /function displayToCelsius/);
+  assert.match(page, /getUnit\(\)==='f'/);
+  assert.match(page, /language:v.language\|\|'fr'/);
+  assert.match(page, /unit:v.unit\|\|'c'/);
+});
+
+test('WHO references include multilingual resources', () => {
+  assert.match(page, /fphandbook\.org\/translations/);
+  assert.match(page, /who\.int\/fr\/news-room\/events/);
+  assert.match(page, /who\.int\/es\/campaigns/);
+  assert.match(page, /who\.int\/ar\/news-room\/fact-sheets\/detail\/family-planning-contraception/);
+});
