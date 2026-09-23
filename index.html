@@ -622,7 +622,7 @@ function addEntry() {
     };
 
     if (!validStoredEntry(candidate)) {
-      setActionStatus('Les données saisies ne sont pas valides. Vérifie les champs avant d’enregistrer.');
+      setActionStatus(at('invalid'));
       return;
     }
 
@@ -638,7 +638,7 @@ function addEntry() {
     // Ainsi, même si un élément visuel rencontre une erreur, l'observation reste sauvegardée.
     render();
 
-    setActionStatus('✓ Observation enregistrée dans le journal du cycle en cours.');
+    setActionStatus(at('saved'));
 
     // Réinitialiser uniquement les champs de saisie.
     document.getElementById('f-date').value = localDateKey();
@@ -714,14 +714,14 @@ function deleteEntry(date) {
   if (!confirm('Supprimer l’observation du ' + formatDate(date) + ' ?')) return;
   let entries = loadCurrent().filter(e => e.date !== date);
   saveCurrent(entries);
-  setActionStatus('Observation supprimée.');
+  setActionStatus(at('deleteObs'));
   const status=document.getElementById('action-status');if(status)status.focus();
   render();
 }
 
 function startNewCycle() {
   const entries = loadCurrent();
-  if (entries.length === 0) { setActionStatus('Le cycle en cours est déjà vide.'); return; }
+  if (entries.length === 0) { setActionStatus(at('alreadyEmpty')); return; }
   if (!confirm("Archiver le cycle en cours et démarrer un nouveau cycle ?")) return;
 
   const hist = loadHistory();
@@ -739,7 +739,7 @@ function startNewCycle() {
     memHistory = nextHistory;
     memCurrent = [];
     storageAvailable = true;
-    setActionStatus('Cycle archivé et nouveau cycle démarré.');
+    setActionStatus(at('newCycle'));
   } catch (error) {
     try {
       keys.forEach(key => {
@@ -981,6 +981,8 @@ const APP_DATA_VERSION = 2;
 const PROFILE_KEY = 'symptothermie_profile';
 let calendarDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 const LANGUAGE_KEY = 'symptothermie_language';
+const ACTION_TEXTS={fr:{future:'Une observation future ne peut pas être enregistrée.',invalidDate:'La date saisie est invalide.',invalid:'Les données saisies ne sont pas valides. Vérifie les champs avant d’enregistrer.',saved:'✓ Observation enregistrée dans le journal du cycle en cours.',deleteObs:'Observation supprimée.',alreadyEmpty:'Le cycle en cours est déjà vide.',newCycle:'Cycle archivé et nouveau cycle démarré.',clear:'Toutes les données locales ont été effacées.',connect:'🌡️ Thermomètre connecté',noStorage:'⚠️ La sauvegarde locale est indisponible dans ce navigateur : tes entrées restent visibles pendant cette session, mais peuvent être perdues si tu fermes ou recharges la page.',mucus:{sec:'Sec',collante:'Collante',cremeuse:'Crémeuse',blanc:'Blanc d’œuf'}},es:{future:'No se puede registrar una observación futura.',invalidDate:'La fecha indicada no es válida.',invalid:'Los datos introducidos no son válidos. Comprueba los campos antes de guardar.',saved:'✓ Observación registrada en el diario del ciclo actual.',deleteObs:'Observación eliminada.',alreadyEmpty:'El ciclo actual ya está vacío.',newCycle:'Ciclo archivado y nuevo ciclo iniciado.',clear:'Todos los datos locales han sido eliminados.',connect:'🌡️ Termómetro conectado',noStorage:'⚠️ El almacenamiento local no está disponible en este navegador: las entradas permanecen visibles durante esta sesión, pero pueden perderse al cerrar o recargar la página.',mucus:{sec:'Seco',collante:'Pegajoso',cremeuse:'Cremoso',blanc:'Clara de huevo'}},ar:{future:'لا يمكن تسجيل ملاحظة بتاريخ مستقبلي.',invalidDate:'التاريخ المُدخل غير صالح.',invalid:'البيانات المُدخلة غير صالحة. تحققي من الحقول قبل الحفظ.',saved:'✓ تم تسجيل الملاحظة في سجل الدورة الحالية.',deleteObs:'تم حذف الملاحظة.',alreadyEmpty:'الدورة الحالية فارغة بالفعل.',newCycle:'تم أرشفة الدورة وبدء دورة جديدة.',clear:'تم حذف جميع البيانات المحلية.',connect:'🌡️ تم توصيل مقياس الحرارة',noStorage:'⚠️ التخزين المحلي غير متاح في هذا المتصفح: تبقى الإدخالات ظاهرة خلال هذه الجلسة، لكنها قد تضيع عند إغلاق الصفحة أو إعادة تحميلها.',mucus:{sec:'جاف',collante:'لزج',cremeuse:'كريمي',blanc:'بياض البيض'}}};
+function at(key){const t=ACTION_TEXTS[getLanguage()]||ACTION_TEXTS.fr;return t[key]||ACTION_TEXTS.fr[key]||key;}
 const DYNAMIC_TEXTS = {
   fr:{saved:'✓ Enregistrée',toFill:'À renseigner',todayObs:'Observation du jour',temperature:'Température',mucusObs:'Glaire / observation',cycleRef:'Repère dans le cycle',noObs:'Aucune observation',obsSaved:'Observation enregistrée',notFilled:'Non renseignée',observation:'Observation',context:'Contexte',notes:'Notes',measurementTime:'Heure de mesure',bleeding:'Saignement',period:'règles',spotting:'spotting',yes:'Réponse juste.',review:'À revoir.',addFirst:'Ajoute des entrées pour voir ta courbe.',noShift:'Pas encore assez de données pour afficher un repère',shiftAround:'Repère thermique descriptif autour du',savedJournal:'✓ Observation enregistrée dans le journal du cycle en cours.',save:'Enregistrer l’entrée',editSave:'Enregistrer la modification',editInProgress:'Modification en cours : vérifie les données puis enregistre.'},
   es:{saved:'✓ Registrada',toFill:'Por completar',todayObs:'Observación del día',temperature:'Temperatura',mucusObs:'Moco / observación',cycleRef:'Referencia del ciclo',noObs:'Ninguna observación',obsSaved:'Observación registrada',notFilled:'No indicada',observation:'Observación',context:'Contexto',notes:'Notas',measurementTime:'Hora de medición',bleeding:'Sangrado',period:'menstruación',spotting:'manchado',yes:'Respuesta correcta.',review:'Revisar.',addFirst:'Añade registros para ver tu curva.',noShift:'Aún no hay suficientes datos para mostrar una referencia',shiftAround:'Referencia térmica descriptiva alrededor del',savedJournal:'✓ Observación registrada en el diario del ciclo actual.',save:'Guardar la entrada',editSave:'Guardar la modificación',editInProgress:'Modificación en curso: revisa los datos y guarda.'},
@@ -1091,7 +1093,7 @@ function clearAllData(){
   memLearning={version:LEARNING_VERSION,completed:{},lastModule:null};
   memProfile={version:APP_DATA_VERSION,name:'',goal:'observer',language:detectBrowserLanguage(),unit:'c'};
   storageAvailable=persistent;
-  setActionStatus(persistent?'Toutes les données locales ont été effacées.':'Les données ont été effacées pour cette session, mais la suppression durable n’a pas pu être confirmée.');
+  setActionStatus(persistent?at('clear'):'Les données ont été effacées pour cette session, mais la suppression durable n’a pas pu être confirmée.');
   if(!persistent) setStorageStatus('Le navigateur n’a pas permis de modifier durablement les données locales. Les données sont toutefois effacées de la session en cours.');
   document.getElementById('action-status')?.focus();
   renderProfile();renderLearning();renderCalendar();render();
@@ -1176,7 +1178,7 @@ async function connectThermometer() {
       handleThermometerMeasurement({ target: { value } });
     } catch (readError) {}
     const button = document.getElementById('connect-thermometer-btn');
-    if (button) button.textContent = '🌡️ Thermomètre connecté';
+    if (button) button.textContent = at('connect');
     setThermometerStatus(`Connecté : ${bluetoothDevice.name || 'thermomètre compatible'}.`);
   } catch (error) {
     if (error && error.name === 'NotFoundError') {
