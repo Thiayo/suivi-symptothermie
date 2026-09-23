@@ -983,10 +983,13 @@ document.getElementById('toggle-modules').addEventListener('click', () => {
   const list = document.getElementById('module-list');
   const button = document.getElementById('toggle-modules');
   if (!list || !button) return;
+  const scrollY = window.scrollY;
   const expanded = list.hidden;
   list.hidden = !expanded;
   button.setAttribute('aria-expanded', String(expanded));
   button.textContent = expanded ? 'Masquer les modules' : 'Afficher les modules';
+  // Déplier/replier sans déplacer la position de lecture.
+  requestAnimationFrame(() => window.scrollTo({ top: scrollY, left: window.scrollX, behavior: 'instant' }));
 });
 document.getElementById('reset-learning').addEventListener('click', resetLearning);
 renderLearning();
