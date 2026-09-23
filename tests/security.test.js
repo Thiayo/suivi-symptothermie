@@ -139,7 +139,7 @@ test('PWA files are structurally valid', () => {
   assert.equal(data.start_url, './');
   assert.equal(data.scope, './');
   assert.equal(data.display, 'standalone');
-  assert.match(serviceWorker, /const CACHE_NAME = 'symptothermie-shell-v2'/);
+  assert.match(serviceWorker, /const CACHE_NAME = 'symptothermie-shell-v3'/);
   assert.match(serviceWorker, /self\.addEventListener\('install'/);
   assert.match(serviceWorker, /self\.addEventListener\('fetch'/);
 });
@@ -169,4 +169,11 @@ test('stored entry collections reject duplicate dates and excessive history size
 test('editing an observation respects the selected Fahrenheit display unit', () => {
   assert.match(page, /document\.getElementById\('f-temp'\)\.value = entry\.temp === null \? '' : celsiusToDisplay\(entry\.temp\)\.toFixed\(2\)/);
   assert.match(page, /function displayToCelsius\(value\)/);
+});
+
+
+test('PWA declares an installable icon and caches it', () => {
+  assert.match(manifest, /icons/);
+  assert.match(manifest, /\.\/icons\/icon\.svg/);
+  assert.match(serviceWorker, /\.\/icons\/icon\.svg/);
 });
