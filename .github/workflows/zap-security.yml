@@ -1,0 +1,23 @@
+name: OWASP ZAP security scan
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 3 * * 1'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  zap-baseline:
+    name: Passive web security scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.15.0
+        with:
+          target: 'https://couple-et-sexualite.github.io/suivi-symptothermie/'
+          fail_action: false
+          allow_issue_writing: false
+          artifact_name: zap_scan
