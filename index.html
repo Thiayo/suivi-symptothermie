@@ -1046,7 +1046,7 @@ function showCalendarDetail(date) {
   if (!detail || !entry) return;
   const temp = entry.temp !== null ? formatTemperature(entry.temp,2) : dt('notFilled');
   detail.style.display = 'block';
-  const factorLabels = getLanguage()==='es' ? {maladie:'enfermedad/fiebre',sommeil:'sueño alterado',horaire:'horaio inusual',voyage:'viaje/desplazamiento',alcool:'alcohol',medicament:'medicamento'} : getLanguage()==='ar' ? {maladie:'مرض/حمى',sommeil:'اضطراب النوم',horaire:'وقت غير معتاد',voyage:'سفر/تنقّل',alcool:'كحول',medicament:'دواء'} : {maladie:'maladie/fièvre',sommeil:'sommeil perturbé',horaire:'horaire inhabituel',voyage:'voyage/déplacement',alcool:'alcool',medicament:'médicament'};
+  const factorLabels = getLanguage()==='es' ? {maladie:'enfermedad/fiebre',sommeil:'sueño alterado',horaire:'horario inusual',voyage:'viaje/desplazamiento',alcool:'alcohol',medicament:'medicamento'} : getLanguage()==='ar' ? {maladie:'مرض/حمى',sommeil:'اضطراب النوم',horaire:'وقت غير معتاد',voyage:'سفر/تنقّل',alcool:'كحول',medicament:'دواء'} : {maladie:'maladie/fièvre',sommeil:'sommeil perturbé',horaire:'horaire inhabituel',voyage:'voyage/déplacement',alcool:'alcool',medicament:'médicament'};
   const factors = Array.isArray(entry.factors) && entry.factors.length ? '<br>' + dt('context') + ' : ' + entry.factors.map(f => escapeHtml(factorLabels[f] || f)).join(', ') : '';
   const notes = entry.notes ? '<br>' + dt('notes') + ' : ' + escapeHtml(entry.notes) : '';
   const time = entry.time ? '<br>' + dt('measurementTime') + ' : ' + escapeHtml(entry.time) : '';
