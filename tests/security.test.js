@@ -40,6 +40,12 @@ test('dangerous script execution primitives are absent', () => {
 test('calendar weekday headings are localized', () => {
   assert.match(page, /const weekdays=getLanguage\(\)==='ar'\?\['الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد'\]:getLanguage\(\)==='es'/);
 });
+test('the profile explains automatic detection and manual language choice', () => {
+  assert.match(page, /id="language-help"/);
+  assert.match(page, /La langue est détectée automatiquement/);
+  assert.match(page, /El idioma se detecta automáticamente/);
+  assert.match(page, /يتم اكتشاف اللغة تلقائيًا/);
+});
 test('the first launch detects a supported browser language and keeps an explicit profile choice', () => {
   assert.match(page, /function detectBrowserLanguage\(\)/);
   assert.match(page, /navigator\.languages/);
