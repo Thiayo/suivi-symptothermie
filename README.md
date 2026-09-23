@@ -9,6 +9,14 @@ Application web de suivi des observations du cycle et d’apprentissage.
 - L’application affiche des repères descriptifs et pédagogiques ; elle ne fournit pas de diagnostic ni de recommandation contraceptive automatisée.
 - Les données importées sont validées avant restauration et les fichiers de sauvegarde sont limités à 2 Mo.
 
+## Utilisation
+
+Ouvrez l’application dans un navigateur moderne. Les données du journal restent sur l’appareil par défaut. Utilisez régulièrement l’export JSON pour conserver une copie de sauvegarde, surtout avant de changer d’appareil ou de navigateur.
+
+## Confidentialité et limites
+
+L’application est un outil d’observation et d’apprentissage. Elle ne remplace pas un professionnel de santé et ne fournit pas de diagnostic, de traitement ni de décision contraceptive automatisée. Les données du journal ne sont pas envoyées à un serveur par les fonctions locales de l’application.
+
 ## Vérification
 
 `npm test`
