@@ -704,7 +704,7 @@ function startNewCycle() {
   const hist = loadHistory();
   const nextHistory = [{ start: entries[0].date, end: entries[entries.length-1].date, entries }, ...hist];
   const keys = [CURRENT_KEY, HISTORY_KEY];
-  const previous = {};
+  const previous = { [CURRENT_KEY]: null, [HISTORY_KEY]: null };
   try {
     keys.forEach(key => { previous[key] = localStorage.getItem(key); });
     localStorage.setItem(HISTORY_KEY, JSON.stringify(nextHistory));
@@ -980,6 +980,7 @@ function changeCalendarMonth(delta){calendarDate=new Date(calendarDate.getFullYe
 function clearAllData(){
   if(!confirm('Effacer toutes les données locales de cette application ? Cette action ne peut pas être annulée.')) return;
   const keys=[CURRENT_KEY,HISTORY_KEY,LEARNING_KEY,PROFILE_KEY], previous={};
+  keys.forEach(key => { previous[key]=null; });
   let persistent=true;
   try {
     keys.forEach(key => { previous[key]=localStorage.getItem(key); });
