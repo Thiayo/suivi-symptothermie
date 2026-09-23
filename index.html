@@ -602,7 +602,7 @@ function addEntry() {
       if (!confirm("Aucune température saisie, continuer quand même ?")) return;
     }
     if (!isNaN(temp) && (temp < 34 || temp > 42)) {
-      if (!confirm(`${formatTemperature(temp,2)} semble inhabituel pour une température corporelle (plage interne 34–42 °C). Enregistrer quand même ?`)) return;
+      if (!confirm(`${formatTemperature(temp,2)} semble inhabituel pour une température corporelle (plage de contrôle ${getUnit()==='f'?'93,2–107,6 °F':'34–42 °C'}). Enregistrer quand même ?`)) return;
     }
 
     if (button) button.disabled = true;
