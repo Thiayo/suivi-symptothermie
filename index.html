@@ -391,7 +391,7 @@
     </fieldset>
     <div style="margin-bottom:14px;">
       <label for="f-notes">Notes (optionnel)</label>
-      <textarea id="f-notes" placeholder="Ressenti, douleurs, humeur..." aria-describedby="notes-help"></textarea>
+      <textarea id="f-notes" maxlength="2000" placeholder="Ressenti, douleurs, humeur..." aria-describedby="notes-help"></textarea>
       <div id="notes-help" class="learn-meta">Décris ce que tu observes ou le contexte de la mesure, sans chercher à en tirer automatiquement une conclusion.</div>
     </div>
     <div id="edit-status" class="notice" style="display:none;margin-bottom:12px;" role="status" aria-live="polite" tabindex="-1"></div>
@@ -527,8 +527,8 @@ function openLesson(id) {
   panel.innerHTML = `<h3>Module ${MODULES.indexOf(module)+1} — ${module.title}</h3>${module.body}<div class="quiz"><h4>Question de vérification</h4><p>${module.quiz.q}</p>${module.quiz.options.map((option, i) => `<button class="btn btn-secondary" type="button" data-action="answer-quiz" data-module="${escapeHtml(id)}" data-option="${i}">${option}</button>`).join('')}<p id="quiz-result" class="quiz-result" aria-live="polite"></p></div><div class="row-actions"><button class="btn" type="button" data-action="complete-lesson" data-module="${escapeHtml(id)}">${progress.completed[id] ? 'Leçon déjà terminée' : 'Marquer la leçon comme terminée'}</button><button class="btn btn-secondary" type="button" data-action="close-lesson">Fermer la leçon</button></div>`;
   panel.scrollIntoView({behavior:'smooth', block:'start'});
 }
-function answerQuiz(id, choice) { const quiz = MODULES.find(item => item.id === id).quiz, correct = choice === quiz.answer; document.getElementById('quiz-result').textContent = `${correct ? 'Réponse juste.' : 'À revoir.'} ${quiz.explain}`; }
-function completeLesson(id) { const progress = loadLearning(); progress.completed[id] = true; progress.lastModule = id; saveLearning(progress); renderLearning(); openLesson(id); }function resetLearning() { if (!confirm('Réinitialiser toute la progression pédagogique ?')) return; saveLearning({version:LEARNING_VERSION, completed:{}, lastModule:null}); document.getElementById('lesson-view').hidden = true; renderLearning(); }
+function answerQuiz(id, choice) { const module = MODULES.find(item => item.id === id); if (!module || !module.quiz || !Number.isInteger(choice) || choice < 0 || choice >= module.quiz.options.length) return; const quiz = module.quiz, correct = choice === quiz.answer; document.getElementById('quiz-result').textContent = `${correct ? 'Réponse juste.' : 'À revoir.'} ${quiz.explain}`; }
+function completeLesson(id) { if (!MODULES.some(module => module.id === id)) return; const progress = loadLearning(); progress.completed[id] = true; progress.lastModule = id; saveLearning(progress); renderLearning(); openLesson(id); }function resetLearning() { if (!confirm('Réinitialiser toute la progression pédagogique ?')) return; saveLearning({version:LEARNING_VERSION, completed:{}, lastModule:null}); document.getElementById('lesson-view').hidden = true; renderLearning(); }
 
 
 // In-memory cache acts as the source of truth for this session. localStorage
@@ -547,7 +547,7 @@ const VALID_FACTORS = ['maladie','sommeil','horaire','voyage','alcool','medicame
 
 function validStoredTemperature(value){return value===null||(typeof value==='number'&&Number.isFinite(value)&&value>=34&&value<=42);}
 function validStoredTime(value){return value===null||(typeof value==='string'&&/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value));}
-function validStoredEntry(e){return !!e&&typeof e==='object'&&!Array.isArray(e)&&isValidDateKey(e.date)&&validStoredTemperature(e.temp)&&typeof e.mucus==='string'&&VALID_MUCUS.includes(e.mucus)&&typeof e.notes==='string'&&(!('factors'in e)||(Array.isArray(e.factors)&&e.factors.every(f=>VALID_FACTORS.includes(f))))&&(!('bleeding'in e)||(typeof e.bleeding==='string'&&VALID_BLEEDING.includes(e.bleeding)))&&(!('time'in e)||validStoredTime(e.time));}
+function validStoredEntry(e){return !!e&&typeof e==='object'&&!Array.isArray(e)&&isValidDateKey(e.date)&&validStoredTemperature(e.temp)&&typeof e.mucus==='string'&&VALID_MUCUS.includes(e.mucus)&&typeof e.notes==='string'&&e.notes.length<=2000&&(!('factors'in e)||(Array.isArray(e.factors)&&e.factors.length<=VALID_FACTORS.length&&e.factors.every(f=>VALID_FACTORS.includes(f))))&&(!('bleeding'in e)||(typeof e.bleeding==='string'&&VALID_BLEEDING.includes(e.bleeding)))&&(!('time'in e)||validStoredTime(e.time));}
 function validStoredHistoryCycle(c){return !!c&&typeof c==='object'&&!Array.isArray(c)&&isValidDateKey(c.start)&&isValidDateKey(c.end)&&c.start<=c.end&&Array.isArray(c.entries)&&c.entries.length>0&&c.entries.every(validStoredEntry);}
 
 function loadCurrent(){
