@@ -81,5 +81,5 @@ test('English is an explicit supported language with automatic detection and UI 
   assert.match(page, /en:\{saved:'✓ Saved'/);
   assert.match(page, /savedJournal:'✓ Observation saved/);
   assert.match(page, /MODULE_TRANSLATIONS=\{\nen:\[/);
-  assert.match(page, /lang==='en'\?'en-US'/);
+  assert.match(page, /getLanguage\(\)==='en'\s*\?\s*'en-US'/);
 });
