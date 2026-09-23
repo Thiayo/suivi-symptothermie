@@ -299,8 +299,8 @@
     <p>Des repères pour observer et comprendre vos données à votre rythme. Ces leçons sont éducatives : elles ne posent pas de diagnostic et ne donnent pas de recommandation contraceptive.</p>
     <div class="learn-progress" role="progressbar" aria-label="Progression globale" aria-valuemin="0" aria-valuemax="8" aria-valuenow="0"><span id="overall-progress"></span></div>
     <p class="learn-meta" id="overall-progress-text"></p>
-    <div class="row-actions" style="margin:14px 0"><button class="btn" id="resume-learning" type="button">Reprendre mon apprentissage</button><button class="btn btn-secondary" id="reset-learning" type="button">Réinitialiser la progression</button></div>
-    <div id="module-list" class="module-list" aria-label="Modules pédagogiques"></div>
+    <div class="row-actions" style="margin:14px 0"><button class="btn" id="resume-learning" type="button">Reprendre mon apprentissage</button><button class="btn btn-secondary" id="toggle-modules" type="button" aria-expanded="false" aria-controls="module-list">Afficher les modules</button><button class="btn btn-secondary" id="reset-learning" type="button">Réinitialiser la progression</button></div>
+    <div id="module-list" class="module-list" aria-label="Modules pédagogiques" hidden></div>
   </section>
   <section id="lesson-view" class="card lesson-panel no-print" hidden aria-live="polite" aria-label="Leçon en cours"></section>
   <section class="card no-print" aria-labelledby="sources-title">
@@ -504,6 +504,14 @@ function loadLearning() {
 function saveLearning(value) { memLearning = value; try { localStorage.setItem(LEARNING_KEY, JSON.stringify(value)); } catch (e) { storageAvailable = false; setStorageStatus('La progression reste disponible pendant cette session, mais n’a pas pu être enregistrée durablement dans ce navigateur.'); } }
 function renderLearning() {
   const progress = loadLearning(), completed = Object.keys(progress.completed).length;
+  const moduleList = document.getElementById('module-list');
+  const toggleModules = document.getElementById('toggle-modules');
+  if (moduleList && toggleModules) {
+    const expanded = moduleList.hidden === false;
+    moduleList.hidden = !expanded;
+    toggleModules.setAttribute('aria-expanded', String(expanded));
+    toggleModules.textContent = expanded ? 'Masquer les modules' : 'Afficher les modules';
+  }
   document.getElementById('overall-progress').style.width = `${completed / MODULES.length * 100}%`;
   document.querySelector('.learn-progress').setAttribute('aria-valuenow', completed);
   document.getElementById('overall-progress-text').textContent = `${completed} leçon${completed > 1 ? 's' : ''} terminée${completed > 1 ? 's' : ''} sur ${MODULES.length}.`;
@@ -976,6 +984,15 @@ function isValidDateKey(value) {
 function validBackup(value){if(!value||typeof value!=='object'||value.version!==APP_DATA_VERSION||!Array.isArray(value.current)||!Array.isArray(value.history))return false;const p=value.profile;if(p!==undefined&&p!==null&&(typeof p!=='object'||Array.isArray(p)||(p.version!==undefined&&p.version!==APP_DATA_VERSION)||(p.name!==undefined&&(typeof p.name!=='string'||p.name.length>80))||(p.goal!==undefined&&!['observer','apprendre','suivi'].includes(p.goal))))return false;if(typeof value.exportedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value.exportedAt)||Number.isNaN(Date.parse(value.exportedAt)))return false;return value.current.every(validStoredEntry)&&value.history.every(validStoredHistoryCycle);}
 function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;if(file.size>2*1024*1024){setBackupStatus('La sauvegarde dépasse la taille maximale autorisée de 2 Mo.');const status=document.getElementById('backup-status');if(status)status.focus();event.target.value='';return;}const reader=new FileReader();reader.onload=()=>{try{const p=JSON.parse(reader.result);if(!p||typeof p!=='object'||Array.isArray(p)||!validBackup(p)||('learning'in p&&p.learning!==undefined&&!validLearning(p.learning)))throw new Error('format');if(!confirm('Remplacer les données locales actuelles par cette sauvegarde ?'))return;const keys=[CURRENT_KEY,HISTORY_KEY,LEARNING_KEY,PROFILE_KEY],previous={};keys.forEach(key=>{previous[key]=localStorage.getItem(key);});const nextLearning=p.learning&&validLearning(p.learning)?p.learning:{version:LEARNING_VERSION,completed:{},lastModule:null};const nextProfile=p.profile&&typeof p.profile==='object'?p.profile:{version:APP_DATA_VERSION,name:'',goal:'observer'};try{localStorage.setItem(CURRENT_KEY,JSON.stringify(p.current));localStorage.setItem(HISTORY_KEY,JSON.stringify(p.history));localStorage.setItem(LEARNING_KEY,JSON.stringify(nextLearning));localStorage.setItem(PROFILE_KEY,JSON.stringify(nextProfile));}catch(storageError){try{keys.forEach(key=>{if(previous[key]===null)localStorage.removeItem(key);else localStorage.setItem(key,previous[key]);});}catch(rollbackError){}throw storageError;}memCurrent=p.current;memHistory=p.history;memLearning=nextLearning;memProfile=nextProfile;storageAvailable=true;renderProfile();renderLearning();renderCalendar();render();setBackupStatus('Sauvegarde importée avec succès.');const status=document.getElementById('backup-status');if(status)status.focus();}catch(e){setBackupStatus('La sauvegarde n’a pas été importée : fichier invalide, incomplet ou impossible à enregistrer. Les données existantes sont conservées.');const status=document.getElementById('backup-status');if(status)status.focus();}finally{event.target.value='';}};reader.readAsText(file);}
 document.getElementById('resume-learning').addEventListener('click', () => openLesson(loadLearning().lastModule || MODULES[0].id));
+document.getElementById('toggle-modules').addEventListener('click', () => {
+  const list = document.getElementById('module-list');
+  const button = document.getElementById('toggle-modules');
+  if (!list || !button) return;
+  const expanded = list.hidden;
+  list.hidden = !expanded;
+  button.setAttribute('aria-expanded', String(expanded));
+  button.textContent = expanded ? 'Masquer les modules' : 'Afficher les modules';
+});
 document.getElementById('reset-learning').addEventListener('click', resetLearning);
 renderLearning();
 renderProfile();
