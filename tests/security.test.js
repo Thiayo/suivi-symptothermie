@@ -68,3 +68,9 @@ test('cycle archiving and full deletion roll back persistent storage on failure'
   assert.match(page, /function clearAllData\(\)[\s\S]*previous\[key\]/);
   assert.match(page, /function clearAllData\(\)[\s\S]*suppression durable n’a pas pu être confirmée/);
 });
+
+
+test('PWA shell is declared and service worker is registered safely', () => {
+  assert.match(page, /<link rel="manifest" href="\.\/manifest\.webmanifest">/);
+  assert.match(page, /navigator\.serviceWorker\.register\("\.\/sw\.js"\)/);
+});
