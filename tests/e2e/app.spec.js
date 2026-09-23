@@ -129,12 +129,12 @@ test.describe('professional end-to-end and mobile QA', () => {
 
   test('service worker is available on a secure-compatible origin', async ({ page }) => {
     await resetApp(page);
-    const supported = await page.evaluate(() => 'serviceWorker' in navigator);
-    expect(supported).toBeTruthy();
-    if (supported) {
-      await page.evaluate(async () => {
-        await navigator.serviceWorker.ready;
-      });
-    }
+    const result = await page.evaluate(async () => {
+      if (!('serviceWorker' in navigator)) return { supported: false, registered: false };
+      const registration = await navigator.serviceWorker.getRegistration('./sw.js');
+      return { supported: true, registered: Boolean(registration) };
+    });
+    expect(result.supported).toBeTruthy();
+    expect(result.registered).toBeTruthy();
   });
 });
