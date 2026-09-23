@@ -700,11 +700,32 @@ function startNewCycle() {
   const entries = loadCurrent();
   if (entries.length === 0) { setActionStatus('Le cycle en cours est déjà vide.'); return; }
   if (!confirm("Archiver le cycle en cours et démarrer un nouveau cycle ?")) return;
+
   const hist = loadHistory();
-  hist.unshift({ start: entries[0].date, end: entries[entries.length-1].date, entries });
-  saveHistory(hist);
-  saveCurrent([]);
-  setActionStatus('Cycle archivé et nouveau cycle démarré.');
+  const nextHistory = [{ start: entries[0].date, end: entries[entries.length-1].date, entries }, ...hist];
+  const keys = [CURRENT_KEY, HISTORY_KEY];
+  const previous = {};
+  try {
+    keys.forEach(key => { previous[key] = localStorage.getItem(key); });
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(nextHistory));
+    localStorage.setItem(CURRENT_KEY, JSON.stringify([]));
+    memHistory = nextHistory;
+    memCurrent = [];
+    storageAvailable = true;
+    setActionStatus('Cycle archivé et nouveau cycle démarré.');
+  } catch (error) {
+    try {
+      keys.forEach(key => {
+        if (previous[key] === null) localStorage.removeItem(key);
+        else localStorage.setItem(key, previous[key]);
+      });
+    } catch (rollbackError) {}
+    storageAvailable = false;
+    memHistory = nextHistory;
+    memCurrent = [];
+    setActionStatus('Cycle archivé et nouveau cycle démarré pour cette session, mais la sauvegarde durable a échoué.');
+    setStorageStatus('Le cycle a été conservé pendant cette session, mais le navigateur n’a pas permis de confirmer la sauvegarde durable.');
+  }
   const status=document.getElementById('action-status');if(status)status.focus();
   render();
 }
@@ -956,7 +977,32 @@ function showCalendarDetail(date) {
 }
 
 function changeCalendarMonth(delta){calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()+delta,1);renderCalendar();}
-function clearAllData(){if(!confirm('Effacer toutes les données locales de cette application ? Cette action ne peut pas être annulée.'))return;memCurrent=[];memHistory=[];memLearning={version:LEARNING_VERSION,completed:{},lastModule:null};memProfile={version:APP_DATA_VERSION,name:'',goal:'observer'};try{[CURRENT_KEY,HISTORY_KEY,LEARNING_KEY,PROFILE_KEY].forEach(key=>localStorage.removeItem(key));storageAvailable=true;}catch(e){storageAvailable=false;}setActionStatus(storageAvailable?'Toutes les données locales ont été effacées.':'Les données ont été effacées pour cette session, mais le navigateur n’a pas permis de confirmer leur suppression durable.');document.getElementById('action-status')?.focus();renderProfile();renderLearning();renderCalendar();render();}
+function clearAllData(){
+  if(!confirm('Effacer toutes les données locales de cette application ? Cette action ne peut pas être annulée.')) return;
+  const keys=[CURRENT_KEY,HISTORY_KEY,LEARNING_KEY,PROFILE_KEY], previous={};
+  let persistent=true;
+  try {
+    keys.forEach(key => { previous[key]=localStorage.getItem(key); });
+    keys.forEach(key => localStorage.removeItem(key));
+  } catch (error) {
+    persistent=false;
+    try {
+      keys.forEach(key => {
+        if (previous[key] === null) localStorage.removeItem(key);
+        else localStorage.setItem(key, previous[key]);
+      });
+    } catch (rollbackError) {}
+  }
+  memCurrent=[];
+  memHistory=[];
+  memLearning={version:LEARNING_VERSION,completed:{},lastModule:null};
+  memProfile={version:APP_DATA_VERSION,name:'',goal:'observer'};
+  storageAvailable=persistent;
+  setActionStatus(persistent?'Toutes les données locales ont été effacées.':'Les données ont été effacées pour cette session, mais la suppression durable n’a pas pu être confirmée.');
+  if(!persistent) setStorageStatus('Le navigateur n’a pas permis de modifier durablement les données locales. Les données sont toutefois effacées de la session en cours.');
+  document.getElementById('action-status')?.focus();
+  renderProfile();renderLearning();renderCalendar();render();
+}
 function setBackupStatus(message) {
   const status = document.getElementById('backup-status');
   if (status) status.textContent = message;
