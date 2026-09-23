@@ -17,7 +17,7 @@ test('user-controlled text is escaped before being inserted into HTML', () => {
 test('backup import is versioned, validated and size-limited', () => {
   assert.match(page, /function validBackup\(value\)/);
   assert.match(page, /value\.version!==APP_DATA_VERSION/);
-  assert.match(page, /value\.current\.every\(validStoredEntry\)/);
+  assert.match(page, /validEntryCollection\(value\.current\)/);
   assert.match(page, /value\.history\.every\(validStoredHistoryCycle\)/);
   assert.match(page, /file\.size>2\*1024\*1024/);
   assert.match(page, /JSON\.parse\(reader\.result\)/);
@@ -98,4 +98,15 @@ test('les notes et facteurs importés restent bornés et validés', () => {
   assert.match(page, /e\.notes\.length<=2000/);
   assert.match(page, /e\.factors\.length<=VALID_FACTORS\.length/);
   assert.match(page, /id="f-notes" maxlength="2000"/);
+});
+
+
+test('stored entry collections reject duplicate dates and excessive history size', () => {
+  assert.match(page, /const MAX_ENTRIES_PER_CYCLE = 3700/);
+  assert.match(page, /const MAX_HISTORY_CYCLES = 200/);
+  assert.match(page, /function validEntryCollection\(entries\)/);
+  assert.match(page, /const dates=new Set\(\)/);
+  assert.match(page, /dates\.has\(entry\.date\)/);
+  assert.match(page, /entries\.length>MAX_ENTRIES_PER_CYCLE/);
+  assert.match(page, /value\.history\.length>MAX_HISTORY_CYCLES/);
 });
