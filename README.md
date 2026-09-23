@@ -8,6 +8,8 @@ Application web de suivi des observations du cycle et d’apprentissage.
 - Les sauvegardes sont exportables/importables au format JSON.
 - L’application affiche des repères descriptifs et pédagogiques ; elle ne fournit pas de diagnostic ni de recommandation contraceptive automatisée.
 - Les données importées sont validées avant restauration et les fichiers de sauvegarde sont limités à 2 Mo.
+- Sur les navigateurs compatibles, un thermomètre Bluetooth utilisant le standard Health Thermometer peut transmettre une mesure dans le champ température ; l’utilisateur conserve la validation et l’enregistrement de l’observation.
+- La connexion Bluetooth Web n’est pas disponible dans tous les navigateurs ou appareils ; la saisie manuelle reste toujours disponible.
 
 ## Utilisation
 
