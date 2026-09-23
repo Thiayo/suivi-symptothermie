@@ -71,7 +71,7 @@ test('les données affichées dans le contexte utilisateur sont échappées', ()
 
 test('journal displays recorded observation context', () => {
   assert.match(page, /factorLabels =/);
-  assert.match(page, /Contexte :/);
+  assert.match(page, /labels\.context/);
   assert.match(page, /Notes \/ contexte/);
 });
 
@@ -81,7 +81,7 @@ test('history provides descriptive cycle summaries', () => {
   assert.match(page, /température\(s\)/);
   assert.match(page, /période couverte/);
   assert.match(page, /Contexte renseigné sur/);
-  assert.match(page, /aria-label="Supprimer ce cycle archivé"/);
+  assert.match(page, /aria-label="\$\{t\.delete\}/);
 });
 
 
@@ -153,7 +153,7 @@ test('les champs du formulaire disposent d’une aide accessible', () => {
 test('les suppressions demandent une confirmation et restent accessibles', () => {
   assert.match(page, /Supprimer l’observation du/);
   assert.match(page, /Supprimer définitivement le cycle du/);
-  assert.match(page, /aria-label="Supprimer l’observation du/);
+  assert.match(page, /aria-label="\$\{labels\.delete\}/);
 });
 
 
@@ -255,13 +255,13 @@ test('la version du profil importé reste cohérente avec la version de l’appl
 
 test('les cycles archivés disposent d’un titre accessible', () => {
   assert.match(page, /<article class="history-item" aria-labelledby="history-cycle-\$\{i\}">/);
-  assert.match(page, /<h3 id="history-cycle-\$\{i\}">Cycle du/);
+  assert.match(page, /<h3 id="history-cycle-\$\{i\}">\$\{t\.cycle\}/);
 });
 
 
 test('les actions courantes disposent d’un statut accessible', () => {
   assert.match(page, /id="action-status"[^>]*role="status"[^>]*aria-live="polite"/);
-  assert.match(page, /setActionStatus\('Merci de choisir une date\.'/);
+  assert.match(page, /setActionStatus\(at\('chooseDate'\)\)/);
   assert.doesNotMatch(page, /alert\('Merci de choisir une date\.'/);
   assert.doesNotMatch(page, /alert\('Le cycle en cours est déjà vide\.'/);
   assert.doesNotMatch(page, /alert\('Toutes les données locales ont été effacées\.'/);
@@ -345,8 +345,8 @@ test('la sauvegarde locale indisponible utilise un message adapté à l’applic
 });
 
 test('les actions de suppression et d’archivage annoncent leur résultat', () => {
-  assert.match(page, /setActionStatus\\(at\\('deleteObs'\\)\\);/);
-  assert.match(page, /setActionStatus\\(at\\('newCycle'\\)\\);/);
+  assert.match(page, /setActionStatus\(at\('deleteObs'\)\)/);
+  assert.match(page, /setActionStatus\(at\('newCycle'\)\)/);
   assert.match(page, /setActionStatus\('Cycle archivé supprimé\.'\)/);
 });
 
