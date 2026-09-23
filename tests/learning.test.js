@@ -44,10 +44,9 @@ test('modules 6 to 8 keep the requested non-diagnostic educational scope', () =>
 });
 
 test('contextual learning links are available from observations and graph', () => {
-  assert.match(page, /openLesson\('m4'\)/);
-  assert.match(page, /openLesson\('m3'\)/);
-  assert.match(page, /openLesson\('m5'\)/);
-  assert.match(page, /openLesson\('m6'\)/);
+  for (const module of ['m3','m4','m5','m6']) {
+    assert.match(page, new RegExp(`data-action="open-lesson"[^>]*data-module="${module}"`));
+  }
 });
 
 test('the learning module list starts collapsed and the toggle can actually hide it', () => {
