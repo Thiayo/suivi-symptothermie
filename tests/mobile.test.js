@@ -74,12 +74,12 @@ test('wide chart content is contained in a horizontal scrolling region', () => {
 
 
 test('English is an explicit supported language with automatic detection and UI translations', () => {
-  assert.match(page, /<option value="en">English<\\/option>/);
+  assert.match(page, /<option value="en">English<\/option>/);
   assert.match(page, /code==='fr'.*code==='en'.*code==='es'.*code==='ar'/);
-  assert.match(page, /\\['fr','en','es','ar'\\]\\.includes\(v\)/);
+  assert.match(page, /\['fr','en','es','ar'\]\.includes\(v\)/);
   assert.match(page, /en:\{title:'🌡️ Symptothermal Tracking'/);
   assert.match(page, /en:\{saved:'✓ Saved'/);
   assert.match(page, /savedJournal:'✓ Observation saved/);
-  assert.match(page, /MODULE_TRANSLATIONS=\\{\\nen:\[/);
+  assert.match(page, /MODULE_TRANSLATIONS=\{\nen:\[/);
   assert.match(page, /lang==='en'\?'en-US'/);
 });
