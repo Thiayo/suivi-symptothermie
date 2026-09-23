@@ -74,3 +74,14 @@ test('PWA shell is declared and service worker is registered safely', () => {
   assert.match(page, /<link rel="manifest" href="\.\/manifest\.webmanifest">/);
   assert.match(page, /navigator\.serviceWorker\.register\("\.\/sw\.js"\)/);
 });
+
+
+test('PWA files are structurally valid', () => {
+  const data = JSON.parse(manifest);
+  assert.equal(data.start_url, './');
+  assert.equal(data.scope, './');
+  assert.equal(data.display, 'standalone');
+  assert.match(serviceWorker, /const CACHE_NAME = 'symptothermie-shell-v1'/);
+  assert.match(serviceWorker, /self\.addEventListener\('install'/);
+  assert.match(serviceWorker, /self\.addEventListener\('fetch'/);
+});
