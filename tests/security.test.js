@@ -40,6 +40,15 @@ test('dangerous script execution primitives are absent', () => {
 test('calendar weekday headings are localized', () => {
   assert.match(page, /const weekdays=getLanguage\(\)==='ar'\?\['الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد'\]:getLanguage\(\)==='es'/);
 });
+test('the main interface keeps localized controls including the temperature help link', () => {
+  assert.match(page, /id="today-add-btn"/);
+  assert.match(page, /id="temp-label-text"/);
+  assert.match(page, /id="temp-help-link"/);
+  assert.match(page, /todayAdd:/);
+  assert.match(page, /tempLink:/);
+  assert.match(page, /chartDescription:/);
+  assert.match(page, /calendarTitle:/);
+});
 test('the profile explains automatic detection and manual language choice', () => {
   assert.match(page, /id="language-help"/);
   assert.match(page, /La langue est détectée automatiquement/);
