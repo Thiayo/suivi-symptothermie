@@ -37,6 +37,12 @@ test('dangerous script execution primitives are absent', () => {
   assert.doesNotMatch(page, /new Function\s*\(/);
 });
 
+test('Bluetooth thermometer readings use the selected display unit', () => {
+  assert.match(page, /function handleThermometerMeasurement\(event\)/);
+  assert.match(page, /field\.value = celsiusToDisplay\(value\)\.toFixed\(2\)/);
+  assert.match(page, /formatTemperature\(value, 2\)/);
+});
+
 test('destructive data actions require explicit confirmation', () => {
   assert.match(page, /function clearAllData\(\)/);
   assert.match(page, /function clearAllData\(\)[\s\S]*?if\(!confirm\(/);
