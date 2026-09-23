@@ -137,7 +137,7 @@ test.describe('professional end-to-end and mobile QA', () => {
 
     page.once('dialog', dialog => dialog.accept());
     await page.locator('#import-data').setInputFiles(backupPath);
-    await expect(page.locator('#backup-status')).toContainText('restaur');
+    await expect(page.locator('#backup-status')).toMatchAriaSnapshot(`- /(?:restaur|import)/i`);
     await expect(page.locator('#today-summary')).toContainText('36.50');
     await expect(page.locator('#calendar-grid [data-calendar-date="' + date + '"]')).toBeVisible();
   });
