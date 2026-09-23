@@ -117,6 +117,32 @@ test.describe('professional end-to-end and mobile QA', () => {
     expect(download.suggestedFilename()).toBe('suivi-symptothermie-sauvegarde.json');
   });
 
+  test('exports, clears, and restores a real backup through the UI', async ({ page }) => {
+    await resetApp(page);
+    const date = await page.locator('#f-date').inputValue();
+    await page.locator('#f-temp').fill('36.50');
+    await page.locator('#f-time').fill('07:00');
+    await page.locator('#f-mucus').selectOption('cremeuse');
+    await page.locator('#save-entry-btn').click();
+
+    const downloadPromise = page.waitForEvent('download');
+    await page.locator('[data-action="export-data"]').click();
+    const download = await downloadPromise;
+    const backupPath = await download.path();
+    expect(backupPath).toBeTruthy();
+
+    page.once('dialog', dialog => dialog.accept());
+    await page.locator('[data-action="clear-all-data"]').click();
+    await expect(page.locator('#today-summary')).not.toContainText('36.50');
+
+    await page.locator('#import-data').setInputFiles(backupPath);
+    page.once('dialog', dialog => dialog.accept());
+    await page.locator('#import-data').dispatchEvent('change');
+    await expect(page.locator('#backup-status')).toContainText('restaur');
+    await expect(page.locator('#today-summary')).toContainText('36.50');
+    await expect(page.locator('#calendar-grid [data-calendar-date="' + date + '"]')).toBeVisible();
+  });
+
   test('critical accessibility issues are absent', async ({ page }) => {
     await resetApp(page);
     const results = await new AxeBuilder({ page })
