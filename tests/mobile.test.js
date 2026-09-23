@@ -58,7 +58,7 @@ test('mobile temperature workflow supports Celsius, Fahrenheit and Bluetooth fal
   assert.match(page, /function celsiusToDisplay\(value\)/);
   assert.match(page, /function connectThermometer\(\)/);
   assert.match(page, /const THERMOMETER_SERVICE_UUID = 0x1809/);
-  assert.match(page, /Saisie manuelle/);
+  assert.match(page, /id="f-temp"/);
 });
 
 test('critical mobile actions use buttons with explicit button type', () => {
