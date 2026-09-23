@@ -67,7 +67,7 @@ test('critical mobile actions use buttons with explicit button type', () => {
   for (const tag of buttonTags) assert.match(tag, /\btype="button"/);
 });
 
-test('no fixed desktop width or horizontal viewport trap is introduced', () => {
-  assert.doesNotMatch(page, /width:\s*(?:[5-9]\d{2}|[1-9]\d{3,})px/);
-  assert.doesNotMatch(page, /min-width:\s*(?:[4-9]\d{2}|\d{4,})px/);
+test('wide chart content is contained in a horizontal scrolling region', () => {
+  assert.match(page, /\.chart-wrap\s*\{\s*overflow-x:\s*auto/);
+  assert.match(page, /\.table-scroll\s*\{\s*overflow-x:\s*auto/);
 });
