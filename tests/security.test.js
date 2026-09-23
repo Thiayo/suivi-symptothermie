@@ -37,6 +37,10 @@ test('dangerous script execution primitives are absent', () => {
   assert.doesNotMatch(page, /new Function\s*\(/);
 });
 
+test('temperature validation warning uses the selected display unit', () => {
+  assert.match(page, /plage de contrôle \$\{getUnit\(\)==='f'\?'93,2–107,6 °F':'34–42 °C'\}/);
+});
+
 test('Bluetooth thermometer readings use the selected display unit', () => {
   assert.match(page, /function handleThermometerMeasurement\(event\)/);
   assert.match(page, /field\.value = celsiusToDisplay\(value\)\.toFixed\(2\)/);
