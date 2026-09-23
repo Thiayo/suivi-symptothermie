@@ -539,7 +539,7 @@ function openLesson(id) {
   panel.scrollIntoView({behavior:'smooth', block:'start'});
 }
 function answerQuiz(id, choice) { const module = MODULES.find(item => item.id === id); if (!module || !module.quiz || !Number.isInteger(choice) || choice < 0 || choice >= module.quiz.options.length) return; const quiz = module.quiz, correct = choice === quiz.answer; document.getElementById('quiz-result').textContent = `${correct ? dt('yes') : dt('review')} ${quiz.explain}`; }
-function completeLesson(id) { if (!MODULES.some(module => module.id === id)) return; const progress = loadLearning(); progress.completed[id] = true; progress.lastModule = id; saveLearning(progress); renderLearning(); openLesson(id); }function resetLearning() { if (!confirm('Réinitialiser toute la progression pédagogique ?')) return; saveLearning({version:LEARNING_VERSION, completed:{}, lastModule:null}); document.getElementById('lesson-view').hidden = true; renderLearning(); }
+function completeLesson(id) { if (!MODULES.some(module => module.id === id)) return; const progress = loadLearning(); progress.completed[id] = true; progress.lastModule = id; saveLearning(progress); renderLearning(); openLesson(id); }function resetLearning() { if (!confirm(at('resetLearning'))) return; saveLearning({version:LEARNING_VERSION, completed:{}, lastModule:null}); document.getElementById('lesson-view').hidden = true; renderLearning(); }
 
 
 // In-memory cache acts as the source of truth for this session. localStorage
@@ -595,9 +595,9 @@ function addEntry() {
     const factors = [...document.querySelectorAll('.factor:checked')].map(el => el.value);
     const time = document.getElementById('f-time').value;
 
-    if (!date) { setActionStatus('Merci de choisir une date.'); return; }
-    if (!isValidDateKey(date)) { setActionStatus('La date saisie est invalide.'); return; }
-    if (date > localDateKey()) { setActionStatus('Une observation future ne peut pas être enregistrée.'); return; }
+    if (!date) { setActionStatus(at('chooseDate')); return; }
+    if (!isValidDateKey(date)) { setActionStatus(at('invalidDate')); return; }
+    if (date > localDateKey()) { setActionStatus(at('future')); return; }
 
     if (isNaN(temp) && bleeding !== 'regles') {
       if (!confirm("Aucune température saisie, continuer quand même ?")) return;
@@ -628,7 +628,7 @@ function addEntry() {
 
     entries.push(candidate);
     if (entries.length > MAX_ENTRIES_PER_CYCLE) {
-      setActionStatus('Ce cycle dépasse la limite de conservation de 10 ans environ. Exporte tes données avant de continuer.');
+      setActionStatus(at('retention'));
       return;
     }
     entries.sort((a, b) => a.date.localeCompare(b.date));
@@ -656,7 +656,7 @@ function addEntry() {
     if (button) button.textContent = "Enregistrer l'entrée";
   } catch (error) {
     console.error('Erreur lors de l’enregistrement de l’observation :', error);
-    setActionStatus('Impossible d’enregistrer cette observation. Vérifie les champs et réessaie.');
+    setActionStatus(at('saveFail'));
   } finally {
     if (button) button.disabled = false;
   }
@@ -726,7 +726,7 @@ function startNewCycle() {
 
   const hist = loadHistory();
   if (hist.length >= MAX_HISTORY_CYCLES) {
-    setActionStatus('La limite de cycles archivés est atteinte. Exporte tes données avant d’en archiver un nouveau.');
+    setActionStatus(at('historyLimit'));
     return;
   }
   const nextHistory = [{ start: entries[0].date, end: entries[entries.length-1].date, entries }, ...hist];
@@ -750,7 +750,7 @@ function startNewCycle() {
     storageAvailable = false;
     memHistory = nextHistory;
     memCurrent = [];
-    setActionStatus('Cycle archivé et nouveau cycle démarré pour cette session, mais la sauvegarde durable a échoué.');
+    setActionStatus(at('sessionArchive'));
     setStorageStatus('Le cycle a été conservé pendant cette session, mais le navigateur n’a pas permis de confirmer la sauvegarde durable.');
   }
   const status=document.getElementById('action-status');if(status)status.focus();
@@ -764,7 +764,7 @@ function deleteHistoryCycle(idx) {
   if (!confirm('Supprimer définitivement le cycle du ' + formatDate(cycle.start) + ' au ' + formatDate(cycle.end) + ' ?')) return;
   hist.splice(idx, 1);
   saveHistory(hist);
-  setActionStatus('Cycle archivé supprimé.');
+  setActionStatus(at('historyDeleted'));
   const status=document.getElementById('action-status');if(status)status.focus();
   render();
 }
@@ -878,7 +878,7 @@ function renderTable(entries) {
       <td>${formatDate(e.date)}</td>
       <td>${e.temp !== null ? formatTemperature(e.temp,2) : '—'}</td>
       <td>${e.bleeding && e.bleeding !== 'aucun' ? (e.bleeding === 'regles' ? 'Règles' : 'Spotting') : '—'}</td>
-      <td>${MUCUS_LABELS[e.mucus] || e.mucus}</td>
+      <td>${mucusLabel(e.mucus) || e.mucus}</td>
       <td>${safeNotes}${bleedingLabel}${timeLabel}${factors ? '<div class="learn-meta">' + factors + '</div>' : ''}</td>
       <td class="no-print"><button type="button" class="btn edit-btn" data-action="edit-entry" data-date="${escapeHtml(e.date)}">Modifier</button><button type="button" class="btn btn-danger" data-action="delete-entry" data-date="${escapeHtml(e.date)}" aria-label="Supprimer l’observation du ${formatDate(e.date)}">✕</button></td>
     </tr>`;
@@ -931,7 +931,7 @@ function renderTodaySummary(entries) {
   const first = sorted[0];
   const cycleDay = first ? Math.max(1, Math.floor((new Date(today+'T00:00:00') - new Date(first.date+'T00:00:00')) / 86400000) + 1) : null;
   const temp = todayEntry && Number.isFinite(Number(todayEntry.temp)) ? formatTemperature(todayEntry.temp,2) : dt('notFilled');
-  const mucus = todayEntry ? (MUCUS_LABELS[todayEntry.mucus] || dt('obsSaved')) : dt('noObs');
+  const mucus = todayEntry ? (mucusLabel(todayEntry.mucus) || dt('obsSaved')) : dt('noObs');
   const cycleLabel = getLanguage()==='es' ? 'Día ' : getLanguage()==='ar' ? 'اليوم ' : 'Jour ';
   box.innerHTML = '<div class="today-stat"><strong>' + (todayEntry ? dt('saved') : dt('toFill')) + '</strong><span>' + dt('todayObs') + '</span></div>' + '<div class="today-stat"><strong>' + temp + '</strong><span>' + dt('temperature') + '</span></div>' + '<div class="today-stat"><strong>' + mucus + '</strong><span>' + dt('mucusObs') + '</span></div>' + '<div class="today-stat"><strong>' + (cycleDay ? cycleLabel + cycleDay : '—') + '</strong><span>' + dt('cycleRef') + '</span></div>';
 }
@@ -959,7 +959,7 @@ function render() {
 function exportPDF() {
   const entries = loadCurrent();
   if (entries.length === 0) {
-    setBackupStatus("Ajoute au moins une entrée avant d'exporter.");
+    setBackupStatus(at('pdfEmpty'));
     return;
   }
   const withTemp = entries.filter(e => e.temp !== null);
@@ -981,8 +981,14 @@ const APP_DATA_VERSION = 2;
 const PROFILE_KEY = 'symptothermie_profile';
 let calendarDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 const LANGUAGE_KEY = 'symptothermie_language';
-const ACTION_TEXTS={fr:{future:'Une observation future ne peut pas être enregistrée.',invalidDate:'La date saisie est invalide.',invalid:'Les données saisies ne sont pas valides. Vérifie les champs avant d’enregistrer.',saved:'✓ Observation enregistrée dans le journal du cycle en cours.',deleteObs:'Observation supprimée.',alreadyEmpty:'Le cycle en cours est déjà vide.',newCycle:'Cycle archivé et nouveau cycle démarré.',clear:'Toutes les données locales ont été effacées.',connect:'🌡️ Thermomètre connecté',noStorage:'⚠️ La sauvegarde locale est indisponible dans ce navigateur : tes entrées restent visibles pendant cette session, mais peuvent être perdues si tu fermes ou recharges la page.',mucus:{sec:'Sec',collante:'Collante',cremeuse:'Crémeuse',blanc:'Blanc d’œuf'}},es:{future:'No se puede registrar una observación futura.',invalidDate:'La fecha indicada no es válida.',invalid:'Los datos introducidos no son válidos. Comprueba los campos antes de guardar.',saved:'✓ Observación registrada en el diario del ciclo actual.',deleteObs:'Observación eliminada.',alreadyEmpty:'El ciclo actual ya está vacío.',newCycle:'Ciclo archivado y nuevo ciclo iniciado.',clear:'Todos los datos locales han sido eliminados.',connect:'🌡️ Termómetro conectado',noStorage:'⚠️ El almacenamiento local no está disponible en este navegador: las entradas permanecen visibles durante esta sesión, pero pueden perderse al cerrar o recargar la página.',mucus:{sec:'Seco',collante:'Pegajoso',cremeuse:'Cremoso',blanc:'Clara de huevo'}},ar:{future:'لا يمكن تسجيل ملاحظة بتاريخ مستقبلي.',invalidDate:'التاريخ المُدخل غير صالح.',invalid:'البيانات المُدخلة غير صالحة. تحققي من الحقول قبل الحفظ.',saved:'✓ تم تسجيل الملاحظة في سجل الدورة الحالية.',deleteObs:'تم حذف الملاحظة.',alreadyEmpty:'الدورة الحالية فارغة بالفعل.',newCycle:'تم أرشفة الدورة وبدء دورة جديدة.',clear:'تم حذف جميع البيانات المحلية.',connect:'🌡️ تم توصيل مقياس الحرارة',noStorage:'⚠️ التخزين المحلي غير متاح في هذا المتصفح: تبقى الإدخالات ظاهرة خلال هذه الجلسة، لكنها قد تضيع عند إغلاق الصفحة أو إعادة تحميلها.',mucus:{sec:'جاف',collante:'لزج',cremeuse:'كريمي',blanc:'بياض البيض'}}};
+const ACTION_TEXTS={
+fr:{future:'Une observation future ne peut pas être enregistrée.',invalidDate:'La date saisie est invalide.',invalid:'Les données saisies ne sont pas valides. Vérifie les champs avant d’enregistrer.',saved:'✓ Observation enregistrée dans le journal du cycle en cours.',deleteObs:'Observation supprimée.',alreadyEmpty:'Le cycle en cours est déjà vide.',newCycle:'Cycle archivé et nouveau cycle démarré.',clear:'Toutes les données locales ont été effacées.',connect:'🌡️ Thermomètre connecté',noStorage:'⚠️ La sauvegarde locale est indisponible dans ce navigateur : tes entrées restent visibles pendant cette session, mais peuvent être perdues si tu fermes ou recharges la page.',mucus:{sec:'Sec',collante:'Collante',cremeuse:'Crémeuse',blanc:'Blanc d’œuf'},chooseDate:'Merci de choisir une date.',retention:'Ce cycle dépasse la limite de conservation. Exporte tes données avant de continuer.',saveFail:'Impossible d’enregistrer cette observation. Vérifie les champs et réessaie.',historyLimit:'La limite de cycles archivés est atteinte. Exporte tes données avant d’en archiver un nouveau.',sessionArchive:'Cycle archivé et nouveau cycle démarré pour cette session, mais la sauvegarde durable a échoué.',historyDeleted:'Cycle archivé supprimé.',storageSession:'Les données ont été effacées pour cette session, mais la suppression durable n’a pas pu être confirmée.',resetLearning:'Réinitialiser toute la progression pédagogique ?',clearConfirm:'Effacer toutes les données locales de cette application ? Cette action ne peut pas être annulée.',importConfirm:'Remplacer les données locales actuelles par cette sauvegarde ?',pdfEmpty:'Ajoute au moins une entrée avant d’exporter.',exportEmpty:'Ajoute au moins une observation ou archive un cycle avant d’exporter.',resetDone:'',bluetooth:{invalid:'Mesure reçue mais valeur inexploitable. Vérifie le thermomètre.',received:'Mesure Bluetooth reçue : {temp}. Vérifie-la puis enregistre l’observation.',unsupported:'La connexion Bluetooth depuis le navigateur n’est pas disponible sur cet appareil ou navigateur.',search:'Recherche d’un thermomètre Bluetooth compatible…',disconnected:'Thermomètre déconnecté. Tu peux en reconnecter un.',connected:'Connecté : {name}.',none:'Aucun thermomètre sélectionné.',failed:'Connexion impossible. Vérifie que le thermomètre utilise le service Bluetooth Health Thermometer.'}},
+es:{future:'No se puede registrar una observación futura.',invalidDate:'La fecha indicada no es válida.',invalid:'Los datos introducidos no son válidos. Comprueba los campos antes de guardar.',saved:'✓ Observación registrada en el diario del ciclo actual.',deleteObs:'Observación eliminada.',alreadyEmpty:'El ciclo actual ya está vacío.',newCycle:'Ciclo archivado y nuevo ciclo iniciado.',clear:'Todos los datos locales han sido eliminados.',connect:'🌡️ Termómetro conectado',noStorage:'⚠️ El almacenamiento local no está disponible en este navegador: las entradas permanecen visibles durante esta sesión, pero pueden perderse al cerrar o recargar la página.',mucus:{sec:'Seco',collante:'Pegajoso',cremeuse:'Cremoso',blanc:'Clara de huevo'},chooseDate:'Elige una fecha.',retention:'Este ciclo supera el límite de conservación. Exporta tus datos antes de continuar.',saveFail:'No se puede guardar esta observación. Comprueba los campos e inténtalo de nuevo.',historyLimit:'Se alcanzó el límite de ciclos archivados. Exporta tus datos antes de archivar otro.',sessionArchive:'El ciclo se archivó y comenzó uno nuevo durante esta sesión, pero el almacenamiento permanente falló.',historyDeleted:'Ciclo archivado eliminado.',storageSession:'Los datos se eliminaron durante esta sesión, pero no se pudo confirmar la eliminación permanente.',resetLearning:'¿Restablecer toda la progresión de aprendizaje?',clearConfirm:'¿Borrar todos los datos locales de esta aplicación? Esta acción no se puede deshacer.',importConfirm:'¿Reemplazar los datos locales actuales por esta copia de seguridad?',pdfEmpty:'Añade al menos una observación antes de exportar.',exportEmpty:'Añade al menos una observación o archiva un ciclo antes de exportar.',resetDone:'',bluetooth:{invalid:'La medida recibida no es utilizable. Comprueba el termómetro.',received:'Medida Bluetooth recibida: {temp}. Compruébala y guarda la observación.',unsupported:'La conexión Bluetooth desde el navegador no está disponible en este dispositivo o navegador.',search:'Buscando un termómetro Bluetooth compatible…',disconnected:'Termómetro desconectado. Puedes volver a conectarlo.',connected:'Conectado: {name}.',none:'No se seleccionó ningún termómetro.',failed:'No se pudo conectar. Comprueba que el termómetro use el servicio Bluetooth Health Thermometer.'}},
+ar:{future:'لا يمكن تسجيل ملاحظة بتاريخ مستقبلي.',invalidDate:'التاريخ المُدخل غير صالح.',invalid:'البيانات المُدخلة غير صالحة. تحققي من الحقول قبل الحفظ.',saved:'✓ تم تسجيل الملاحظة في سجل الدورة الحالية.',deleteObs:'تم حذف الملاحظة.',alreadyEmpty:'الدورة الحالية فارغة بالفعل.',newCycle:'تمت أرشفة الدورة وبدء دورة جديدة.',clear:'تم حذف جميع البيانات المحلية.',connect:'🌡️ تم توصيل مقياس الحرارة',noStorage:'⚠️ التخزين المحلي غير متاح في هذا المتصفح: تبقى الإدخالات ظاهرة خلال هذه الجلسة، لكنها قد تضيع عند إغلاق الصفحة أو إعادة تحميلها.',mucus:{sec:'جاف',collante:'لزج',cremeuse:'كريمي',blanc:'بياض البيض'},chooseDate:'اختاري تاريخًا.',retention:'تتجاوز هذه الدورة حد الاحتفاظ. صدّري بياناتك قبل المتابعة.',saveFail:'تعذر حفظ هذه الملاحظة. تحققي من الحقول وحاولي مرة أخرى.',historyLimit:'تم بلوغ الحد الأقصى للدورات المؤرشفة. صدّري بياناتك قبل أرشفة دورة جديدة.',sessionArchive:'تمت أرشفة الدورة وبدء دورة جديدة خلال هذه الجلسة، لكن تعذر الحفظ الدائم.',historyDeleted:'تم حذف الدورة المؤرشفة.',storageSession:'تم حذف البيانات خلال هذه الجلسة، لكن تعذر تأكيد الحذف الدائم.',resetLearning:'هل تريدين إعادة ضبط التقدم التعليمي بالكامل؟',clearConfirm:'هل تريدين حذف جميع البيانات المحلية من هذا التطبيق؟ لا يمكن التراجع عن هذا الإجراء.',importConfirm:'هل تريدين استبدال البيانات المحلية الحالية بهذه النسخة الاحتياطية؟',pdfEmpty:'أضيفي ملاحظة واحدة على الأقل قبل التصدير.',exportEmpty:'أضيفي ملاحظة واحدة على الأقل أو أرشفي دورة قبل التصدير.',resetDone:'',bluetooth:{invalid:'القيمة المستلمة غير قابلة للاستخدام. تحققي من مقياس الحرارة.',received:'تم استلام القياس عبر Bluetooth: {temp}. تحققي منه ثم احفظي الملاحظة.',unsupported:'اتصال Bluetooth من المتصفح غير متاح على هذا الجهاز أو المتصفح.',search:'جارٍ البحث عن مقياس حرارة Bluetooth متوافق…',disconnected:'تم فصل مقياس الحرارة. يمكنك إعادة توصيله.',connected:'متصل: {name}.',none:'لم يتم اختيار مقياس حرارة.',failed:'تعذر الاتصال. تحققي من أن مقياس الحرارة يستخدم خدمة Health Thermometer عبر Bluetooth.'}}
+};
 function at(key){const t=ACTION_TEXTS[getLanguage()]||ACTION_TEXTS.fr;return t[key]||ACTION_TEXTS.fr[key]||key;}
+function bt(key,vars={}){const t=(ACTION_TEXTS[getLanguage()]||ACTION_TEXTS.fr).bluetooth;return Object.keys(vars).reduce((s,k)=>s.replace('{'+k+'}',String(vars[k])),t[key]||ACTION_TEXTS.fr.bluetooth[key]);}
+function mucusLabel(key){const t=(ACTION_TEXTS[getLanguage()]||ACTION_TEXTS.fr).mucus;return t[key]||key;}
 const DYNAMIC_TEXTS = {
   fr:{saved:'✓ Enregistrée',toFill:'À renseigner',todayObs:'Observation du jour',temperature:'Température',mucusObs:'Glaire / observation',cycleRef:'Repère dans le cycle',noObs:'Aucune observation',obsSaved:'Observation enregistrée',notFilled:'Non renseignée',observation:'Observation',context:'Contexte',notes:'Notes',measurementTime:'Heure de mesure',bleeding:'Saignement',period:'règles',spotting:'spotting',yes:'Réponse juste.',review:'À revoir.',addFirst:'Ajoute des entrées pour voir ta courbe.',noShift:'Pas encore assez de données pour afficher un repère',shiftAround:'Repère thermique descriptif autour du',savedJournal:'✓ Observation enregistrée dans le journal du cycle en cours.',save:'Enregistrer l’entrée',editSave:'Enregistrer la modification',editInProgress:'Modification en cours : vérifie les données puis enregistre.'},
   es:{saved:'✓ Registrada',toFill:'Por completar',todayObs:'Observación del día',temperature:'Temperatura',mucusObs:'Moco / observación',cycleRef:'Referencia del ciclo',noObs:'Ninguna observación',obsSaved:'Observación registrada',notFilled:'No indicada',observation:'Observación',context:'Contexto',notes:'Notas',measurementTime:'Hora de medición',bleeding:'Sangrado',period:'menstruación',spotting:'manchado',yes:'Respuesta correcta.',review:'Revisar.',addFirst:'Añade registros para ver tu curva.',noShift:'Aún no hay suficientes datos para mostrar una referencia',shiftAround:'Referencia térmica descriptiva alrededor del',savedJournal:'✓ Observación registrada en el diario del ciclo actual.',save:'Guardar la entrada',editSave:'Guardar la modificación',editInProgress:'Modificación en curso: revisa los datos y guarda.'},
@@ -1066,13 +1072,13 @@ function showCalendarDetail(date) {
   const notes = entry.notes ? '<br>' + dt('notes') + ' : ' + escapeHtml(entry.notes) : '';
   const time = entry.time ? '<br>' + dt('measurementTime') + ' : ' + escapeHtml(entry.time) : '';
   const bleeding = entry.bleeding && entry.bleeding !== 'aucun' ? '<br>' + dt('bleeding') + ' : ' + (entry.bleeding === 'regles' ? dt('period') : dt('spotting')) : '';
-  detail.innerHTML = '<strong>' + formatDate(date) + '</strong> — ' + dt('temperature') + ' : ' + temp + ' — ' + dt('observation') + ' : ' + (MUCUS_LABELS[entry.mucus] || dt('notFilled')) + bleeding + time + factors + notes;
+  detail.innerHTML = '<strong>' + formatDate(date) + '</strong> — ' + dt('temperature') + ' : ' + temp + ' — ' + dt('observation') + ' : ' + (mucusLabel(entry.mucus) || dt('notFilled')) + bleeding + time + factors + notes;
   detail.focus();
 }
 
 function changeCalendarMonth(delta){calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()+delta,1);renderCalendar();}
 function clearAllData(){
-  if(!confirm('Effacer toutes les données locales de cette application ? Cette action ne peut pas être annulée.')) return;
+  if(!confirm(at('clearConfirm'))) return;
   const keys=[CURRENT_KEY,HISTORY_KEY,LEARNING_KEY,PROFILE_KEY], previous={};
   keys.forEach(key => { previous[key]=null; });
   let persistent=true;
@@ -1093,7 +1099,7 @@ function clearAllData(){
   memLearning={version:LEARNING_VERSION,completed:{},lastModule:null};
   memProfile={version:APP_DATA_VERSION,name:'',goal:'observer',language:detectBrowserLanguage(),unit:'c'};
   storageAvailable=persistent;
-  setActionStatus(persistent?at('clear'):'Les données ont été effacées pour cette session, mais la suppression durable n’a pas pu être confirmée.');
+  setActionStatus(persistent?at('clear'):at('storageSession'));
   if(!persistent) setStorageStatus('Le navigateur n’a pas permis de modifier durablement les données locales. Les données sont toutefois effacées de la session en cours.');
   document.getElementById('action-status')?.focus();
   renderProfile();renderLearning();renderCalendar();render();
@@ -1140,7 +1146,7 @@ function setThermometerStatus(message) {
 function handleThermometerMeasurement(event) {
   const value = decodeBleTemperature(event.target.value);
   if (value === null) {
-    setThermometerStatus('Mesure reçue mais valeur inexploitable. Vérifie le thermomètre.');
+    setThermometerStatus(bt('invalid'));
     return;
   }
   const field = document.getElementById('f-temp');
@@ -1150,23 +1156,23 @@ function handleThermometerMeasurement(event) {
     const now = new Date();
     timeField.value = now.toTimeString().slice(0, 5);
   }
-  setThermometerStatus(`Mesure Bluetooth reçue : ${formatTemperature(value, 2)}. Vérifie-la puis enregistre l'observation.`);
+  setThermometerStatus(bt('received',{temp:formatTemperature(value,2)}));
 }
 
 async function connectThermometer() {
   if (!('bluetooth' in navigator) || !navigator.bluetooth) {
-    setThermometerStatus('La connexion Bluetooth depuis le navigateur n’est pas disponible sur cet appareil/navigateur.');
+    setThermometerStatus(bt('unsupported'));
     return;
   }
   try {
-    setThermometerStatus('Recherche d’un thermomètre Bluetooth compatible…');
+    setThermometerStatus(bt('search'));
     bluetoothDevice = await navigator.bluetooth.requestDevice({
       filters: [{ services: [THERMOMETER_SERVICE_UUID] }],
       optionalServices: [THERMOMETER_SERVICE_UUID]
     });
     bluetoothDevice.addEventListener('gattserverdisconnected', () => {
       temperatureCharacteristic = null;
-      setThermometerStatus('Thermomètre déconnecté. Tu peux en reconnecter un.');
+      setThermometerStatus(bt('disconnected'));
     });
     const server = await bluetoothDevice.gatt.connect();
     const service = await server.getPrimaryService(THERMOMETER_SERVICE_UUID);
@@ -1179,17 +1185,17 @@ async function connectThermometer() {
     } catch (readError) {}
     const button = document.getElementById('connect-thermometer-btn');
     if (button) button.textContent = at('connect');
-    setThermometerStatus(`Connecté : ${bluetoothDevice.name || 'thermomètre compatible'}.`);
+    setThermometerStatus(bt('connected',{name:bluetoothDevice.name || (getLanguage()==='es'?'termómetro compatible':getLanguage()==='ar'?'مقياس حرارة متوافق':'thermomètre compatible')}));
   } catch (error) {
     if (error && error.name === 'NotFoundError') {
-      setThermometerStatus('Aucun thermomètre sélectionné.');
+      setThermometerStatus(bt('none'));
     } else {
-      setThermometerStatus('Connexion impossible. Vérifie que le thermomètre utilise le service Bluetooth Health Thermometer.');
+      setThermometerStatus(bt('failed'));
     }
   }
 }
 
-function exportData(){const current=loadCurrent();const history=loadHistory();if(!current.length&&!history.length){setBackupStatus("Ajoute au moins une observation ou archive un cycle avant d’exporter.");return;}const exportedAt=new Date().toISOString();const payload={version:APP_DATA_VERSION,exportedAt,current,history,learning:loadLearning(),profile:loadProfile()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='suivi-symptothermie-sauvegarde.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);setBackupStatus('Sauvegarde exportée.');}
+function exportData(){const current=loadCurrent();const history=loadHistory();if(!current.length&&!history.length){setBackupStatus(at('exportEmpty'));return;}const exportedAt=new Date().toISOString();const payload={version:APP_DATA_VERSION,exportedAt,current,history,learning:loadLearning(),profile:loadProfile()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='suivi-symptothermie-sauvegarde.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);setBackupStatus('Sauvegarde exportée.');}
 function isValidDateKey(value) {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const d = new Date(value + 'T00:00:00');
@@ -1197,7 +1203,7 @@ function isValidDateKey(value) {
 }
 
 function validBackup(value){if(!value||typeof value!=='object'||value.version!==APP_DATA_VERSION||!validEntryCollection(value.current)||!Array.isArray(value.history)||value.history.length>MAX_HISTORY_CYCLES)return false;const p=value.profile;if(p!==undefined&&p!==null&&(typeof p!=='object'||Array.isArray(p)||(p.version!==undefined&&p.version!==APP_DATA_VERSION)||(p.name!==undefined&&(typeof p.name!=='string'||p.name.length>80))||(p.goal!==undefined&&!['observer','apprendre','suivi'].includes(p.goal))||(p.language!==undefined&&!['fr','es','ar'].includes(p.language))||(p.unit!==undefined&&!['c','f'].includes(p.unit))))return false;if(typeof value.exportedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value.exportedAt)||Number.isNaN(Date.parse(value.exportedAt)))return false;return value.current.every(validStoredEntry)&&value.history.every(validStoredHistoryCycle);}
-function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;if(file.size>2*1024*1024){setBackupStatus('La sauvegarde dépasse la taille maximale autorisée de 2 Mo.');const status=document.getElementById('backup-status');if(status)status.focus();event.target.value='';return;}const reader=new FileReader();reader.onload=()=>{try{const p=JSON.parse(reader.result);if(!p||typeof p!=='object'||Array.isArray(p)||!validBackup(p)||('learning'in p&&p.learning!==undefined&&!validLearning(p.learning)))throw new Error('format');if(!confirm('Remplacer les données locales actuelles par cette sauvegarde ?'))return;const keys=[CURRENT_KEY,HISTORY_KEY,LEARNING_KEY,PROFILE_KEY],previous={};keys.forEach(key=>{previous[key]=localStorage.getItem(key);});const nextLearning=p.learning&&validLearning(p.learning)?p.learning:{version:LEARNING_VERSION,completed:{},lastModule:null};const nextProfile=p.profile&&typeof p.profile==='object'?p.profile:{version:APP_DATA_VERSION,name:'',goal:'observer',language:detectBrowserLanguage(),unit:'c'};try{localStorage.setItem(CURRENT_KEY,JSON.stringify(p.current));localStorage.setItem(HISTORY_KEY,JSON.stringify(p.history));localStorage.setItem(LEARNING_KEY,JSON.stringify(nextLearning));localStorage.setItem(PROFILE_KEY,JSON.stringify(nextProfile));}catch(storageError){try{keys.forEach(key=>{if(previous[key]===null)localStorage.removeItem(key);else localStorage.setItem(key,previous[key]);});}catch(rollbackError){}throw storageError;}memCurrent=p.current;memHistory=p.history;memLearning=nextLearning;memProfile=nextProfile;storageAvailable=true;renderProfile();renderLearning();renderCalendar();render();setBackupStatus('Sauvegarde importée avec succès.');const status=document.getElementById('backup-status');if(status)status.focus();}catch(e){setBackupStatus('La sauvegarde n’a pas été importée : fichier invalide, incomplet ou impossible à enregistrer. Les données existantes sont conservées.');const status=document.getElementById('backup-status');if(status)status.focus();}finally{event.target.value='';}};reader.readAsText(file);}
+function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;if(file.size>2*1024*1024){setBackupStatus('La sauvegarde dépasse la taille maximale autorisée de 2 Mo.');const status=document.getElementById('backup-status');if(status)status.focus();event.target.value='';return;}const reader=new FileReader();reader.onload=()=>{try{const p=JSON.parse(reader.result);if(!p||typeof p!=='object'||Array.isArray(p)||!validBackup(p)||('learning'in p&&p.learning!==undefined&&!validLearning(p.learning)))throw new Error('format');if(!confirm(at('importConfirm')))return;const keys=[CURRENT_KEY,HISTORY_KEY,LEARNING_KEY,PROFILE_KEY],previous={};keys.forEach(key=>{previous[key]=localStorage.getItem(key);});const nextLearning=p.learning&&validLearning(p.learning)?p.learning:{version:LEARNING_VERSION,completed:{},lastModule:null};const nextProfile=p.profile&&typeof p.profile==='object'?p.profile:{version:APP_DATA_VERSION,name:'',goal:'observer',language:detectBrowserLanguage(),unit:'c'};try{localStorage.setItem(CURRENT_KEY,JSON.stringify(p.current));localStorage.setItem(HISTORY_KEY,JSON.stringify(p.history));localStorage.setItem(LEARNING_KEY,JSON.stringify(nextLearning));localStorage.setItem(PROFILE_KEY,JSON.stringify(nextProfile));}catch(storageError){try{keys.forEach(key=>{if(previous[key]===null)localStorage.removeItem(key);else localStorage.setItem(key,previous[key]);});}catch(rollbackError){}throw storageError;}memCurrent=p.current;memHistory=p.history;memLearning=nextLearning;memProfile=nextProfile;storageAvailable=true;renderProfile();renderLearning();renderCalendar();render();setBackupStatus('Sauvegarde importée avec succès.');const status=document.getElementById('backup-status');if(status)status.focus();}catch(e){setBackupStatus('La sauvegarde n’a pas été importée : fichier invalide, incomplet ou impossible à enregistrer. Les données existantes sont conservées.');const status=document.getElementById('backup-status');if(status)status.focus();}finally{event.target.value='';}};reader.readAsText(file);}
 document.addEventListener('click', (event) => {
   const calendarTarget = event.target.closest('[data-calendar-date]');
   if (calendarTarget) {
