@@ -90,7 +90,7 @@ test('temperature validation warning uses the selected display unit', () => {
 test('Bluetooth thermometer readings use the selected display unit', () => {
   assert.match(page, /function handleThermometerMeasurement\(event\)/);
   assert.match(page, /field\.value = celsiusToDisplay\(value\)\.toFixed\(2\)/);
-  assert.match(page, /formatTemperature\(value, 2\)/);
+  assert.match(page, /bt\('received'/);
 });
 
 test('destructive data actions require explicit confirmation', () => {
@@ -124,7 +124,7 @@ test('cycle archiving and full deletion roll back persistent storage on failure'
   assert.match(page, /function startNewCycle\(\)[\s\S]*localStorage\.setItem\(CURRENT_KEY/);
   assert.match(page, /function startNewCycle\(\)[\s\S]*rollbackError/);
   assert.match(page, /function clearAllData\(\)[\s\S]*previous\[key\]/);
-  assert.match(page, /function clearAllData\(\)[\s\S]*suppression durable n’a pas pu être confirmée/);
+  assert.match(page, /function clearAllData\(\)[\s\S]*at\('storageSession'\)/);
 });
 
 
