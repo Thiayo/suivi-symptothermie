@@ -889,6 +889,9 @@ function render() {
   renderChart(entries);
   renderTable(entries);
   renderHistory();
+  // Le calendrier lit directement le cycle en cours : il doit être rafraîchi
+  // immédiatement après chaque ajout, modification ou suppression.
+  renderCalendar();
   const warning = document.getElementById('storage-warning');
   if (!storageAvailable) {
     warning.style.display = 'block';
