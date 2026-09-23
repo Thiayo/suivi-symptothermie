@@ -37,6 +37,9 @@ test('dangerous script execution primitives are absent', () => {
   assert.doesNotMatch(page, /new Function\s*\(/);
 });
 
+test('calendar weekday headings are localized', () => {
+  assert.match(page, /const weekdays=getLanguage\(\)==='ar'\?\['الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد'\]:getLanguage\(\)==='es'/);
+});
 test('supported languages localize the main observation controls', () => {
   assert.match(page, /Nombre para mostrar \(opcional\)/);
   assert.match(page, /اسم العرض \(اختياري\)/);
