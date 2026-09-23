@@ -336,17 +336,17 @@
   <div class="card today-card" aria-labelledby="today-title">
     <h2 id="today-title">🌿 Aujourd’hui</h2>
     <div id="today-summary" role="region" aria-label="Résumé des observations du jour" class="today-summary" aria-live="polite"></div>
-    <div class="row-actions" style="margin-top:12px;"><button class="btn" type="button" data-action="focus-date">📝 Ajouter l’observation du jour</button><button class="btn btn-secondary" type="button" data-action="scroll-graph">📈 Voir le graphique</button></div>
+    <div class="row-actions" style="margin-top:12px;"><button id="today-add-btn" class="btn" type="button" data-action="focus-date">📝 Ajouter l’observation du jour</button><button id="today-graph-btn" class="btn btn-secondary" type="button" data-action="scroll-graph">📈 Voir le graphique</button></div>
   </div>
   <div class="card no-print">
-    <h2>➕ Ajouter une entrée</h2>
+    <h2 id="entry-title">➕ Ajouter une entrée</h2>
     <div class="form-grid">
       <div>
         <label for="f-date">Date</label>
         <input type="date" id="f-date">
       </div>
       <div>
-        <label for="f-temp">Température (<span id="temp-unit-label">°C</span>) <a href="#apprendre" data-action="open-lesson" data-module="m4">Conseils de mesure</a></label>
+        <label for="f-temp"><span id="temp-label-text">Température</span> (<span id="temp-unit-label">°C</span>) <a id="temp-help-link" href="#apprendre" data-action="open-lesson" data-module="m4">Conseils de mesure</a></label>
         <input type="number" id="f-temp" step="0.01" min="34" max="42" placeholder="36.50" inputmode="decimal" aria-describedby="temp-help">
         <div id="temp-help" class="learn-meta">Valeur observée au moment de la mesure. Laisse vide si aucune mesure n’a été prise.</div>
         <div class="row-actions" style="margin-top:8px;"><button class="btn btn-secondary" type="button" data-action="connect-thermometer" id="connect-thermometer-btn">🌡️ Connecter un thermomètre Bluetooth</button><span id="thermometer-status" class="learn-meta" role="status" aria-live="polite"></span></div>
@@ -415,9 +415,9 @@
 </section>
 <section id="graphique" class="app-section">
   <div class="card">
-    <h2>📈 Courbe du cycle en cours <span id="thermal-badge"></span></h2><p class="learn-meta">Le graphique est descriptif, pas diagnostique. Le repère visuel des températures n’est pas un détecteur d’ovulation. <a href="#apprendre" data-action="open-lesson" data-module="m5">Apprendre à le lire</a> · <a href="#apprendre" data-action="open-lesson" data-module="m6">Comprendre le décalage thermique</a></p>
+    <h2 id="chart-title">📈 Courbe du cycle en cours <span id="thermal-badge"></span></h2><p id="chart-description" class="learn-meta">Le graphique est descriptif, pas diagnostique. Le repère visuel des températures n’est pas un détecteur d’ovulation. <a href="#apprendre" data-action="open-lesson" data-module="m5">Apprendre à le lire</a> · <a href="#apprendre" data-action="open-lesson" data-module="m6">Comprendre le décalage thermique</a></p>
     <div class="chart-wrap" id="chart-container" role="img" aria-label="Graphique descriptif des températures et observations du cycle"></div>
-    <div class="legend">
+    <div id="chart-legend" class="legend">
       <span><span class="dot" style="background:var(--period-color)"></span>Règles</span>
       <span><span class="dot" style="background:var(--spotting-color)"></span>Spotting</span>
       <span><span class="dot" style="background:var(--dry-color)"></span>Sec</span>
@@ -442,8 +442,8 @@
 </section>
 <section id="calendrier" class="app-section">
   <div class="card">
-    <h2>🗓️ Calendrier du suivi</h2>
-    <div class="calendar-toolbar"><button class="btn btn-secondary" type="button" data-action="calendar-prev">‹ Mois précédent</button><strong id="calendar-title"></strong><button class="btn btn-secondary" type="button" data-action="calendar-next">Mois suivant ›</button></div>
+    <h2 id="calendar-heading">🗓️ Calendrier du suivi</h2>
+    <div class="calendar-toolbar"><button id="calendar-prev-btn" class="btn btn-secondary" type="button" data-action="calendar-prev">‹ Mois précédent</button><strong id="calendar-title"></strong><button id="calendar-next-btn" class="btn btn-secondary" type="button" data-action="calendar-next">Mois suivant ›</button></div>
     <div id="calendar-grid" class="calendar-grid" aria-live="polite"></div>
     <div id="calendar-detail" role="status" aria-live="polite" tabindex="-1" class="notice" style="margin-top:12px;display:none;"></div>
     <p class="learn-meta" style="margin-top:10px;">Le calendrier affiche uniquement les observations enregistrées. Il ne fournit pas de prédiction ni de conclusion sur la fertilité.</p>
@@ -1009,7 +1009,7 @@ function applyLanguage(){
   const languageHelp={fr:'La langue est détectée automatiquement lors de la première utilisation. Vous pouvez la modifier à tout moment dans votre profil.',es:'El idioma se detecta automáticamente durante el primer uso. Puedes cambiarlo en cualquier momento en tu perfil.',ar:'يتم اكتشاف اللغة تلقائيًا عند أول استخدام. يمكنك تغييرها في أي وقت من ملفك الشخصي.'};
   const d={
     fr:{title:'🌡️ Suivi Symptothermie',nav:['Accueil','Graphique','Calendrier','Historique','Apprendre','Profil'],save:"Enregistrer l'entrée",profile:'👤 Profil et confidentialité',language:'Langue',unit:'Unité de température',
-      ui:{intro:'Note la date, ta température, ta glaire cervicale et tes ressentis pour mieux observer ton cycle',learn:'📚 Apprendre la symptothermie',today:'🌿 Aujourd’hui',add:'➕ Ajouter une entrée',date:'Date',temp:'Température',time:'Heure de mesure (optionnel)',bleeding:'Saignement',mucus:'Glaire cervicale',factors:'Contexte de la mesure (optionnel)',notes:'Notes (optionnel)',saveProfile:'Enregistrer le profil',privacy:'Confidentialité :',export:'Exporter mes données',import:'Importer une sauvegarde',clear:'Effacer toutes mes données',calendar:'🗓️ Calendrier du suivi',history:'📋 Journal du cycle en cours',previous:'🗂️ Cycles précédents',sources:'Sources et limites'},
+      ui:{todayAdd:'📝 Ajouter l’observation du jour',todayGraph:'📈 Voir le graphique',addTitle:'➕ Ajouter une entrée',tempLink:'Conseils de mesure',chartTitle:'📈 Courbe du cycle en cours',chartDescription:'Le graphique est descriptif, pas diagnostique. Le repère visuel des températures n’est pas un détecteur d’ovulation.',calendarTitle:'🗓️ Calendrier du suivi',prevMonth:'‹ Mois précédent',nextMonth:'Mois suivant ›','Note la date, ta température, ta glaire cervicale et tes ressentis pour mieux observer ton cycle',learn:'📚 Apprendre la symptothermie',today:'🌿 Aujourd’hui',add:'➕ Ajouter une entrée',date:'Date',temp:'Température',time:'Heure de mesure (optionnel)',bleeding:'Saignement',mucus:'Glaire cervicale',factors:'Contexte de la mesure (optionnel)',notes:'Notes (optionnel)',saveProfile:'Enregistrer le profil',privacy:'Confidentialité :',export:'Exporter mes données',import:'Importer une sauvegarde',clear:'Effacer toutes mes données',calendar:'🗓️ Calendrier du suivi',history:'📋 Journal du cycle en cours',previous:'🗂️ Cycles précédents',sources:'Sources et limites'},
       goals:['Observer mon cycle','Apprendre la symptothermie','Préparer un suivi avec une professionnelle ou un professionnel']},
     es:{title:'🌡️ Seguimiento sintotérmico',nav:['Inicio','Gráfico','Calendario','Historial','Aprender','Perfil'],save:'Guardar observación',profile:'👤 Perfil y privacidad',language:'Idioma',unit:'Unidad de temperatura',
       ui:{intro:'Anota la fecha, tu temperatura, tu moco cervical y lo que sientes para observar mejor tu ciclo',learn:'📚 Aprender sobre el método sintotérmico',today:'🌿 Hoy',add:'➕ Añadir una observación',date:'Fecha',temp:'Temperatura',time:'Hora de medición (opcional)',bleeding:'Sangrado',mucus:'Moco cervical',factors:'Contexto de la medición (opcional)',notes:'Notas (opcional)',saveProfile:'Guardar perfil',privacy:'Privacidad:',export:'Exportar mis datos',import:'Importar una copia de seguridad',clear:'Borrar todos mis datos',calendar:'🗓️ Calendario del seguimiento',history:'📋 Diario del ciclo actual',previous:'🗂️ Ciclos anteriores',sources:'Fuentes y límites'},
@@ -1028,6 +1028,7 @@ function applyLanguage(){
   set('label[for="profile-language"]',d.language);set('label[for="profile-unit"]',d.unit);set('label[for="profile-name"]',lang==='fr'?'Prénom ou nom d’affichage (facultatif)':lang==='es'?'Nombre para mostrar (opcional)':'اسم العرض (اختياري)');
   set('label[for="profile-goal"]',lang==='fr'?'Objectif d’observation':lang==='es'?'Objetivo de observación':'هدف المتابعة');
   set('label[for="f-date"]',d.ui.date);set('label[for="f-temp"]',d.ui.temp);set('label[for="f-time"]',d.ui.time);set('label[for="f-bleeding"]',d.ui.bleeding);set('label[for="f-mucus"]',d.ui.mucus);set('#factors-label',d.ui.factors);set('label[for="f-notes"]',d.ui.notes);
+  set('#today-add-btn',d.ui.todayAdd);set('#today-graph-btn',d.ui.todayGraph);set('#entry-title',d.ui.addTitle);set('#temp-label-text',d.ui.temp);set('#temp-help-link',d.ui.tempLink);set('#chart-title',d.ui.chartTitle);set('#chart-description',d.ui.chartDescription);set('#calendar-heading',d.ui.calendarTitle);set('#calendar-prev-btn',d.ui.prevMonth);set('#calendar-next-btn',d.ui.nextMonth);
   const saveProfile=document.querySelector('[data-action="save-profile"]');if(saveProfile)saveProfile.textContent=d.ui.saveProfile;
   const privacy=document.querySelector('.privacy-box');if(privacy)privacy.firstChild.textContent=d.ui.privacy+' ';
   const buttons=document.querySelectorAll('[data-action="export-data"],[data-action="import-data"],[data-action="clear-all-data"]');if(buttons[0])buttons[0].textContent=d.ui.export;if(buttons[1])buttons[1].textContent=d.ui.import;if(buttons[2])buttons[2].textContent=d.ui.clear;
