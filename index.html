@@ -929,11 +929,11 @@ function renderTodaySummary(entries) {
   const sorted = [...entries].sort((a,b) => a.date.localeCompare(b.date));
   const first = sorted[0];
   const cycleDay = first ? Math.max(1, Math.floor((new Date(today+'T00:00:00') - new Date(first.date+'T00:00:00')) / 86400000) + 1) : null;
-  const temp = todayEntry && Number.isFinite(Number(todayEntry.temp)) ? formatTemperature(todayEntry.temp,2) : 'Non renseignée';
-  const mucus = todayEntry ? (MUCUS_LABELS[todayEntry.mucus] || 'Observation enregistrée') : 'Aucune observation';
-  box.innerHTML = '<div class=\"today-stat\"><strong>' + (todayEntry ? '✓ Enregistrée' : 'À renseigner') + '</strong><span>Observation du jour</span></div>' + '<div class=\"today-stat\"><strong>' + temp + '</strong><span>Température</span></div>' + '<div class=\"today-stat\"><strong>' + mucus + '</strong><span>Glaire / observation</span></div>' + '<div class=\"today-stat\"><strong>' + (cycleDay ? 'Jour ' + cycleDay : '—') + '</strong><span>Repère dans le cycle</span></div>';
+  const temp = todayEntry && Number.isFinite(Number(todayEntry.temp)) ? formatTemperature(todayEntry.temp,2) : dt('notFilled');
+  const mucus = todayEntry ? (MUCUS_LABELS[todayEntry.mucus] || dt('obsSaved')) : dt('noObs');
+  const cycleLabel = getLanguage()==='es' ? 'Día ' : getLanguage()==='ar' ? 'اليوم ' : 'Jour ';
+  box.innerHTML = '<div class="today-stat"><strong>' + (todayEntry ? dt('saved') : dt('toFill')) + '</strong><span>' + dt('todayObs') + '</span></div>' + '<div class="today-stat"><strong>' + temp + '</strong><span>' + dt('temperature') + '</span></div>' + '<div class="today-stat"><strong>' + mucus + '</strong><span>' + dt('mucusObs') + '</span></div>' + '<div class="today-stat"><strong>' + (cycleDay ? cycleLabel + cycleDay : '—') + '</strong><span>' + dt('cycleRef') + '</span></div>';
 }
-
 function render() {
   applyLanguage();
   const dateField = document.getElementById('f-date');
