@@ -135,9 +135,8 @@ test.describe('professional end-to-end and mobile QA', () => {
     await page.locator('[data-action="clear-all-data"]').click();
     await expect(page.locator('#today-summary')).not.toContainText('36.50');
 
-    await page.locator('#import-data').setInputFiles(backupPath);
     page.once('dialog', dialog => dialog.accept());
-    await page.locator('#import-data').dispatchEvent('change');
+    await page.locator('#import-data').setInputFiles(backupPath);
     await expect(page.locator('#backup-status')).toContainText('restaur');
     await expect(page.locator('#today-summary')).toContainText('36.50');
     await expect(page.locator('#calendar-grid [data-calendar-date="' + date + '"]')).toBeVisible();
