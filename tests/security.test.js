@@ -37,6 +37,14 @@ test('dangerous script execution primitives are absent', () => {
   assert.doesNotMatch(page, /new Function\s*\(/);
 });
 
+test('saving profile applies language/unit immediately', () => {
+  assert.match(page, /memProfile=p;try\{localStorage\.setItem\(PROFILE_KEY,JSON\.stringify\(p\)\)/);
+  assert.match(page, /applyLanguage\(\);renderProfile\(\);render\(\);document\.getElementById\('profile-status'\)\?\.focus\(\)/);
+});
+test('calendar month title follows selected language', () => {
+  assert.match(page, /toLocaleDateString\(getLanguage\(\)==='ar'\?'ar':getLanguage\(\)==='es'\?'es':'fr'/);
+});
+
 test('temperature validation warning uses the selected display unit', () => {
   assert.match(page, /plage de contrôle \$\{getUnit\(\)==='f'\?'93,2–107,6 °F':'34–42 °C'\}/);
 });
