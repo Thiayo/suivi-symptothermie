@@ -39,3 +39,10 @@ test('destructive data actions require explicit confirmation', () => {
   assert.match(page, /function clearAllData\(\)/);
   assert.match(page, /function clearAllData\(\)\{if\(\s*!?confirm\(/);
 });
+
+test('calendar interactions use delegated events instead of inline handlers', () => {
+  assert.match(page, /data-calendar-date=/);
+  assert.match(page, /event\.target\.closest\('\[data-calendar-date\]'\)/);
+  assert.doesNotMatch(page, /onclick="showCalendarDetail/);
+  assert.doesNotMatch(page, /onkeydown="if\(event\.key===/);
+});
