@@ -390,3 +390,13 @@ test('une observation future est refusée', () => {
 test('les observations saisies passent par le validateur avant enregistrement', () => {
   assert.match(page, /if \(!validStoredEntry\(candidate\)\)/);
 });
+
+
+test('optional Bluetooth thermometer integration uses the standard Health Thermometer service', () => {
+  assert.match(page, /const THERMOMETER_SERVICE_UUID = 0x1809/);
+  assert.match(page, /const TEMPERATURE_MEASUREMENT_UUID = 0x2A1C/);
+  assert.match(page, /navigator\.bluetooth\.requestDevice/);
+  assert.match(page, /startNotifications\(\)/);
+  assert.match(page, /gattserverdisconnected/);
+  assert.match(page, /Connecter un thermomètre Bluetooth/);
+});
