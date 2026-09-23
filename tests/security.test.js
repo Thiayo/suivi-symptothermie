@@ -59,3 +59,12 @@ test('all user interactions are wired without inline event attributes', () => {
   assert.match(page, /action === 'answer-quiz'/);
   assert.match(page, /action === 'complete-lesson'/);
 });
+
+
+test('cycle archiving and full deletion roll back persistent storage on failure', () => {
+  assert.match(page, /function startNewCycle\(\)[\s\S]*localStorage\.setItem\(HISTORY_KEY/);
+  assert.match(page, /function startNewCycle\(\)[\s\S]*localStorage\.setItem\(CURRENT_KEY/);
+  assert.match(page, /function startNewCycle\(\)[\s\S]*rollbackError/);
+  assert.match(page, /function clearAllData\(\)[\s\S]*previous\[key\]/);
+  assert.match(page, /function clearAllData\(\)[\s\S]*suppression durable n’a pas pu être confirmée/);
+});
