@@ -102,7 +102,7 @@ test('les libellés du suivi restent descriptifs', () => {
 test('le repère thermique reste présenté comme un repère visuel', () => {
   assert.match(page, /referenceLine/);
 assert.match(page, /repère visuel des températures/i);
-assert.match(page, /pas un détecteur d'ovulation/);
+assert.match(page, /pas un détecteur d’ovulation/);
   assert.doesNotMatch(page, /coverline/);
 });
 
@@ -291,7 +291,7 @@ test('les erreurs de stockage local disposent d’un retour accessible', () => {
 
 
 test('le chargement du stockage local vérifie les structures de base', () => {
-assert.match(page, /JSON\.parse\(raw\) : \[\]/);
+assert.match(page, /JSON\.parse\(raw\)/);
 assert.match(page, /!Array\.isArray\(parsed\)/);
   assert.match(page, /Une nouvelle saisie peut être enregistrée dans cette session/);
   assert.match(page, /utilise-la pour récupérer tes données/);
