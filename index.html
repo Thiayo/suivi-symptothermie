@@ -615,6 +615,10 @@ function addEntry() {
     }
 
     entries.push(candidate);
+    if (entries.length > MAX_ENTRIES_PER_CYCLE) {
+      setActionStatus('Ce cycle dépasse la limite de conservation de 10 ans environ. Exporte tes données avant de continuer.');
+      return;
+    }
     entries.sort((a, b) => a.date.localeCompare(b.date));
     saveCurrent(entries);
 
@@ -709,6 +713,10 @@ function startNewCycle() {
   if (!confirm("Archiver le cycle en cours et démarrer un nouveau cycle ?")) return;
 
   const hist = loadHistory();
+  if (hist.length >= MAX_HISTORY_CYCLES) {
+    setActionStatus('La limite de cycles archivés est atteinte. Exporte tes données avant d’en archiver un nouveau.');
+    return;
+  }
   const nextHistory = [{ start: entries[0].date, end: entries[entries.length-1].date, entries }, ...hist];
   const keys = [CURRENT_KEY, HISTORY_KEY];
   const previous = { [CURRENT_KEY]: null, [HISTORY_KEY]: null };
