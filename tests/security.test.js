@@ -178,3 +178,11 @@ test('PWA declares an installable icon and caches it', () => {
   assert.match(manifest, /\.\/icons\/icon\.svg/);
   assert.match(serviceWorker, /\.\/icons\/icon\.svg/);
 });
+
+test('privacy and terms documentation are linked and local-first claims remain explicit', () => {
+  assert.match(page, /href="PRIVACY\.md"/);
+  assert.match(page, /href="TERMS\.md"/);
+  assert.doesNotMatch(page, /<script[^>]+src=/i);
+  assert.doesNotMatch(page, /\bfetch\s*\(/);
+  assert.doesNotMatch(page, /\bsendBeacon\s*\(/);
+});
