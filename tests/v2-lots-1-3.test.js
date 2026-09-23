@@ -89,7 +89,7 @@ test('backup import is versioned and validates entry structure', () => {
   assert.match(page, /function validBackup\(value\)/);
   assert.match(page, /value\.version!==APP_DATA_VERSION/);
   assert.match(page, /validStoredEntry\(e\)/);
-  assert.match(page, /Sauvegarde importée avec succès/);
+  assert.match(page, /imported:'Sauvegarde importée avec succès\.'/);
 });
 
 
@@ -223,7 +223,7 @@ test('la validation du profil correspond aux objectifs réellement proposés', (
 
 test('les opérations de sauvegarde disposent d’un statut accessible', () => {
   assert.match(page, /id="backup-status"[^>]*role="status"[^>]*aria-live="polite"/);
-  assert.match(page, /Sauvegarde exportée/);
+  assert.match(page, /exported:'Sauvegarde exportée\.'/);
   assert.match(page, /Sauvegarde importée avec succès/);
 });
 
@@ -243,7 +243,7 @@ test('la validation du profil limite le nom importé à 80 caractères', () => {
 
 test('le statut de sauvegarde est focalisable après un import', () => {
   assert.match(page, /id="backup-status"[^>]*role="status"[^>]*aria-live="polite"[^>]*tabindex="-1"/);
-  assert.match(page, /setBackupStatus\('Sauvegarde importée avec succès\.'\);const status=document\.getElementById\('backup-status'\);if\(status\)status\.focus\(\)/);
+  assert.match(page, /setBackupStatus\(at\('imported'\)\);const status=document\.getElementById\('backup-status'\);if\(status\)status\.focus\(\)/);
   assert.match(page, /La sauvegarde n’a pas été importée/);
 });
 
@@ -271,7 +271,7 @@ test('les actions courantes disposent d’un statut accessible', () => {
 test('l’export vérifie la présence d’une observation et nettoie le lien de téléchargement', () => {
 assert.match(page, /function exportData\(\)/);
   assert.match(page, /document\.body\.appendChild\(a\);a\.click\(\);a\.remove\(\)/);
-  assert.match(page, /setBackupStatus\('Sauvegarde exportée\.'/);
+  assert.match(page, /setBackupStatus\(at\('exported'\)\)/);
 });
 
 
