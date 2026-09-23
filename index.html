@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Suivi Symptothermie — observation du cycle</title>
 <meta name="description" content="Application locale de suivi des observations du cycle : température, glaire, saignements, contexte et apprentissage. Les données restent dans le navigateur.">
   <meta property="og:title" content="Suivi Symptothermie — observation du cycle">
@@ -1321,5 +1322,11 @@ if ("serviceWorker" in navigator && (location.protocol === "https:" || location.
   window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
 }
 </script>
+
+<footer class="no-print" style="text-align:center;color:var(--text-muted);font-size:.82rem;padding:8px 0 24px;">
+  <a href="./privacy.html" style="color:var(--blue);">Politique de confidentialité</a>
+  <span aria-hidden="true"> · </span>
+  <a href="./terms.html" style="color:var(--blue);">Conditions d'utilisation</a>
+</footer>
 </body>
 </html>
