@@ -36,7 +36,7 @@ test('personal backup export/import is available', () => {
   assert.match(page, /function exportData\(\)/);
   assert.match(page, /function importData\(event\)/);
   assert.match(page, /suivi-symptothermie-sauvegarde\.json/);
-  assert.match(page, /Array\.isArray\(value\.current\)/);
+  assert.match(page, /validEntryCollection\(value\.current\)/);
 });
 
 test('non-diagnostic protections from the learning lots remain present', () => {
