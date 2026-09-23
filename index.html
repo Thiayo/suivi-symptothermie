@@ -1005,9 +1005,6 @@ function applyLanguage(){
   const lang=getLanguage();
   root.lang=lang;
   root.dir=lang==='ar'?'rtl':'ltr';
-  const lang=getLanguage();
-  document.documentElement.lang=lang;
-  document.documentElement.dir=lang==='ar'?'rtl':'ltr';
   const d={
     fr:{title:'🌡️ Suivi Symptothermie',nav:['Accueil','Graphique','Calendrier','Historique','Apprendre','Profil'],save:"Enregistrer l'entrée",profile:'👤 Profil et confidentialité',language:'Langue',unit:'Unité de température',
       ui:{intro:'Note la date, ta température, ta glaire cervicale et tes ressentis pour mieux observer ton cycle',learn:'📚 Apprendre la symptothermie',today:'🌿 Aujourd’hui',add:'➕ Ajouter une entrée',date:'Date',temp:'Température',time:'Heure de mesure (optionnel)',bleeding:'Saignement',mucus:'Glaire cervicale',factors:'Contexte de la mesure (optionnel)',notes:'Notes (optionnel)',saveProfile:'Enregistrer le profil',privacy:'Confidentialité :',export:'Exporter mes données',import:'Importer une sauvegarde',clear:'Effacer toutes mes données',calendar:'🗓️ Calendrier du suivi',history:'📋 Journal du cycle en cours',previous:'🗂️ Cycles précédents',sources:'Sources et limites'},
