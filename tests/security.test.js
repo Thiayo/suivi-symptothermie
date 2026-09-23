@@ -85,3 +85,15 @@ test('PWA files are structurally valid', () => {
   assert.match(serviceWorker, /self\.addEventListener\('install'/);
   assert.match(serviceWorker, /self\.addEventListener\('fetch'/);
 });
+
+test('les leçons et quiz rejettent les identifiants ou choix invalides', () => {
+  assert.match(page, /const module = MODULES\.find\(item => item\.id === id\); if \(!module \|\| !module\.quiz/);
+  assert.match(page, /Number\.isInteger\(choice\)/);
+  assert.match(page, /if \(!MODULES\.some\(module => module\.id === id\)\) return/);
+});
+
+test('les notes et facteurs importés restent bornés et validés', () => {
+  assert.match(page, /e\.notes\.length<=2000/);
+  assert.match(page, /e\.factors\.length<=VALID_FACTORS\.length/);
+  assert.match(page, /id="f-notes" maxlength="2000"/);
+});
