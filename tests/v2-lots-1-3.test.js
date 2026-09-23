@@ -420,3 +420,9 @@ test('WHO references include multilingual resources', () => {
   assert.match(page, /who\.int\/es\/campaigns/);
   assert.match(page, /who\.int\/ar\/news-room\/fact-sheets\/detail\/family-planning-contraception/);
 });
+
+test('learning list and lesson headings use localized modules without losing their original number', () => {
+  assert.match(page, /document\.getElementById\('module-list'\)\.innerHTML = localizedModules\(\)\.map\(/);
+  assert.match(page, /const moduleIndex = MODULES\.findIndex\(item => item\.id === module\.id\)/);
+  assert.match(page, /moduleIndex\+1/);
+});
