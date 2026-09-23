@@ -6,7 +6,7 @@ const path = require('node:path');
 const page = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 
 test('user-controlled text is escaped before being inserted into HTML', () => {
-  assert.match(page, /function escapeHtml\(value\)/);
+  assert.match(page, /function escapeHtml\(value\)\s*\{/);
   assert.match(page, /escapeHtml\(e\.notes\)/);
   assert.match(page, /escapeHtml\(e\.factors/);
   assert.match(page, /escapeHtml\(e\.time/);
@@ -37,5 +37,5 @@ test('dangerous script execution primitives are absent', () => {
 
 test('destructive data actions require explicit confirmation', () => {
   assert.match(page, /function clearAllData\(\)/);
-  assert.match(page, /confirm\([^)]*supprimer[^)]*données/i);
+  assert.match(page, /function clearAllData\(\)\{if\(\s*!?confirm\(/);
 });
