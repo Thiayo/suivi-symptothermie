@@ -4,6 +4,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const page = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+const manifest = fs.readFileSync(path.join(__dirname, '..', 'manifest.webmanifest'), 'utf8');
+const serviceWorker = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
 
 test('user-controlled text is escaped before being inserted into HTML', () => {
   assert.match(page, /function escapeHtml\(value\)\s*\{/);
