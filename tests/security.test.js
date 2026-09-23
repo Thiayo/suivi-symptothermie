@@ -37,6 +37,14 @@ test('dangerous script execution primitives are absent', () => {
   assert.doesNotMatch(page, /new Function\s*\(/);
 });
 
+test('supported languages localize the main observation controls', () => {
+  assert.match(page, /Nombre para mostrar \(opcional\)/);
+  assert.match(page, /اسم العرض \(اختياري\)/);
+  assert.match(page, /const labels=\{/);
+  assert.match(page, /Pegajoso/);
+  assert.match(page, /لزج/);
+  assert.match(page, /document\.querySelectorAll\('#f-bleeding option'\)/);
+});
 test('saving profile applies language/unit immediately', () => {
   assert.match(page, /memProfile=p;try\{localStorage\.setItem\(PROFILE_KEY,JSON\.stringify\(p\)\)/);
   assert.match(page, /applyLanguage\(\);renderProfile\(\);render\(\);document\.getElementById\('profile-status'\)\?\.focus\(\)/);
