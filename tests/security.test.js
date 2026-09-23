@@ -145,7 +145,7 @@ test('PWA files are structurally valid', () => {
 });
 
 test('les leçons et quiz rejettent les identifiants ou choix invalides', () => {
-  assert.match(page, /const module = MODULES\.find\(item => item\.id === id\); if \(!module \|\| !module\.quiz/);
+  assert.match(page, /function answerQuiz\(id, choice\) \{ const module = localizedModules\(\)\.find\(item => item\.id === id\);/);
   assert.match(page, /Number\.isInteger\(choice\)/);
   assert.match(page, /if \(!MODULES\.some\(module => module\.id === id\)\) return/);
 });
