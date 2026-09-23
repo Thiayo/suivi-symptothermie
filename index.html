@@ -217,7 +217,6 @@
     font-size: 0.75rem;
     font-weight: 600;
   }
-  .badge-ovu { background: var(--pink-light); color: var(--pink); }
   .badge-info { background: var(--blue-light); color: var(--blue); }
   .history-item {
     display: flex;
@@ -347,6 +346,7 @@
           <option value="regles">Règles</option>
           <option value="spotting">Spotting (saignement léger)</option>
         </select>
+        <div id="bleeding-help" class="learn-meta">Indique uniquement ce que tu observes aujourd’hui, sans interprétation automatique.</div>
       </div>
       <div>
         <label for="f-mucus">Glaire cervicale <a href="#apprendre" onclick="openLesson('m3')">Apprendre à observer</a></label>
@@ -369,8 +369,8 @@
         <em>Ces repères aident à mieux se connaître, mais ne remplacent pas un avis médical en cas de doute (pertes inhabituelles en couleur, odeur, ou accompagnées de douleurs).</em>
       </div>
     </details>
-    <fieldset class="observation-factors" style="margin-bottom:14px;">
-      <legend>Contexte de la mesure (optionnel)</legend>
+    <fieldset class="observation-factors" style="margin-bottom:14px;" role="group" aria-labelledby="factors-label">
+      <legend id="factors-label">Contexte de la mesure (optionnel)</legend>
       <p class="learn-meta">Cochez uniquement ce qui peut aider à relire la mesure plus tard. L’application conserve ces éléments comme des observations et ne tire pas de conclusion automatique.</p>
       <div class="check-grid">
         <label><input type="checkbox" class="factor" value="maladie"> Maladie / fièvre</label>
@@ -386,7 +386,7 @@
       <textarea id="f-notes" placeholder="Ressenti, douleurs, humeur..." aria-describedby="notes-help"></textarea>
       <div id="notes-help" class="learn-meta">Décris ce que tu observes ou le contexte de la mesure, sans chercher à en tirer automatiquement une conclusion.</div>
     </div>
-    <div id="edit-status" class="notice" style="display:none;margin-bottom:12px;" aria-live="polite"></div>
+    <div id="edit-status" class="notice" style="display:none;margin-bottom:12px;" role="status" aria-live="polite" tabindex="-1"></div>
     <div id="entry-action-status" class="notice" style="display:none;margin-bottom:12px;" role="status" aria-live="polite" tabindex="-1"></div>
     <div class="row-actions">
       <button type="button" class="btn" id="save-entry-btn">Enregistrer l'entrée</button>
@@ -397,7 +397,7 @@
 </section>
 <section id="graphique" class="app-section">
   <div class="card">
-    <h2>📈 Courbe du cycle en cours <span id="thermal-badge"></span></h2><p class="learn-meta">Le graphique est descriptif, pas diagnostique. <a href="#apprendre" onclick="openLesson('m5')">Apprendre à le lire</a> · <a href="#apprendre" onclick="openLesson('m6')">Comprendre le décalage thermique</a></p>
+    <h2>📈 Courbe du cycle en cours <span id="thermal-badge"></span></h2><p class="learn-meta">Le graphique est descriptif, pas diagnostique. Le repère visuel des températures n’est pas un détecteur d’ovulation. <a href="#apprendre" onclick="openLesson('m5')">Apprendre à le lire</a> · <a href="#apprendre" onclick="openLesson('m6')">Comprendre le décalage thermique</a></p>
     <div class="chart-wrap" id="chart-container" role="img" aria-label="Graphique descriptif des températures et observations du cycle"></div>
     <div class="legend">
       <span><span class="dot" style="background:var(--period-color)"></span>Règles</span>
@@ -773,9 +773,9 @@ function renderChart(entries) {
     ? `<polyline points="${linePoints.join(' ')}" fill="none" stroke="var(--blue)" stroke-width="2.5"/>`
     : '';
 
-  let coverlineSvg = '';
+  let referenceLineSvg = '';
   if (shift) {
-    coverlineSvg = `<line x1="${padL}" y1="${yFor(shift.referenceLine)}" x2="${w-padR}" y2="${yFor(shift.referenceLine)}" stroke="var(--pink)" stroke-width="1.5" stroke-dasharray="5,4"/>`;
+    referenceLineSvg = `<line x1="${padL}" y1="${yFor(shift.referenceLine)}" x2="${w-padR}" y2="${yFor(shift.referenceLine)}" stroke="var(--pink)" stroke-width="1.5" stroke-dasharray="5,4"/>`;
   }
 
   let dotsAndLabels = '';
@@ -796,7 +796,7 @@ function renderChart(entries) {
     : 'Résumé textuel : aucune température enregistrée.';
   container.innerHTML = `<p class="sr-only" id="chart-text-summary">${escapeHtml(summary)}</p><svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true">
     ${gridLines}
-    ${coverlineSvg}
+    ${referenceLineSvg}
     ${polyline}
     ${dotsAndLabels}
   </svg>`;
