@@ -57,13 +57,14 @@ test('the main interface keeps localized controls including the temperature help
 test('the profile explains automatic detection and manual language choice', () => {
   assert.match(page, /id="language-help"/);
   assert.match(page, /La langue est détectée automatiquement/);
+  assert.match(page, /Your language is detected automatically/);
   assert.match(page, /El idioma se detecta automáticamente/);
   assert.match(page, /يتم اكتشاف اللغة تلقائيًا/);
 });
 test('the first launch detects a supported browser language and keeps an explicit profile choice', () => {
   assert.match(page, /function detectBrowserLanguage\(\)/);
   assert.match(page, /navigator\.languages/);
-  assert.match(page, /if\(code==='fr'\|\|code==='es'\|\|code==='ar'\)return code/);
+  assert.match(page, /if\(code==='fr'\|\|code==='en'\|\|code==='es'\|\|code==='ar'\)return code/);
   assert.match(page, /language:detectBrowserLanguage\(\)/);
   assert.match(page, /language:v\.language/);
 });
