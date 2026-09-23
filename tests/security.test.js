@@ -84,7 +84,7 @@ test('calendar month title follows selected language', () => {
 });
 
 test('temperature validation warning uses the selected display unit', () => {
-  assert.match(page, /at\\('unusualConfirm'\\)/);
+  assert.match(page, /at\('unusualConfirm'\)/);
 });
 
 test('Bluetooth thermometer readings use the selected display unit', () => {
