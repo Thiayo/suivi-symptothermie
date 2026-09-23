@@ -8,8 +8,8 @@ const page = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 test('user-controlled text is escaped before being inserted into HTML', () => {
   assert.match(page, /function escapeHtml\(value\)\s*\{/);
   assert.match(page, /escapeHtml\(e\.notes\)/);
-  assert.match(page, /escapeHtml\(e\.factors/);
-  assert.match(page, /escapeHtml\(e\.time/);
+  assert.match(page, /e\.factors\.map\(f => escapeHtml/);
+  assert.match(page, /escapeHtml\(e\.time\)/);
 });
 
 test('backup import is versioned, validated and size-limited', () => {
