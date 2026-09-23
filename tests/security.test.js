@@ -40,6 +40,13 @@ test('dangerous script execution primitives are absent', () => {
 test('calendar weekday headings are localized', () => {
   assert.match(page, /const weekdays=getLanguage\(\)==='ar'\?\['الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد'\]:getLanguage\(\)==='es'/);
 });
+test('the first launch detects a supported browser language and keeps an explicit profile choice', () => {
+  assert.match(page, /function detectBrowserLanguage\(\)/);
+  assert.match(page, /navigator\.languages/);
+  assert.match(page, /if\(code==='fr'\|\|code==='es'\|\|code==='ar'\)return code/);
+  assert.match(page, /language:detectBrowserLanguage\(\)/);
+  assert.match(page, /language:v\.language/);
+});
 test('supported languages localize the main observation controls', () => {
   assert.match(page, /Nombre para mostrar \(opcional\)/);
   assert.match(page, /اسم العرض \(اختياري\)/);
