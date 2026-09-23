@@ -49,3 +49,12 @@ test('contextual learning links are available from observations and graph', () =
   assert.match(page, /openLesson\('m5'\)/);
   assert.match(page, /openLesson\('m6'\)/);
 });
+
+test('the learning module list starts collapsed and the toggle can actually hide it', () => {
+  assert.match(page, /id="toggle-modules"[^>]*aria-expanded="false"[^>]*aria-controls="module-list"/);
+  assert.match(page, /id="module-list"[^>]*hidden/);
+  assert.match(page, /\.module-list\[hidden\]\s*\{\s*display:none\s*!important;/);
+  assert.match(page, /const expanded = list\.hidden;/);
+  assert.match(page, /list\.hidden = !expanded;/);
+  assert.match(page, /button\.setAttribute\('aria-expanded', String\(expanded\)\)/);
+});
