@@ -40,6 +40,11 @@ test('dangerous script execution primitives are absent', () => {
 test('calendar weekday headings are localized', () => {
   assert.match(page, /const weekdays=getLanguage\(\)==='ar'\?\['الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد'\]:getLanguage\(\)==='es'/);
 });
+test('dynamic localized action messages are present', () => {
+  assert.match(page, /const ACTION_TEXTS=/);
+  assert.match(page, /function at\(key\)/);
+  assert.match(page, /mucus:\{sec:/);
+});
 test('the main interface keeps localized controls including the temperature help link', () => {
   assert.match(page, /id="today-add-btn"/);
   assert.match(page, /id="temp-label-text"/);
