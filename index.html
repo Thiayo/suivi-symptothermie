@@ -345,6 +345,7 @@
         <label for="f-temp">Température (°C) <a href="#apprendre" data-action="open-lesson" data-module="m4">Conseils de mesure</a></label>
         <input type="number" id="f-temp" step="0.01" min="34" max="42" placeholder="36.50" inputmode="decimal" aria-describedby="temp-help">
         <div id="temp-help" class="learn-meta">Valeur observée au moment de la mesure. Laisse vide si aucune mesure n’a été prise.</div>
+        <div class="row-actions" style="margin-top:8px;"><button class="btn btn-secondary" type="button" data-action="connect-thermometer" id="connect-thermometer-btn">🌡️ Connecter un thermomètre Bluetooth</button><span id="thermometer-status" class="learn-meta" role="status" aria-live="polite"></span></div>
       </div>
       <div>
         <label for="f-time">Heure de mesure (optionnel)</label>
@@ -1039,6 +1040,82 @@ function setActionStatus(message) {
   }
 }
 
+const THERMOMETER_SERVICE_UUID = 0x1809;
+const TEMPERATURE_MEASUREMENT_UUID = 0x2A1C;
+let bluetoothDevice = null;
+let temperatureCharacteristic = null;
+
+function decodeBleTemperature(dataView) {
+  if (!dataView || dataView.byteLength < 5) return null;
+  const flags = dataView.getUint8(0);
+  let raw = dataView.getUint32(1, true);
+  let mantissa = raw & 0x00FFFFFF;
+  if (mantissa & 0x00800000) mantissa |= 0xFF000000;
+  const exponent = (raw >> 24) & 0xFF;
+  const signedExponent = exponent & 0x80 ? exponent - 0x100 : exponent;
+  let value = mantissa * Math.pow(10, signedExponent);
+  if (flags & 0x01) value = (value - 32) * 5 / 9;
+  if (!Number.isFinite(value) || value < 34 || value > 42) return null;
+  return value;
+}
+
+function setThermometerStatus(message) {
+  const status = document.getElementById('thermometer-status');
+  if (status) status.textContent = message;
+}
+
+function handleThermometerMeasurement(event) {
+  const value = decodeBleTemperature(event.target.value);
+  if (value === null) {
+    setThermometerStatus('Mesure reçue mais valeur inexploitable. Vérifie le thermomètre.');
+    return;
+  }
+  const field = document.getElementById('f-temp');
+  if (field) field.value = value.toFixed(2);
+  const timeField = document.getElementById('f-time');
+  if (timeField && !timeField.value) {
+    const now = new Date();
+    timeField.value = now.toTimeString().slice(0, 5);
+  }
+  setThermometerStatus(`Mesure Bluetooth reçue : ${value.toFixed(2)} °C. Vérifie-la puis enregistre l'observation.`);
+}
+
+async function connectThermometer() {
+  if (!('bluetooth' in navigator) || !navigator.bluetooth) {
+    setThermometerStatus('La connexion Bluetooth depuis le navigateur n’est pas disponible sur cet appareil/navigateur.');
+    return;
+  }
+  try {
+    setThermometerStatus('Recherche d’un thermomètre Bluetooth compatible…');
+    bluetoothDevice = await navigator.bluetooth.requestDevice({
+      filters: [{ services: [THERMOMETER_SERVICE_UUID] }],
+      optionalServices: [THERMOMETER_SERVICE_UUID]
+    });
+    bluetoothDevice.addEventListener('gattserverdisconnected', () => {
+      temperatureCharacteristic = null;
+      setThermometerStatus('Thermomètre déconnecté. Tu peux en reconnecter un.');
+    });
+    const server = await bluetoothDevice.gatt.connect();
+    const service = await server.getPrimaryService(THERMOMETER_SERVICE_UUID);
+    temperatureCharacteristic = await service.getCharacteristic(TEMPERATURE_MEASUREMENT_UUID);
+    temperatureCharacteristic.addEventListener('characteristicvaluechanged', handleThermometerMeasurement);
+    await temperatureCharacteristic.startNotifications();
+    try {
+      const value = await temperatureCharacteristic.readValue();
+      handleThermometerMeasurement({ target: { value } });
+    } catch (readError) {}
+    const button = document.getElementById('connect-thermometer-btn');
+    if (button) button.textContent = '🌡️ Thermomètre connecté';
+    setThermometerStatus(`Connecté : ${bluetoothDevice.name || 'thermomètre compatible'}.`);
+  } catch (error) {
+    if (error && error.name === 'NotFoundError') {
+      setThermometerStatus('Aucun thermomètre sélectionné.');
+    } else {
+      setThermometerStatus('Connexion impossible. Vérifie que le thermomètre utilise le service Bluetooth Health Thermometer.');
+    }
+  }
+}
+
 function exportData(){const current=loadCurrent();const history=loadHistory();if(!current.length&&!history.length){setBackupStatus("Ajoute au moins une observation ou archive un cycle avant d’exporter.");return;}const exportedAt=new Date().toISOString();const payload={version:APP_DATA_VERSION,exportedAt,current,history,learning:loadLearning(),profile:loadProfile()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='suivi-symptothermie-sauvegarde.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);setBackupStatus('Sauvegarde exportée.');}
 function isValidDateKey(value) {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
@@ -1072,6 +1149,7 @@ document.addEventListener('click', (event) => {
   else if (action === 'export-data') exportData();
   else if (action === 'import-data') document.getElementById('import-data')?.click();
   else if (action === 'clear-all-data') clearAllData();
+  else if (action === 'connect-thermometer') connectThermometer();
   else if (action === 'answer-quiz') answerQuiz(target.dataset.module, Number(target.dataset.option));
   else if (action === 'complete-lesson') completeLesson(target.dataset.module);
   else if (action === 'close-lesson') document.getElementById('lesson-view').hidden = true;
