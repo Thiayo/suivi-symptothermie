@@ -139,3 +139,18 @@ test('stored entry collections reject duplicate dates and excessive history size
   assert.match(page, /entries\.length>MAX_ENTRIES_PER_CYCLE/);
   assert.match(page, /value\.history\.length>MAX_HISTORY_CYCLES/);
 });
+
+
+test('dynamic summaries and calendar details use the selected language', () => {
+  assert.match(page, /const DYNAMIC_TEXTS = \{/);
+  assert.match(page, /function dt\(key\)/);
+  assert.match(page, /dt\('todayObs'\)/);
+  assert.match(page, /dt\('temperature'\)/);
+  assert.match(page, /dt\('context'\)/);
+  assert.match(page, /dt\('measurementTime'\)/);
+});
+
+test('editing an observation respects the selected Fahrenheit display unit', () => {
+  assert.match(page, /document\.getElementById\('f-temp'\)\.value = entry\.temp === null \? '' : celsiusToDisplay\(entry\.temp\)\.toFixed\(2\)/);
+  assert.match(page, /function displayToCelsius\(value\)/);
+});
