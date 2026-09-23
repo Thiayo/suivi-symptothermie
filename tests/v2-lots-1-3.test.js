@@ -347,7 +347,7 @@ test('la sauvegarde locale indisponible utilise un message adapté à l’applic
 test('les actions de suppression et d’archivage annoncent leur résultat', () => {
   assert.match(page, /setActionStatus\\(at\\('deleteObs'\\)\\);/);
   assert.match(page, /setActionStatus\\(at\\('newCycle'\\)\\);/);
-  assert.match(page, /setActionStatus\\('Cycle archivé supprimé\\.'/);
+  assert.match(page, /setActionStatus\('Cycle archivé supprimé\.'\)/);
 });
 
 test('le panneau de leçon possède un nom accessible', () => {
