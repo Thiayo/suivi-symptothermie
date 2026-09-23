@@ -46,3 +46,16 @@ test('calendar interactions use delegated events instead of inline handlers', ()
   assert.doesNotMatch(page, /onclick="showCalendarDetail/);
   assert.doesNotMatch(page, /onkeydown="if\(event\.key===/);
 });
+
+
+test('all user interactions are wired without inline event attributes', () => {
+  assert.doesNotMatch(page, /\bon(?:click|change|keydown|submit|input|focus|blur)=/i);
+  assert.match(page, /data-action="open-lesson"/);
+  assert.match(page, /data-action="answer-quiz"/);
+  assert.match(page, /data-action="complete-lesson"/);
+  assert.match(page, /data-action="calendar-prev"/);
+  assert.match(page, /data-action="calendar-next"/);
+  assert.match(page, /getElementById\('import-data'\)\?\.addEventListener\('change', importData\)/);
+  assert.match(page, /action === 'answer-quiz'/);
+  assert.match(page, /action === 'complete-lesson'/);
+});
