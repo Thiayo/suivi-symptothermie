@@ -52,7 +52,7 @@ test.describe('professional end-to-end and mobile QA', () => {
 
     await page.locator('#profil').scrollIntoViewIfNeeded();
     await page.locator('#profile-unit').selectOption('f');
-    await page.locator('#save-profile-btn').click();
+    await page.locator('[data-action="save-profile"]').click();
 
     await expect(page.locator('#temp-unit-label')).toHaveText('°F');
     await page.locator('#f-temp').fill('98.60');
@@ -72,7 +72,7 @@ test.describe('professional end-to-end and mobile QA', () => {
       await resetApp(page);
       await page.locator('#profil').scrollIntoViewIfNeeded();
       await page.locator('#profile-language').selectOption(lang);
-      await page.locator('#save-profile-btn').click();
+      await page.locator('[data-action="save-profile"]').click();
 
       await expect(page.locator('html')).toHaveAttribute('lang', lang);
       await expect(page.locator('html')).toHaveAttribute('dir', dir);
