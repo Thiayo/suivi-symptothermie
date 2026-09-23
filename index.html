@@ -527,7 +527,7 @@ function renderLearning() {
   // inverserait l'état du panneau.
   document.getElementById('overall-progress').style.width = `${completed / MODULES.length * 100}%`;
   document.querySelector('.learn-progress').setAttribute('aria-valuenow', completed);
-  document.getElementById('overall-progress-text').textContent = `${completed} leçon${completed > 1 ? 's' : ''} terminée${completed > 1 ? 's' : ''} sur ${MODULES.length}.`;
+  const learnText=getLanguage()==='es'?completed+' lección'+(completed>1?'es':'')+' completada'+(completed>1?'s':'')+' de '+MODULES.length+'.':getLanguage()==='ar'?completed+' من '+MODULES.length+' من الدروس مكتملة.':completed+' leçon'+(completed>1?'s':'')+' terminée'+(completed>1?'s':'')+' sur '+MODULES.length+'.'; document.getElementById('overall-progress-text').textContent=learnText;
   document.getElementById('module-list').innerHTML = MODULES.map((module, index) => `<article class="module-card"><h3>Module ${index+1} — ${module.title}</h3><p>${module.summary}</p><div class="learn-progress" aria-hidden="true"><span style="width:${progress.completed[module.id] ? 100 : 0}%"></span></div><div class="row-actions"><span class="learn-meta">${progress.completed[module.id] ? 'Leçon terminée' : 'À découvrir'} · ${progress.completed[module.id] ? '100' : '0'} %</span><button class="btn btn-secondary" type="button" data-action="open-lesson" data-module="${escapeHtml(module.id)}">${progress.completed[module.id] ? 'Reprendre' : 'Ouvrir la leçon'}</button></div></article>`).join('');
 }
 function openLesson(id) {
@@ -960,26 +960,18 @@ function render() {
 }
 
 function exportPDF() {
-  const entries = loadCurrent();
-  if (entries.length === 0) {
-    setBackupStatus(at('pdfEmpty'));
-    return;
-  }
-  const withTemp = entries.filter(e => e.temp !== null);
-  const shift = withTemp.length >= 9 ? detectThermalReference(entries) : null;
-  const today = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-
-  let summary = `<strong>Suivi Symptothermie — observations du cycle</strong><br>
-    Période : ${formatDate(entries[0].date)} au ${formatDate(entries[entries.length-1].date)}<br>
-    Jours notés : ${entries.length} · Généré le ${today}<br>`;
-  summary += shift
-    ? `Repère thermique descriptif affiché autour du <strong>${formatDate(shift.date)}</strong>. Ce repère ne constitue pas un diagnostic ni une confirmation automatique d'ovulation.`
-    : `Pas encore de repère thermique descriptif affiché avec les données de ce cycle.`;
-
-  document.getElementById('print-summary').innerHTML = summary;
+  const entries=loadCurrent();
+  if(!entries.length){setBackupStatus(at('pdfEmpty'));return;}
+  const withTemp=entries.filter(e=>e.temp!==null);
+  const shift=withTemp.length>=9?detectThermalReference(entries):null;
+  const locale=getLanguage()==='es'?'es-ES':getLanguage()==='ar'?'ar':'fr-FR';
+  const today=new Date().toLocaleDateString(locale,{day:'numeric',month:'long',year:'numeric'});
+  const t=getLanguage()==='es'?{title:'Seguimiento de sintotermia — observaciones del ciclo',period:'Período',days:'Días registrados',generated:'Generado el',shift:'Referencia térmica descriptiva mostrada alrededor del',none:'Todavía no se muestra una referencia térmica descriptiva con los datos de este ciclo.',limit:'Esta referencia no constituye un diagnóstico ni una confirmación automática de la ovulación.'}:getLanguage()==='ar'?{title:'متابعة الأعراض الحرارية — ملاحظات الدورة',period:'الفترة',days:'الأيام المسجلة',generated:'تم الإنشاء في',shift:'مرجع حراري وصفي معروض حول',none:'لا يظهر بعد مرجع حراري وصفي باستخدام بيانات هذه الدورة.',limit:'لا يشكل هذا المرجع تشخيصًا ولا تأكيدًا تلقائيًا للإباضة.'}:{title:'Suivi Symptothermie — observations du cycle',period:'Période',days:'Jours notés',generated:'Généré le',shift:'Repère thermique descriptif affiché autour du',none:'Pas encore de repère thermique descriptif affiché avec les données de ce cycle.',limit:'Ce repère ne constitue pas un diagnostic ni une confirmation automatique d’ovulation.'};
+  let summary='<strong>'+t.title+'</strong><br>'+t.period+' : '+formatDate(entries[0].date)+' au '+formatDate(entries[entries.length-1].date)+'<br>'+t.days+' : '+entries.length+' · '+t.generated+' '+today+'<br>';
+  summary+=shift?t.shift+' <strong>'+formatDate(shift.date)+'</strong>. '+t.limit:t.none;
+  document.getElementById('print-summary').innerHTML=summary;
   window.print();
 }
-
 const APP_DATA_VERSION = 2;
 const PROFILE_KEY = 'symptothermie_profile';
 let calendarDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
