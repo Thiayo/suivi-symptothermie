@@ -1014,6 +1014,14 @@ function applyLanguage(){
   const privacy=document.querySelector('.privacy-box');if(privacy)privacy.firstChild.textContent=d.ui.privacy+' ';
   const buttons=document.querySelectorAll('[data-action="export-data"],[data-action="import-data"],[data-action="clear-all-data"]');if(buttons[0])buttons[0].textContent=d.ui.export;if(buttons[1])buttons[1].textContent=d.ui.import;if(buttons[2])buttons[2].textContent=d.ui.clear;
   const goal=document.getElementById('profile-goal');if(goal)goal.querySelectorAll('option').forEach((o,i)=>{if(d.goals[i])o.textContent=d.goals[i];});
+  const labels={
+    fr:{bleeding:['Aucun renseigné','Règles','Spotting (saignement léger)'],mucus:['Sec / absent','Collante','Crémeuse',"Blanc d'œuf (observation)"],factors:['Maladie / fièvre','Sommeil perturbé','Horaire inhabituel','Voyage / déplacement','Alcool','Médicament']},
+    es:{bleeding:['Ninguno indicado','Regla','Spotting (sangrado leve)'],mucus:['Seco / ausente','Pegajoso','Cremoso',"Clara de huevo (observación)"],factors:['Enfermedad / fiebre','Sueño alterado','Horario inusual','Viaje / desplazamiento','Alcohol','Medicamento']},
+    ar:{bleeding:['لا يوجد','الدورة الشهرية','نزيف خفيف'],mucus:['جاف / غير موجود','لزج','كريمي','مثل بياض البيض (ملاحظة)'],factors:['مرض / حمى','اضطراب النوم','وقت غير معتاد','سفر / تنقّل','كحول','دواء']}
+  }[lang];
+  document.querySelectorAll('#f-bleeding option').forEach((o,i)=>o.textContent=labels.bleeding[i]||o.textContent);
+  document.querySelectorAll('#f-mucus option').forEach((o,i)=>o.textContent=labels.mucus[i]||o.textContent);
+  document.querySelectorAll('.factor').forEach((o,i)=>{const label=o.parentElement;if(label&&labels.factors[i])label.lastChild.textContent=' '+labels.factors[i];});
   const s=document.getElementById('save-entry-btn');if(s&&!s.disabled)s.textContent=d.save;
   applyTemperatureInputSettings();
 }
