@@ -971,19 +971,41 @@ function isValidDateKey(value) {
 
 function validBackup(value){if(!value||typeof value!=='object'||value.version!==APP_DATA_VERSION||!Array.isArray(value.current)||!Array.isArray(value.history))return false;const p=value.profile;if(p!==undefined&&p!==null&&(typeof p!=='object'||Array.isArray(p)||(p.version!==undefined&&p.version!==APP_DATA_VERSION)||(p.name!==undefined&&(typeof p.name!=='string'||p.name.length>80))||(p.goal!==undefined&&!['observer','apprendre','suivi'].includes(p.goal))))return false;if(typeof value.exportedAt!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value.exportedAt)||Number.isNaN(Date.parse(value.exportedAt)))return false;return value.current.every(validStoredEntry)&&value.history.every(validStoredHistoryCycle);}
 function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;if(file.size>2*1024*1024){setBackupStatus('La sauvegarde dépasse la taille maximale autorisée de 2 Mo.');const status=document.getElementById('backup-status');if(status)status.focus();event.target.value='';return;}const reader=new FileReader();reader.onload=()=>{try{const p=JSON.parse(reader.result);if(!p||typeof p!=='object'||Array.isArray(p)||!validBackup(p)||('learning'in p&&p.learning!==undefined&&!validLearning(p.learning)))throw new Error('format');if(!confirm('Remplacer les données locales actuelles par cette sauvegarde ?'))return;const keys=[CURRENT_KEY,HISTORY_KEY,LEARNING_KEY,PROFILE_KEY],previous={};keys.forEach(key=>{previous[key]=localStorage.getItem(key);});const nextLearning=p.learning&&validLearning(p.learning)?p.learning:{version:LEARNING_VERSION,completed:{},lastModule:null};const nextProfile=p.profile&&typeof p.profile==='object'?p.profile:{version:APP_DATA_VERSION,name:'',goal:'observer'};try{localStorage.setItem(CURRENT_KEY,JSON.stringify(p.current));localStorage.setItem(HISTORY_KEY,JSON.stringify(p.history));localStorage.setItem(LEARNING_KEY,JSON.stringify(nextLearning));localStorage.setItem(PROFILE_KEY,JSON.stringify(nextProfile));}catch(storageError){try{keys.forEach(key=>{if(previous[key]===null)localStorage.removeItem(key);else localStorage.setItem(key,previous[key]);});}catch(rollbackError){}throw storageError;}memCurrent=p.current;memHistory=p.history;memLearning=nextLearning;memProfile=nextProfile;storageAvailable=true;renderProfile();renderLearning();renderCalendar();render();setBackupStatus('Sauvegarde importée avec succès.');const status=document.getElementById('backup-status');if(status)status.focus();}catch(e){setBackupStatus('La sauvegarde n’a pas été importée : fichier invalide, incomplet ou impossible à enregistrer. Les données existantes sont conservées.');const status=document.getElementById('backup-status');if(status)status.focus();}finally{event.target.value='';}};reader.readAsText(file);}
-const saveEntryButton = document.getElementById('save-entry-btn');
-if (saveEntryButton) {
-  saveEntryButton.addEventListener('click', (event) => {
-    event.preventDefault();
-    addEntry();
-  });
-}
 document.getElementById('resume-learning').addEventListener('click', () => openLesson(loadLearning().lastModule || MODULES[0].id));
 document.getElementById('reset-learning').addEventListener('click', resetLearning);
 renderLearning();
 renderProfile();
 renderCalendar();
 render();
+</script>
+<script>
+(() => {
+  const button = document.getElementById('save-entry-btn');
+  const status = document.getElementById('entry-action-status');
+  if (!button) return;
+
+  const showFallbackError = (message) => {
+    if (status) {
+      status.textContent = message;
+      status.style.display = 'block';
+      status.focus();
+    }
+  };
+
+  button.addEventListener('click', (event) => {
+    event.preventDefault();
+    try {
+      if (typeof window.addEntry !== 'function') {
+        showFallbackError('L’application n’a pas terminé son initialisation. Recharge la page puis réessaie.');
+        return;
+      }
+      window.addEntry();
+    } catch (error) {
+      console.error('Erreur lors de l’enregistrement de l’observation:', error);
+      showFallbackError('L’enregistrement a rencontré un problème. Tes données existantes sont conservées.');
+    }
+  });
+})();
 </script>
 </body>
 </html>
