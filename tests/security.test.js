@@ -38,7 +38,7 @@ test('dangerous script execution primitives are absent', () => {
 });
 
 test('calendar weekday headings are localized', () => {
-  assert.match(page, /const weekdays=getLanguage\(\)==='ar'\?\['الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد'\]:getLanguage\(\)==='es'/);
+  assert.match(page, /const weekdays=getLanguage\(\)==='en'\?\['Mon','Tue','Wed','Thu','Fri','Sat','Sun'\]:getLanguage\(\)==='ar'\?/);
 });
 test('dynamic localized action messages are present', () => {
   assert.match(page, /const ACTION_TEXTS=/);
