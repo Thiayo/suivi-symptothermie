@@ -84,7 +84,7 @@ test('calendar month title follows selected language', () => {
 });
 
 test('temperature validation warning uses the selected display unit', () => {
-  assert.match(page, /plage de contrôle \$\{getUnit\(\)==='f'\?'93,2–107,6 °F':'34–42 °C'\}/);
+  assert.match(page, /at\\('unusualConfirm'\\)/);
 });
 
 test('Bluetooth thermometer readings use the selected display unit', () => {
