@@ -141,47 +141,43 @@ export function evaluateThermal(observations=[]) {
   return result("NO_SHIFT",null,null,null,[],[],"NONE",disturbedDates);
 }
 
-const CERVICAL_RANK=Object.freeze({sec:0,collante:1,cremeuse:2,"blanc-oeuf":3});
-
-function cervicalRank(o) {
-  const raw=o?.cervical?.rawValue ?? o?.cervical?.value ?? o?.mucus;
-  return Object.prototype.hasOwnProperty.call(CERVICAL_RANK,raw) ? CERVICAL_RANK[raw] : null;
-}
-
-function addDays(dateString,days) {
-  const d=new Date(dateString+"T00:00:00Z");
-  if (Number.isNaN(d.getTime())) return null;
-  d.setUTCDate(d.getUTCDate()+days);
-  return d.toISOString().slice(0,10);
-}
-
+/**
+ * Cervical observations are intentionally raw-only in RPS-02 v0.2.
+ *
+ * The current SymRella UI vocabulary is not sufficiently granular to claim
+ * equivalence with the reference method's cervical taxonomy. Until an expert
+ * validates a SymRella cervical ontology, this engine must not manufacture a
+ * Peak from the four UI labels.
+ */
 export function evaluateCervical(observations=[]) {
   const sorted=sortObservations(observations);
-  const scored=sorted.map(o=>({observation:o,rank:cervicalRank(o)})).filter(x=>x.rank!=null);
-  if (!scored.length) return {status:"NO_DATA",peakDate:null,peakPlusThreeDate:null,qualitySequence:[],resetDates:[],adaptationStatus:"PENDING_EXPERT_REVIEW"};
-
-  let max=-1;
-  let peak=null;
-  const resetDates=[];
-  for (const item of scored) {
-    if (item.rank>max) {
-      if (peak) resetDates.push(item.observation.date);
-      max=item.rank;
-      peak=item;
-    }
+  const rawObservations=sorted.map(o=>({
+    date:o.date,
+    rawValue:o?.cervical?.rawValue ?? o?.cervical?.value ?? o?.mucus ?? null,
+    sensation:o?.cervical?.sensation ?? null,
+    appearance:o?.cervical?.appearance ?? null,
+    quality:o?.cervical?.quality ?? null,
+    source:o?.cervical?.source ?? "ui"
+  }));
+  const observed=rawObservations.filter(x=>x.rawValue!=null);
+  if (!observed.length) {
+    return {
+      status:"NO_DATA",
+      peakDate:null,
+      peakPlusThreeDate:null,
+      qualitySequence:[],
+      resetDates:[],
+      rawObservations,
+      adaptationStatus:"PENDING_EXPERT_REVIEW"
+    };
   }
-
-  const peakDate=peak?.observation.date ?? null;
-  const peakPlusThreeDate=peakDate ? addDays(peakDate,3) : null;
-  const today=sorted.at(-1)?.date ?? null;
-  const completed=Boolean(today && peakPlusThreeDate && today>=peakPlusThreeDate);
-
   return {
-    status:completed ? "PEAK_PLUS_3_COMPLETED" : "PEAK_IDENTIFIED",
-    peakDate,
-    peakPlusThreeDate,
-    qualitySequence:scored.map(x=>x.rank),
-    resetDates,
+    status:"PENDING_EXPERT_REVIEW",
+    peakDate:null,
+    peakPlusThreeDate:null,
+    qualitySequence:[],
+    resetDates:[],
+    rawObservations,
     adaptationStatus:"PENDING_EXPERT_REVIEW"
   };
 }
