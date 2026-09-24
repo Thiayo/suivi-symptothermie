@@ -157,6 +157,10 @@ export function evaluateCervical(observations=[]) {
     sensation:o?.cervical?.sensation ?? null,
     appearance:o?.cervical?.appearance ?? null,
     quality:o?.cervical?.quality ?? null,
+    amount:o?.cervical?.amount ?? null,
+    context:o?.cervical?.context ?? null,
+    language:o?.cervical?.language ?? null,
+    notes:o?.cervical?.notes ?? null,
     source:o?.cervical?.source ?? "ui"
   }));
   const observed=rawObservations.filter(x=>x.rawValue!=null);
@@ -178,7 +182,8 @@ export function evaluateCervical(observations=[]) {
     qualitySequence:[],
     resetDates:[],
     rawObservations,
-    adaptationStatus:"PENDING_EXPERT_REVIEW"
+    adaptationStatus:"PENDING_EXPERT_REVIEW",
+    interpretationBlocked:true
   };
 }
 
