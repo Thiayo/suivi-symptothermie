@@ -12,11 +12,11 @@ test("T01 empty cycle => NO_DATA",()=>assert.equal(evaluateCycle([]).state,"NO_D
 test("T02 fewer than six usable temperatures => INSUFFICIENT_DATA",()=>assert.equal(evaluateThermal(lowSeries([36.3,36.2,36.4,36.3,36.2])).status,"INSUFFICIENT_DATA"));
 test("T03 six lows without rise => NO_SHIFT",()=>assert.equal(evaluateThermal(lowSeries([36.2,36.3,36.1,36.3,36.2,36.4,36.3])).status,"NO_SHIFT"));
 test("T04 three highs below +0.20 => candidate",()=>{
-  const r=evaluateThermal(lowSeries([36.2,36.3,36.1,36.2,36.3,36.2,36.45,36.5,36.55]));
+  const r=evaluateThermal(lowSeries([36.2,36.3,36.1,36.2,36.3,36.2,36.45,36.5,36.4]));
   assert.equal(r.status,"THERMAL_RISE_CANDIDATE");
 });
 test("T05 fourth high completes the rise",()=>{
-  const r=evaluateThermal(lowSeries([36.2,36.3,36.1,36.2,36.3,36.2,36.45,36.5,36.55,36.6]));
+  const r=evaluateThermal(lowSeries([36.2,36.3,36.1,36.2,36.3,36.2,36.45,36.5,36.4,36.6]));
   assert.equal(r.status,"SHIFT_CONFIRMED"); assert.equal(r.exception,"FOURTH_VALUE");
 });
 test("T06 three highs with third >= +0.20 confirms",()=>{
@@ -24,11 +24,11 @@ test("T06 three highs with third >= +0.20 confirms",()=>{
   assert.equal(r.status,"SHIFT_CONFIRMED"); assert.equal(r.qualifyingDates.length,3);
 });
 test("T07 third high below +0.20 does not confirm without valid fourth",()=>{
-  const r=evaluateThermal(lowSeries([36.2,36.3,36.1,36.2,36.3,36.2,36.45,36.5,36.55,36.2]));
+  const r=evaluateThermal(lowSeries([36.2,36.3,36.1,36.2,36.3,36.2,36.45,36.5,36.4,36.2]));
   assert.notEqual(r.status,"SHIFT_CONFIRMED");
 });
 test("T08 disturbed value is preserved but excluded",()=>{
-  const values=lowSeries([36.2,36.3,36.1,36.2,36.3,36.2,36.45,36.55,36.65]);
+  const values=lowSeries([36.2,36.3,36.1,36.2,36.3,36.2,36.45,36.55,36.65,36.7]);
   values[2].temperatureQuality="disturbed";
   const r=evaluateThermal(values); assert.equal(r.disturbedDates.length,1); assert.equal(r.status,"SHIFT_CONFIRMED");
 });
@@ -84,7 +84,7 @@ test("T22 later criterion is cervical",()=>{
 });
 test("T23 missing temperature is not a low temperature",()=>{
   const r=evaluateThermal(lowSeries([36.2,36.3,36.1,36.2,36.3,36.2]).concat(obs("2026-01-07",null)));
-  assert.equal(r.status,"INSUFFICIENT_DATA");
+  assert.equal(r.status,"NO_SHIFT");
 });
 test("T24 measurement metadata does not alter raw value",()=>{
   const values=lowSeries([36.2,36.3,36.1,36.2,36.3,36.2,36.45,36.55,36.65]);
@@ -121,7 +121,7 @@ test("T31 one ignored low/on-line value is allowed",()=>{
 test("T32 two cycles are independent",()=>{
   const a=lowSeries([36.2,36.3,36.1,36.2,36.3,36.2,36.45,36.55,36.65]);
   const b=lowSeries([36.2,36.3,36.1,36.2,36.3,36.2]);
-  assert.equal(evaluateCycle(a).thermal.status,"SHIFT_CONFIRMED"); assert.equal(evaluateCycle(b).thermal.status,"INSUFFICIENT_DATA");
+  assert.equal(evaluateCycle(a).thermal.status,"SHIFT_CONFIRMED"); assert.equal(evaluateCycle(b).thermal.status,"NO_SHIFT");
 });
 test("T33 contradictory cervical pattern remains descriptive",()=>{
   const r=evaluateCervical([mucus("2026-01-01","blanc-oeuf"),mucus("2026-01-02","sec"),mucus("2026-01-03","blanc-oeuf")]);
