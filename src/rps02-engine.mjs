@@ -1,5 +1,5 @@
 /**
- * RPS-02 / SymRella executable engine v0.1
+ * RPS-02 / SymRella executable engine v0.2
  *
  * SOURCE_RULES are separated from SYMR_ADAPTATIONS.
  * S01: AWMF/DGGG S2k 015-095, section 1.5/1.9.
@@ -22,7 +22,10 @@ export const TRACE = Object.freeze({
   R09: { kind:"SYMR_ADAPTATION", source:"SymRella", code:"descriptiveStates", tests:["T01","T02","T34"] },
   R10: { kind:"SYMR_ADAPTATION", source:"SymRella", code:"noDiagnosticConclusions", tests:["T34"] },
   R11: { kind:"SYMR_ADAPTATION", source:"SymRella", code:"rawObservationsPreserved", tests:["T08","T27","T30"] },
-  R12: { kind:"IMPLEMENTATION", source:"calculation", code:"fahrenheitToCelsius", tests:["T10","T26"] }
+  R12: { kind:"IMPLEMENTATION", source:"calculation", code:"fahrenheitToCelsius", tests:["T10","T26"] },
+  R13: { kind:"SYMR_ADAPTATION", source:"RPS-02-CERVICAL v0.3", code:"cervical.interpretationBlocked", tests:["T12","T13","T14","T16","T17"] },
+  R14: { kind:"VALIDATION_PROTOCOL", source:"RPS-02-CERVICAL-ANNOTATION v0.1", code:"annotation.independentReview", tests:["C01-C24"] },
+  R15: { kind:"VALIDATION_PROTOCOL", source:"RPS-02-CERVICAL-ANNOTATION v0.1", code:"multilingual.invariance", tests:["C21","C22"] }
 });
 
 export function fahrenheitToCelsius(f) {
