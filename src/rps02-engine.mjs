@@ -109,9 +109,11 @@ export function evaluateThermal(observations=[]) {
     const ref=Math.max(...six.map(x=>x.value));
     const h1=usable[i],h2=usable[i+1],h3=usable[i+2];
 
-    if (!h1 || !h2 || !h3) {
-      return result("THERMAL_RISE_CANDIDATE",ref,h1?.observation.date??null,null,
-        [h1?.observation.date,h2?.observation.date,h3?.observation.date].filter(Boolean),[],"NONE",disturbedDates);
+    if (!h1) break;
+    if (h1.value<=ref) continue;
+    if (!h2 || !h3) {
+      return result("THERMAL_RISE_CANDIDATE",ref,h1.observation.date,null,
+        [h1.observation.date,h2?.observation.date,h3?.observation.date].filter(Boolean),[],"NONE",disturbedDates);
     }
 
     if (h1.value>ref && h2.value>ref && h3.value>ref) {
