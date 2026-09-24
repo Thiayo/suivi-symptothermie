@@ -38,29 +38,36 @@ test("T09 disturbed value after confirmed shift does not erase confirmation",()=
 });
 test("T10 Fahrenheit conversion",()=>assert.equal(Math.round(fahrenheitToCelsius(98.6)*10)/10,37));
 test("T11 no cervical observations => NO_DATA",()=>assert.equal(evaluateCervical([]).status,"NO_DATA"));
-test("T12 cervical observations remain observational",()=>{
+test("T12 cervical observations are retained without interpretation",()=>{
   const r=evaluateCervical([mucus("2026-01-01","sec"),mucus("2026-01-02","cremeuse")]);
-  assert.equal(r.status,"PEAK_IDENTIFIED"); assert.equal(r.adaptationStatus,"PENDING_EXPERT_REVIEW");
+  assert.equal(r.status,"PENDING_EXPERT_REVIEW");
+  assert.equal(r.adaptationStatus,"PENDING_EXPERT_REVIEW");
+  assert.equal(r.peakDate,null);
+  assert.deepEqual(r.rawObservations.map(x=>x.rawValue),["sec","cremeuse"]);
 });
-test("T13 cervical transition identifies provisional Peak",()=>{
+test("T13 current UI vocabulary cannot manufacture a Peak",()=>{
   const r=evaluateCervical([mucus("2026-01-01","sec"),mucus("2026-01-02","cremeuse"),mucus("2026-01-03","blanc-oeuf")]);
-  assert.equal(r.status,"PEAK_IDENTIFIED"); assert.equal(r.peakDate,"2026-01-03");
+  assert.equal(r.status,"PENDING_EXPERT_REVIEW");
+  assert.equal(r.peakDate,null);
 });
-test("T14 Peak +1 is not complete",()=>{
-  const r=evaluateCervical([mucus("2026-01-01","sec"),mucus("2026-01-02","blanc-oeuf"),mucus("2026-01-03","cremeuse")]);
-  assert.equal(r.status,"PEAK_IDENTIFIED");
-});
-test("T15 Peak +2 is not complete",()=>{
-  const r=evaluateCervical([mucus("2026-01-01","sec"),mucus("2026-01-02","blanc-oeuf"),mucus("2026-01-04","cremeuse")]);
-  assert.equal(r.status,"PEAK_IDENTIFIED");
-});
-test("T16 Peak +3 completes after three calendar days",()=>{
+test("T14 cervical interpretation remains pending even with three calendar days",()=>{
   const r=evaluateCervical([mucus("2026-01-01","sec"),mucus("2026-01-02","blanc-oeuf"),mucus("2026-01-05","cremeuse")]);
-  assert.equal(r.status,"PEAK_PLUS_3_COMPLETED"); assert.equal(r.peakPlusThreeDate,"2026-01-05");
+  assert.equal(r.status,"PENDING_EXPERT_REVIEW");
+  assert.equal(r.peakPlusThreeDate,null);
 });
-test("T17 a later strictly higher observation resets the provisional Peak",()=>{
-  const r=evaluateCervical([mucus("2026-01-01","sec"),mucus("2026-01-02","cremeuse"),mucus("2026-01-03","sec"),mucus("2026-01-04","blanc-oeuf")]);
-  assert.equal(r.peakDate,"2026-01-04"); assert.ok(r.resetDates.includes("2026-01-04"));
+test("T15 missing cervical observation does not create a synthetic Peak",()=>{
+  const r=evaluateCervical([{date:"2026-01-01"},{date:"2026-01-02",tempC:36.5}]);
+  assert.equal(r.status,"NO_DATA");
+});
+test("T16 raw cervical metadata is preserved",()=>{
+  const r=evaluateCervical([{date:"2026-01-01",cervical:{rawValue:"cremeuse",sensation:"humide",appearance:"blanc",quality:"good",source:"manual"}}]);
+  assert.equal(r.status,"PENDING_EXPERT_REVIEW");
+  assert.deepEqual(r.rawObservations[0],{date:"2026-01-01",rawValue:"cremeuse",sensation:"humide",appearance:"blanc",quality:"good",source:"manual"});
+});
+test("T17 contradictory cervical sequence remains uninterpreted",()=>{
+  const r=evaluateCervical([mucus("2026-01-01","blanc-oeuf"),mucus("2026-01-02","sec"),mucus("2026-01-03","blanc-oeuf")]);
+  assert.equal(r.status,"PENDING_EXPERT_REVIEW");
+  assert.equal(r.peakDate,null);
 });
 test("T18 double-check waits when cervical is pending",()=>{
   const r=evaluateDoubleCheck({status:"SHIFT_CONFIRMED",confirmationDate:"2026-01-10"},{status:"PEAK_IDENTIFIED",peakPlusThreeDate:"2026-01-08"});
