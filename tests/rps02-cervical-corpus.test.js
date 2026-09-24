@@ -23,11 +23,14 @@ test("corpus: any cervical observation remains blocked",()=>{
   }
 });
 test("corpus: raw fields are preserved",()=>{
-  const input={date:"2026-02-01",rawValue:"terme local",sensation:"unknown",appearance:"other",quality:"uncertain",source:"user"};
+  const input={date:"2026-02-01",cervical:{rawValue:"terme local",sensation:"unknown",appearance:"other",quality:"uncertain",amount:"large",context:"postpartum",language:"fr",notes:"note",source:"user"}};
   const r=evaluateCervical([input]);
-  assert.equal(r.observations[0].rawValue,"terme local");
-  assert.equal(r.observations[0].source,"user");
-  assert.equal(r.observations[0].appearance,"other");
+  assert.equal(r.rawObservations[0].rawValue,"terme local");
+  assert.equal(r.rawObservations[0].source,"user");
+  assert.equal(r.rawObservations[0].appearance,"other");
+  assert.equal(r.rawObservations[0].amount,"large");
+  assert.equal(r.rawObservations[0].context,"postpartum");
+  assert.equal(r.rawObservations[0].language,"fr");
 });
 test("corpus: order is deterministic",()=>{
   const input=[
