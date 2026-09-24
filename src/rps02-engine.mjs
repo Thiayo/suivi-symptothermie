@@ -8,7 +8,7 @@
  * Descriptive engine only: no diagnosis and no contraceptive conclusion.
  */
 
-export const RPS02_VERSION = "0.1.0";
+export const RPS02_VERSION = "0.2.0";
 
 export const TRACE = Object.freeze({
   R01: { kind:"SOURCE_RULE", source:"S01", code:"thermal.sixReferenceValues", tests:["T03","T06","T08"] },
@@ -168,7 +168,7 @@ export function evaluateCervical(observations=[]) {
       qualitySequence:[],
       resetDates:[],
       rawObservations,
-      adaptationStatus:"PENDING_EXPERT_REVIEW"
+      adaptationStatus:"PENDING_EXPERT_REVIEW", interpretationBlocked:true
     };
   }
   return {
