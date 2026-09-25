@@ -1006,13 +1006,6 @@ function render() {
   // system print flows (including Safari/iOS) already have real content
   // before the print dialog is opened.
   preparePrintView();
-  // Repaint the chart on the next frame as a defensive guard for browsers
-  // that defer layout/anchor updates during navigation or storage-driven renders.
-  window.requestAnimationFrame(() => {
-    const current = loadCurrent();
-    renderChart(current);
-    preparePrintView();
-  });
 }
 
 function preparePrintView() {
@@ -1123,7 +1116,15 @@ function applyLanguage(){
   set('label[for="profile-language"]',d.language);set('label[for="profile-unit"]',d.unit);set('label[for="profile-name"]',lang==='fr'?'Prénom ou nom d’affichage (facultatif)':lang==='en'?'Display name (optional)':lang==='es'?'Nombre para mostrar (opcional)':'اسم العرض (اختياري)');
   set('label[for="profile-goal"]',lang==='fr'?'Objectif d’observation':lang==='en'?'Observation goal':lang==='es'?'Objetivo de observación':'هدف المتابعة');
   set('label[for="f-date"]',d.ui.date);set('#temp-label-text',d.ui.temp);set('label[for="f-time"]',d.ui.time);set('label[for="f-bleeding"]',d.ui.bleeding);set('#mucus-label-text',d.ui.mucus);set('#factors-label',d.ui.factors);set('label[for="f-notes"]',d.ui.notes);
-  set('#today-add-btn',d.ui.todayAdd);set('#today-graph-btn',d.ui.todayGraph);set('#entry-title',d.ui.addTitle);set('#temp-label-text',d.ui.temp);set('#temp-help-link',d.ui.tempLink);set('#chart-title',d.ui.chartTitle);set('#chart-description',d.ui.chartDescription);set('#calendar-heading',d.ui.calendarTitle);set('#calendar-prev-btn',d.ui.prevMonth);set('#calendar-next-btn',d.ui.nextMonth);
+  set('#today-add-btn',d.ui.todayAdd);set('#today-graph-btn',d.ui.todayGraph);set('#entry-title',d.ui.addTitle);set('#temp-label-text',d.ui.temp);set('#temp-help-link',d.ui.tempLink);set('#chart-description',d.ui.chartDescription);
+  const chartTitle=document.getElementById('chart-title');
+  const thermalBadge=document.getElementById('thermal-badge');
+  if(chartTitle){
+    const titleText=[...chartTitle.childNodes].find(node=>node.nodeType===Node.TEXT_NODE);
+    if(titleText) titleText.nodeValue=d.ui.chartTitle+' ';
+    else if(thermalBadge) chartTitle.insertBefore(document.createTextNode(d.ui.chartTitle+' '),thermalBadge);
+    else chartTitle.textContent=d.ui.chartTitle;
+  }set('#calendar-heading',d.ui.calendarTitle);set('#calendar-prev-btn',d.ui.prevMonth);set('#calendar-next-btn',d.ui.nextMonth);
   const saveProfile=document.querySelector('[data-action="save-profile"]');if(saveProfile)saveProfile.textContent=d.ui.saveProfile;
   const privacy=document.querySelector('.privacy-box');if(privacy)privacy.firstChild.textContent=d.ui.privacy+' ';
   const buttons=document.querySelectorAll('[data-action="export-data"],[data-action="import-data"],[data-action="clear-all-data"]');if(buttons[0])buttons[0].textContent=d.ui.export;if(buttons[1])buttons[1].textContent=d.ui.import;if(buttons[2])buttons[2].textContent=d.ui.clear;
