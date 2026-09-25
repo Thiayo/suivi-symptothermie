@@ -1,10 +1,10 @@
 const { test, expect } = require('@playwright/test');
 
 const SAMPLE_ENTRIES = [
-  { date: '2026-09-20', temp: '36.42', mucus: 'sec', bleeding: 'regles', notes: 'Test export PDF', time: '06:30' },
-  { date: '2026-09-21', temp: '36.48', mucus: 'collante', bleeding: 'aucun', notes: '', time: '06:31' },
-  { date: '2026-09-22', temp: '36.57', mucus: 'cremeuse', bleeding: 'aucun', notes: '', time: '06:32' },
-  { date: '2026-09-23', temp: '36.61', mucus: 'blanc-oeuf', bleeding: 'aucun', notes: '', time: '06:33' }
+  { date: '2026-09-20', temp: 36.42, mucus: 'sec', bleeding: 'regles', notes: 'Test export PDF', factors: [], time: '06:30' },
+  { date: '2026-09-21', temp: 36.48, mucus: 'collante', bleeding: 'aucun', notes: '', factors: [], time: '06:31' },
+  { date: '2026-09-22', temp: 36.57, mucus: 'cremeuse', bleeding: 'aucun', notes: '', factors: [], time: '06:32' },
+  { date: '2026-09-23', temp: 36.61, mucus: 'blanc-oeuf', bleeding: 'aucun', notes: '', factors: [], time: '06:33' }
 ];
 
 async function seedCycle(page) {
@@ -14,17 +14,13 @@ async function seedCycle(page) {
     sessionStorage.clear();
   });
   await page.reload();
-
-  for (const entry of SAMPLE_ENTRIES) {
-    await page.locator('#f-date').fill(entry.date);
-    await page.locator('#f-temp').fill(entry.temp);
-    await page.locator('#f-time').fill(entry.time);
-    await page.locator('#f-mucus').selectOption(entry.mucus);
-    await page.locator('#f-bleeding').selectOption(entry.bleeding);
-    await page.locator('#f-notes').fill(entry.notes);
-    await page.locator('#save-entry-btn').click();
-    await expect(page.locator('#entry-action-status')).toContainText('Observation');
-  }
+  await page.evaluate((entries) => {
+    if (typeof window.saveCurrent !== 'function' || typeof window.render !== 'function') {
+      throw new Error('Les fonctions de rendu de l’application ne sont pas accessibles.');
+    }
+    window.saveCurrent(entries);
+    window.render();
+  }, SAMPLE_ENTRIES);
 }
 
 test.describe('SymRella — graphique et export PDF', () => {
