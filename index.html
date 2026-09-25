@@ -234,23 +234,35 @@
   .history-item:last-child { border-bottom: none; }
 
   #print-summary { display: none; }
+  #print-sheet { display: none; }
 
   @media print {
-    body { background: #fff; padding: 0; }
-    .no-print { display: none !important; }
-    .card { box-shadow: none; border: none; padding: 0; margin-bottom: 18px; }
-    header h1 { -webkit-text-fill-color: #2b2440; background: none; color: #2b2440; }
-    #watermark { opacity: 0.08; position: fixed; }
-    #print-summary {
-      display: block;
-      margin-bottom: 16px;
-      font-size: 0.85rem;
-      color: #444;
+    @page { margin: 14mm; }
+    html, body { background: #fff !important; padding: 0 !important; }
+    body > #watermark { display: none !important; }
+    /* Print only the dedicated, sanitized print document. This prevents
+       application scripts, controls or implementation markup from ever
+       becoming part of the print rendering. */
+    .wrap > * { display: none !important; }
+    .wrap > #print-sheet { display: block !important; }
+    #print-sheet {
+      color: #111;
+      background: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.45;
     }
-    #print-summary strong { color: #000; }
-    .chart-wrap { overflow: visible; }
-    svg { width: 100% !important; height: auto !important; }
-    table { font-size: 0.8rem; }
+    #print-sheet h1 { margin: 0 0 6mm; font-size: 20pt; }
+    #print-sheet h2 { margin: 6mm 0 3mm; font-size: 14pt; }
+    #print-sheet .print-meta { margin-bottom: 5mm; color: #444; }
+    #print-sheet .print-note { margin-top: 5mm; padding: 3mm; border: 1px solid #ccc; }
+    #print-sheet .print-chart { margin-top: 4mm; }
+    #print-sheet .print-chart svg { width: 100% !important; height: auto !important; }
+    #print-sheet .print-table { overflow: visible !important; }
+    #print-sheet table { width: 100%; font-size: 9pt; border-collapse: collapse; }
+    #print-sheet th, #print-sheet td { border-bottom: 1px solid #ccc; padding: 5px 4px; }
+    #print-sheet .no-print { display: none !important; }
+    #print-sheet a { color: inherit; text-decoration: none; }
   }
 
   :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
@@ -474,6 +486,8 @@
   </div>
 </section>
 </div>
+
+<section id="print-sheet" aria-hidden="true"></section>
 
 <script>
 const MUCUS_LABELS = {
@@ -991,19 +1005,47 @@ function render() {
   }
 }
 
-function exportPDF() {
-  const entries=loadCurrent();
-  if(!entries.length){setBackupStatus(at('pdfEmpty'));return;}
-  const withTemp=entries.filter(e=>e.temp!==null);
-  const shift=withTemp.length>=9?detectThermalReference(entries):null;
-  const locale=getLanguage()==='en'?'en-US':getLanguage()==='es'?'es-ES':getLanguage()==='ar'?'ar':'fr-FR';
-  const today=new Date().toLocaleDateString(locale,{day:'numeric',month:'long',year:'numeric'});
-  const t=getLanguage()==='en'?{title:'Symptothermal tracking — cycle observations',period:'Period',days:'Days recorded',generated:'Generated on',shift:'Descriptive thermal reference shown around',none:'No descriptive thermal reference is shown yet with this cycle data.',limit:'This reference is not a diagnosis or automatic confirmation of ovulation.'}:getLanguage()==='es'?{title:'Seguimiento de sintotermia — observaciones del ciclo',period:'Período',days:'Días registrados',generated:'Generado el',shift:'Referencia térmica descriptiva mostrada alrededor del',none:'Todavía no se muestra una referencia térmica descriptiva con los datos de este ciclo.',limit:'Esta referencia no constituye un diagnóstico ni una confirmación automática de la ovulación.'}:getLanguage()==='ar'?{title:'متابعة الأعراض الحرارية — ملاحظات الدورة',period:'الفترة',days:'الأيام المسجلة',generated:'تم الإنشاء في',shift:'مرجع حراري وصفي معروض حول',none:'لا يظهر بعد مرجع حراري وصفي باستخدام بيانات هذه الدورة.',limit:'لا يشكل هذا المرجع تشخيصًا ولا تأكيدًا تلقائيًا للإباضة.'}:{title:'Suivi Symptothermie — observations du cycle',period:'Période',days:'Jours notés',generated:'Généré le',shift:'Repère thermique descriptif affiché autour du',none:'Pas encore de repère thermique descriptif affiché avec les données de ce cycle.',limit:'Ce repère ne constitue pas un diagnostic ni une confirmation automatique d’ovulation.'};
-  let summary='<strong>'+t.title+'</strong><br>'+t.period+' : '+formatDate(entries[0].date)+' au '+formatDate(entries[entries.length-1].date)+'<br>'+t.days+' : '+entries.length+' · '+t.generated+' '+today+'<br>';
-  summary+=shift?t.shift+' <strong>'+formatDate(shift.date)+'</strong>. '+t.limit:t.none;
-  document.getElementById('print-summary').innerHTML=summary;
-  window.print();
+function preparePrintView() {
+  const sheet = document.getElementById('print-sheet');
+  const entries = loadCurrent();
+  if (!sheet || !entries.length) return false;
+
+  const withTemp = entries.filter(e => e.temp !== null);
+  const shift = withTemp.length >= 9 ? detectThermalReference(entries) : null;
+  const locale = getLanguage()==='en' ? 'en-US' : getLanguage()==='es' ? 'es-ES' : getLanguage()==='ar' ? 'ar' : 'fr-FR';
+  const today = new Date().toLocaleDateString(locale,{day:'numeric',month:'long',year:'numeric'});
+  const t = getLanguage()==='en'
+    ? {title:'Symptothermal tracking — cycle observations',period:'Period',days:'Days recorded',generated:'Generated on',shift:'Descriptive thermal reference shown around',none:'No descriptive thermal reference is shown yet with this cycle data.',limit:'This reference is not a diagnosis or automatic confirmation of ovulation.',chart:'Descriptive cycle chart',journal:'Current cycle journal'}
+    : getLanguage()==='es'
+    ? {title:'Seguimiento de sintotermia — observaciones del ciclo',period:'Período',days:'Días registrados',generated:'Generado el',shift:'Referencia térmica descriptiva mostrada alrededor del',none:'Todavía no se muestra una referencia térmica descriptiva con los datos de este ciclo.',limit:'Esta referencia no constituye un diagnóstico ni una confirmación automática de la ovulación.',chart:'Gráfico descriptivo del ciclo',journal:'Diario del ciclo actual'}
+    : getLanguage()==='ar'
+    ? {title:'متابعة الأعراض الحرارية — ملاحظات الدورة',period:'الفترة',days:'الأيام المسجلة',generated:'تم الإنشاء في',shift:'مرجع حراري وصفي معروض حول',none:'لا يظهر بعد مرجع حراري وصفي باستخدام بيانات هذه الدورة.',limit:'لا يشكل هذا المرجع تشخيصًا ولا تأكيدًا تلقائيًا للإباضة.',chart:'المخطط الوصفي للدورة',journal:'سجل الدورة الحالية'}
+    : {title:'Suivi Symptothermie — observations du cycle',period:'Période',days:'Jours notés',generated:'Généré le',shift:'Repère thermique descriptif affiché autour du',none:'Pas encore de repère thermique descriptif affiché avec les données de ce cycle.',limit:'Ce repère ne constitue pas un diagnostic ni une confirmation automatique d’ovulation.',chart:'Courbe descriptive du cycle',journal:'Journal du cycle en cours'};
+
+  let summary = '<div class="print-meta"><strong>'+t.period+' :</strong> '+formatDate(entries[0].date)+' au '+formatDate(entries[entries.length-1].date)+'<br><strong>'+t.days+' :</strong> '+entries.length+' · <strong>'+t.generated+' :</strong> '+today+'<br>';
+  summary += shift ? t.shift+' <strong>'+formatDate(shift.date)+'</strong>. '+t.limit : t.none;
+  summary += '</div>';
+
+  const chart = document.getElementById('chart-container')?.cloneNode(true);
+  const table = document.getElementById('table-container')?.cloneNode(true);
+  [chart, table].forEach(node => {
+    if (node) node.querySelectorAll('.no-print, button, input, select, textarea').forEach(el => el.remove());
+  });
+
+  sheet.innerHTML = '<h1>'+t.title+'</h1>'+summary+
+    (chart && chart.innerHTML.trim() ? '<h2>'+t.chart+'</h2><div class="print-chart">'+chart.innerHTML+'</div>' : '')+
+    (table && table.innerHTML.trim() ? '<h2>'+t.journal+'</h2><div class="print-table">'+table.innerHTML+'</div>' : '')+
+    '<div class="print-note">'+t.limit+'</div>';
+  sheet.setAttribute('aria-hidden','true');
+  return true;
 }
+
+function exportPDF() {
+  if (!preparePrintView()) { setBackupStatus(at('pdfEmpty')); return; }
+  window.requestAnimationFrame(() => window.print());
+}
+
+window.addEventListener('beforeprint', () => { preparePrintView(); });
 const APP_DATA_VERSION = 2;
 const PROFILE_KEY = 'symptothermie_profile';
 let calendarDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
