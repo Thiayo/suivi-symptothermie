@@ -17,6 +17,8 @@ async function seedCycle(page) {
   await page.evaluate((entries) => {
     window.saveCurrent(entries);
     window.render();
+    window.renderChart(window.loadCurrent());
+    console.log('DIRECT_CHART', JSON.stringify({chart: document.getElementById('chart-container')?.innerHTML.slice(0,120), badge: Boolean(document.getElementById('thermal-badge'))}));
   }, SAMPLE_ENTRIES);
 }
 
@@ -24,6 +26,7 @@ test.describe('SymRella — graphique et export PDF', () => {
   test('affiche le graphique et prépare une vue d’impression propre', async ({ page }) => {
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(String(error)));
+    page.on('console', message => { if (message.text().includes('DIRECT_CHART')) console.log('BROWSER', message.text()); });
 
     await seedCycle(page);
 
