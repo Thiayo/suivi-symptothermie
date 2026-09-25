@@ -1006,6 +1006,13 @@ function render() {
   // system print flows (including Safari/iOS) already have real content
   // before the print dialog is opened.
   preparePrintView();
+  // Repaint the chart on the next frame as a defensive guard for browsers
+  // that defer layout/anchor updates during navigation or storage-driven renders.
+  window.requestAnimationFrame(() => {
+    const current = loadCurrent();
+    renderChart(current);
+    preparePrintView();
+  });
 }
 
 function preparePrintView() {
