@@ -154,18 +154,25 @@ export function evaluateThermal(observations=[]) {
  */
 export function evaluateCervical(observations=[]) {
   const sorted=sortObservations(observations);
-  const rawObservations=sorted.map(o=>({
-    date:o.date,
-    rawValue:o?.cervical?.rawValue ?? o?.cervical?.value ?? o?.rawValue ?? o?.mucus ?? null,
-    sensation:o?.cervical?.sensation ?? o?.sensation,
-    appearance:o?.cervical?.appearance ?? o?.appearance,
-    quality:o?.cervical?.quality ?? o?.quality,
-    amount:o?.cervical?.amount ?? o?.amount,
-    context:o?.cervical?.context ?? o?.context,
-    language:o?.cervical?.language ?? o?.language,
-    notes:o?.cervical?.notes ?? o?.notes,
-    source:o?.cervical?.source ?? o?.source ?? "ui"
-  }));
+  const rawObservations=sorted.map(o=>{
+    const c=o?.cervical||{};
+    const value={
+      date:o.date,
+      rawValue:c.rawValue ?? c.value ?? o?.rawValue ?? o?.mucus ?? null,
+      source:c.source ?? o?.source ?? "ui"
+    };
+    const optional={
+      sensation:c.sensation ?? o?.sensation,
+      appearance:c.appearance ?? o?.appearance,
+      quality:c.quality ?? o?.quality,
+      amount:c.amount ?? o?.amount,
+      context:c.context ?? o?.context,
+      language:c.language ?? o?.language,
+      notes:c.notes ?? o?.notes
+    };
+    for(const [key,v] of Object.entries(optional)) if(v!==undefined) value[key]=v;
+    return value;
+  });
   const observed=rawObservations.filter(x=>x.rawValue!=null);
   if (!observed.length) {
     return {
