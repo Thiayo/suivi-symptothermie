@@ -193,6 +193,7 @@ export function evaluateCervical(observations=[]) {
     qualitySequence:[],
     resetDates:[],
     rawObservations,
+    observations:rawObservations,
     adaptationStatus:"PENDING_EXPERT_REVIEW",
     interpretationBlocked:true
   };
