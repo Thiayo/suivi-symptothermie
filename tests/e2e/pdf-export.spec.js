@@ -18,31 +18,18 @@ async function seedCycle(page) {
     window.saveCurrent(entries);
     window.render();
   }, SAMPLE_ENTRIES);
-  await page.evaluate(() => {
-    const chart = document.getElementById('chart-container');
-    console.log('PDF QA DEBUG', JSON.stringify({
-      stored: JSON.parse(localStorage.getItem('symptothermie_current_cycle') || '[]').length,
-      loaded: window.loadCurrent().length,
-      chartHtml: chart ? chart.innerHTML.slice(0, 300) : 'missing',
-      renderChartType: typeof window.renderChart
-    }));
-  });
 }
 
 test.describe('SymRella — graphique et export PDF', () => {
   test('affiche le graphique et prépare une vue d’impression propre', async ({ page }) => {
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(String(error)));
-    page.on('console', message => {
-      if (message.type() === 'error' || message.text().includes('PDF QA DEBUG')) console.log('BROWSER', message.type(), message.text());
-    });
 
     await seedCycle(page);
 
     await page.locator('nav a[href="#graphique"]').click();
     await expect(page.locator('#graphique')).toBeVisible();
     await expect(page.locator('#chart-container svg')).toHaveCount(1);
-
     await expect(page.locator('#table-container table')).toHaveCount(1);
 
     await page.evaluate(() => {
