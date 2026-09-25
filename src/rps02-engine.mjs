@@ -156,20 +156,21 @@ export function evaluateCervical(observations=[]) {
   const sorted=sortObservations(observations);
   const rawObservations=sorted.map(o=>({
     date:o.date,
-    rawValue:o?.cervical?.rawValue ?? o?.cervical?.value ?? o?.mucus ?? null,
-    sensation:o?.cervical?.sensation ?? null,
-    appearance:o?.cervical?.appearance ?? null,
-    quality:o?.cervical?.quality ?? null,
-    amount:o?.cervical?.amount ?? null,
-    context:o?.cervical?.context ?? null,
-    language:o?.cervical?.language ?? null,
-    notes:o?.cervical?.notes ?? null,
-    source:o?.cervical?.source ?? "ui"
+    rawValue:o?.cervical?.rawValue ?? o?.cervical?.value ?? o?.rawValue ?? o?.mucus ?? null,
+    sensation:o?.cervical?.sensation ?? o?.sensation,
+    appearance:o?.cervical?.appearance ?? o?.appearance,
+    quality:o?.cervical?.quality ?? o?.quality,
+    amount:o?.cervical?.amount ?? o?.amount,
+    context:o?.cervical?.context ?? o?.context,
+    language:o?.cervical?.language ?? o?.language,
+    notes:o?.cervical?.notes ?? o?.notes,
+    source:o?.cervical?.source ?? o?.source ?? "ui"
   }));
   const observed=rawObservations.filter(x=>x.rawValue!=null);
   if (!observed.length) {
     return {
       status:"NO_DATA",
+      observations:[],
       peakDate:null,
       peakPlusThreeDate:null,
       qualitySequence:[],
