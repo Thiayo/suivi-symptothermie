@@ -1,0 +1,175 @@
+{
+  "schemaVersion": "RPS-02-CERVICAL-CORPUS-0.1",
+  "status": "VALIDATION_ONLY",
+  "goldPolicy": "pending_expert",
+  "cases": [
+    {
+      "caseId": "C01",
+      "rawValue": null,
+      "context": "normal",
+      "expectedEngine": "NO_DATA",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C02",
+      "rawValue": "sec",
+      "context": "normal",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C03",
+      "rawValue": "rien senti, rien vu",
+      "context": "normal",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C04",
+      "rawValue": "humide mais rien vu",
+      "context": "normal",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C05",
+      "rawValue": "humide et crémeux",
+      "context": "normal",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C06",
+      "rawValue": "humide, transparent",
+      "context": "normal",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C07",
+      "rawValue": "glissant et transparent",
+      "context": "normal",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C08",
+      "rawValue": "glissant",
+      "context": "normal",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C09",
+      "rawValue": "collant",
+      "context": "normal",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C10",
+      "rawValue": "aqueux et humide",
+      "context": "normal",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C11",
+      "rawValue": "filant",
+      "context": "normal",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C12",
+      "rawValue": "comme du blanc d'œuf",
+      "context": "normal",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C13",
+      "rawValue": "beaucoup",
+      "context": "normal",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C14",
+      "rawValue": "saignement avec mucus",
+      "context": "bleeding",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C15",
+      "rawValue": "observation postpartum",
+      "context": "postpartum",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C16",
+      "rawValue": "observation pendant allaitement",
+      "context": "breastfeeding",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C17",
+      "rawValue": "observation après hormones",
+      "context": "post_hormonal",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C18",
+      "rawValue": "observation avec médicament",
+      "context": "medication",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C19",
+      "rawValue": "infection suspectée",
+      "context": "infection_suspected",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C20",
+      "rawValue": "deux observations contradictoires",
+      "context": "normal",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C21",
+      "rawValue": "humide et transparent",
+      "context": "normal",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C22",
+      "rawValue": "terme local sans équivalent certain",
+      "context": "normal",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C23",
+      "rawValue": "corrigé après saisie",
+      "context": "normal",
+      "expectedEngine": "PENDING_EXPERT_REVIEW",
+      "goldStatus": "pending_expert"
+    },
+    {
+      "caseId": "C24",
+      "rawValue": null,
+      "context": "normal",
+      "expectedEngine": "NO_DATA",
+      "goldStatus": "pending_expert"
+    }
+  ]
+}
