@@ -173,7 +173,7 @@ export function evaluateCervical(observations=[]) {
     for(const [key,v] of Object.entries(optional)) if(v!==undefined) value[key]=v;
     return value;
   });
-  const observed=rawObservations.filter(x=>x.rawValue!=null);
+  const observed=rawObservations.filter(x=>x.rawValue!=null || [x.sensation,x.appearance,x.quality,x.amount,x.context,x.language,x.notes].some(v=>v!==undefined && v!==null));
   if (!observed.length) {
     return {
       status:"NO_DATA",
