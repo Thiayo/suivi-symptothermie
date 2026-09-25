@@ -8,23 +8,28 @@ const SAMPLE_ENTRIES = [
 ];
 
 async function seedCycle(page) {
-  await page.goto('/');
-  await page.evaluate(() => {
-    localStorage.clear();
-    sessionStorage.clear();
-    localStorage.setItem('symptothermie_profile', JSON.stringify({version:2,name:'',goal:'observer',language:'fr',unit:'c'}));
-  });
-  await page.reload();
-  await page.evaluate(async (entries) => {
-    const registrations = await navigator.serviceWorker?.getRegistrations?.() || [];
-    await Promise.all(registrations.map(registration => registration.unregister()));
-    if ('caches' in window) {
-      const keys = await caches.keys();
-      await Promise.all(keys.map(key => caches.delete(key)));
-    }
-    window.saveCurrent(entries);
-    window.render();
+  await page.addInitScript((entries) => {
+    localStorage.setItem('symptothermie_profile', JSON.stringify({
+      version: 2,
+      name: '',
+      goal: 'observer',
+      language: 'fr',
+      unit: 'c'
+    }));
+    localStorage.setItem('symptothermie_current_cycle', JSON.stringify(entries));
+    localStorage.setItem('symptothermie_history', JSON.stringify([]));
   }, SAMPLE_ENTRIES);
+
+  await page.goto('/');
+  await expect.poll(() => page.evaluate(() => {
+    const chart = document.querySelector('#chart-container svg');
+    const table = document.querySelector('#table-container table');
+    return {
+      entries: typeof window.loadCurrent === 'function' ? window.loadCurrent().length : -1,
+      chart: Boolean(chart),
+      table: Boolean(table)
+    };
+  })).toMatchObject({ entries: 4, chart: true, table: true });
 }
 
 test.describe('SymRella — graphique et export PDF', () => {
