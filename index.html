@@ -485,9 +485,8 @@
     <div class="row-actions" style="margin-top:12px;"><button class="btn btn-secondary" type="button" data-action="export-data">Exporter mes données</button><button class="btn btn-secondary" type="button" data-action="import-data">Importer une sauvegarde</button><input id="import-data" type="file" accept="application/json" style="display:none"><span id="backup-status" class="learn-meta" role="status" aria-live="polite" tabindex="-1"></span></div><div class="row-actions" style="margin-top:10px;"><button class="btn btn-danger" type="button" data-action="clear-all-data">Effacer toutes mes données</button></div><p class="learn-meta" style="margin-top:8px;">Cette action supprime les observations, cycles archivés, progression pédagogique et profil de ce navigateur.</p>
   </div>
 </section>
-</div>
-
 <section id="print-sheet" aria-hidden="true"></section>
+</div>
 
 <script>
 const MUCUS_LABELS = {
@@ -1003,12 +1002,21 @@ function render() {
   } else {
     warning.style.display = 'none';
   }
+  // Keep the print document synchronized with the visible cycle so that
+  // system print flows (including Safari/iOS) already have real content
+  // before the print dialog is opened.
+  preparePrintView();
 }
 
 function preparePrintView() {
   const sheet = document.getElementById('print-sheet');
   const entries = loadCurrent();
-  if (!sheet || !entries.length) return false;
+  if (!sheet) return false;
+  if (!entries.length) {
+    sheet.innerHTML = '';
+    sheet.setAttribute('aria-hidden','true');
+    return false;
+  }
 
   const withTemp = entries.filter(e => e.temp !== null);
   const shift = withTemp.length >= 9 ? detectThermalReference(entries) : null;
