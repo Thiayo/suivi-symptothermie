@@ -1053,20 +1053,46 @@ function isIOSStandalone() {
     (window.navigator.standalone === true || window.matchMedia?.('(display-mode: standalone)').matches === true);
 }
 
+function openIOSPrintDocument() {
+  const sheet = document.getElementById('print-sheet');
+  if (!sheet || !sheet.innerHTML.trim()) return false;
+
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) return false;
+
+  const title = getLanguage()==='en'
+    ? 'Symptothermal tracking — cycle observations'
+    : getLanguage()==='es'
+    ? 'Seguimiento de sintotermia — observaciones del ciclo'
+    : getLanguage()==='ar'
+    ? 'متابعة الأعراض الحرارية — ملاحظات الدورة'
+    : 'Suivi Symptothermie — observations du cycle';
+
+  printWindow.document.open();
+  printWindow.document.write('<!doctype html><html lang="'+getLanguage()+'"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+title.replace(/</g,'&lt;')+'</title><style>'+
+    '@page{margin:14mm}html,body{background:#fff!important;color:#111!important;padding:0;margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:11pt;line-height:1.45}h1{margin:0 0 6mm;font-size:20pt}h2{margin:6mm 0 3mm;font-size:14pt}.print-meta{margin-bottom:5mm;color:#444}.print-note{margin-top:5mm;padding:3mm;border:1px solid #ccc}.print-chart{margin-top:4mm}.print-chart svg{width:100%!important;height:auto!important;display:block}.print-table{overflow:visible!important}.print-table table{width:100%;font-size:9pt;border-collapse:collapse}.print-table th,.print-table td{border-bottom:1px solid #ccc;padding:5px 4px;text-align:left}.no-print,button,input,select,textarea{display:none!important}'+
+    '</style></head><body><main>'+sheet.innerHTML+'</main></body></html>');
+  printWindow.document.close();
+
+  printWindow.addEventListener('load', () => {
+    printWindow.focus();
+    window.setTimeout(() => printWindow.print(), 300);
+  }, {once:true});
+
+  // iOS may have the document already loaded before the load listener is attached.
+  window.setTimeout(() => {
+    try { if (printWindow.document.readyState === 'complete') { printWindow.focus(); printWindow.print(); } } catch (e) {}
+  }, 500);
+
+  return true;
+}
+
 function exportPDF() {
   if (!preparePrintView()) { setBackupStatus(at('pdfEmpty')); return; }
 
-  // iOS 26 can run the site as a Home Screen web app. In that mode,
-  // invoking print directly from the standalone document is unreliable.
-  // Open a dedicated print instance in Safari instead; it shares the same
-  // origin, so the locally stored cycle remains available.
   if (isIOSStandalone()) {
-    const url = new URL(location.href);
-    url.searchParams.set('print', '1');
-    url.hash = '';
-    const printWindow = window.open(url.href, '_blank');
-    if (!printWindow) {
-      setBackupStatus('Ouvre cette page dans Safari pour exporter le cycle en PDF.');
+    if (!openIOSPrintDocument()) {
+      setBackupStatus('Impossible d’ouvrir la fenêtre d’impression. Ouvre SymRella directement dans Safari puis relance l’export PDF.');
     }
     return;
   }
@@ -1372,16 +1398,6 @@ renderProfile();
 renderCalendar();
 render();
 
-// Dedicated print instance used by iOS Home Screen web apps.
-// It prepares the sanitized print sheet after the app has loaded, then
-// opens the native Safari print UI from a normal browser document.
-if (new URLSearchParams(location.search).get('print') === '1') {
-  window.addEventListener('load', () => {
-    if (preparePrintView()) {
-      window.setTimeout(() => window.print(), 250);
-    }
-  }, { once: true });
-}
 </script>
 <script>
 (() => {
