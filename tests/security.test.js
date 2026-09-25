@@ -140,7 +140,7 @@ test('PWA files are structurally valid', () => {
   assert.equal(data.start_url, './');
   assert.equal(data.scope, './');
   assert.equal(data.display, 'standalone');
-  assert.match(serviceWorker, /const CACHE_NAME = 'symptothermie-shell-v3'/);
+  assert.match(serviceWorker, /const CACHE_NAME = 'symptothermie-shell-v4'/);
   assert.match(serviceWorker, /self\.addEventListener\('install'/);
   assert.match(serviceWorker, /self\.addEventListener\('fetch'/);
 });
