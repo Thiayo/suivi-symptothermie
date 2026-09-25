@@ -1048,8 +1048,34 @@ function preparePrintView() {
   return true;
 }
 
+function isIOSStandalone() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+    (window.navigator.standalone === true || window.matchMedia?.('(display-mode: standalone)').matches === true);
+}
+
 function exportPDF() {
   if (!preparePrintView()) { setBackupStatus(at('pdfEmpty')); return; }
+
+  // iOS 26 can run the site as a Home Screen web app. In that mode,
+  // invoking print directly from the standalone document is unreliable.
+  // Open a dedicated print instance in Safari instead; it shares the same
+  // origin, so the locally stored cycle remains available.
+  if (isIOSStandalone()) {
+    const url = new URL(location.href);
+    url.searchParams.set('print', '1');
+    url.hash = '';
+    const printWindow = window.open(url.href, '_blank');
+    if (!printWindow) {
+      setBackupStatus('Ouvre cette page dans Safari pour exporter le cycle en PDF.');
+    }
+    return;
+  }
+
+  if (typeof window.print !== 'function') {
+    setBackupStatus('L’impression PDF n’est pas disponible dans ce navigateur. Ouvre cette page dans Safari.');
+    return;
+  }
+
   window.requestAnimationFrame(() => window.print());
 }
 
@@ -1345,6 +1371,17 @@ renderLearning();
 renderProfile();
 renderCalendar();
 render();
+
+// Dedicated print instance used by iOS Home Screen web apps.
+// It prepares the sanitized print sheet after the app has loaded, then
+// opens the native Safari print UI from a normal browser document.
+if (new URLSearchParams(location.search).get('print') === '1') {
+  window.addEventListener('load', () => {
+    if (preparePrintView()) {
+      window.setTimeout(() => window.print(), 250);
+    }
+  }, { once: true });
+}
 </script>
 <script>
 (() => {
