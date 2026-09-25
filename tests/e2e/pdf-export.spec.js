@@ -12,6 +12,7 @@ async function seedCycle(page) {
   await page.evaluate(() => {
     localStorage.clear();
     sessionStorage.clear();
+    localStorage.setItem('symptothermie_profile', JSON.stringify({version:2,name:'',goal:'observer',language:'fr',unit:'c'}));
   });
   await page.reload();
   await page.evaluate(async (entries) => {
