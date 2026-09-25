@@ -8,13 +8,12 @@ const SAMPLE_ENTRIES = [
 ];
 
 async function seedCycle(page) {
-  await page.goto('/');
-  await page.evaluate((entries) => {
+  await page.addInitScript((entries) => {
     localStorage.clear();
     localStorage.setItem('symptothermie_current_cycle', JSON.stringify(entries));
     localStorage.setItem('symptothermie_history', JSON.stringify([]));
   }, SAMPLE_ENTRIES);
-  await page.reload();
+  await page.goto('/');
 }
 
 test.describe('SymRella — graphique et export PDF', () => {
@@ -24,8 +23,10 @@ test.describe('SymRella — graphique et export PDF', () => {
 
     await seedCycle(page);
 
-    await expect(page.locator('#chart-container svg')).toBeVisible();
-    await expect(page.locator('#table-container table')).toBeVisible();
+    await page.locator('nav a[href="#graphique"]').click();
+    await expect(page.locator('#graphique')).toBeVisible();
+    await expect(page.locator('#chart-container svg')).toHaveCount(1);
+    await expect(page.locator('#table-container table')).toHaveCount(1);
 
     await page.evaluate(() => {
       window.print = () => {
@@ -50,6 +51,8 @@ test.describe('SymRella — graphique et export PDF', () => {
     test.skip(browserName !== 'chromium', 'page.pdf() est vérifié sur Chromium ; les autres navigateurs couvrent la vue print.');
 
     await seedCycle(page);
+    await page.locator('nav a[href="#graphique"]').click();
+    await expect(page.locator('#chart-container svg')).toHaveCount(1);
     await page.evaluate(() => window.preparePrintView());
 
     const pdf = await page.pdf({
