@@ -14,11 +14,15 @@ async function seedCycle(page) {
     sessionStorage.clear();
   });
   await page.reload();
-  await page.evaluate((entries) => {
+  await page.evaluate(async (entries) => {
+    const registrations = await navigator.serviceWorker?.getRegistrations?.() || [];
+    await Promise.all(registrations.map(registration => registration.unregister()));
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(key => caches.delete(key)));
+    }
     window.saveCurrent(entries);
     window.render();
-    window.renderChart(window.loadCurrent());
-    console.log('DIRECT_CHART', JSON.stringify({chart: document.getElementById('chart-container')?.innerHTML.slice(0,120), badge: Boolean(document.getElementById('thermal-badge'))}));
   }, SAMPLE_ENTRIES);
 }
 
