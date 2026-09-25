@@ -1336,7 +1336,7 @@ async function connectThermometer() {
   }
 }
 
-function exportData(){const current=loadCurrent();const history=loadHistory();if(!current.length&&!history.length){setBackupStatus(at('exportEmpty'));return;}const exportedAt=new Date().toISOString();const payload={version:APP_DATA_VERSION,exportedAt,current,history,learning:loadLearning(),profile:loadProfile()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='suivi-symptothermie-sauvegarde.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);setBackupStatus(at('exported'));}
+function exportData(){const current=loadCurrent();const history=loadHistory();if(!current.length&&!history.length){setBackupStatus(at('exportEmpty'));return;}const exportedAt=new Date().toISOString();const payload={version:APP_DATA_VERSION,exportedAt,current,history,learning:loadLearning(),profile:loadProfile()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;const dateLabel=new Date().toISOString().slice(0,10);a.download='SymRella-sauvegarde-'+dateLabel+'.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);setBackupStatus(at('exported'));}
 function isValidDateKey(value) {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const d = new Date(value + 'T00:00:00');
