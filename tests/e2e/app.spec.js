@@ -114,7 +114,7 @@ test.describe('professional end-to-end and mobile QA', () => {
     await page.locator('[data-action="export-data"]').click();
     const download = await downloadPromise;
 
-    expect(download.suggestedFilename()).toBe('suivi-symptothermie-sauvegarde.json');
+    expect(download.suggestedFilename()).toMatch(/^SymRella-sauvegarde-\d{4}-\d{2}-\d{2}\.json$/);
   });
 
   test('exports, clears, and restores a real backup through the UI', async ({ page }) => {
